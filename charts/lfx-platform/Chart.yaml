@@ -3,7 +3,7 @@
 ---
 apiVersion: v2
 name: lfx-platform
-description: LFX Platform V2 Helm chart
+description: LFX Platform v2 Helm chart
 type: application
 version: 0.1.1
 appVersion: "0.1.0"

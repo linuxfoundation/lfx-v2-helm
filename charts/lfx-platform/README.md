@@ -1,6 +1,6 @@
 # LFX Platform helm chart
 
-This Helm chart deploys the LFX Platform V2 with its core infrastructure components.
+This Helm chart deploys platform services and key resource APIs for LFX v2 development.
 
 ## Prerequisites
 
