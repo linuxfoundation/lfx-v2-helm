@@ -12,11 +12,4 @@ permissions:
 jobs:
   license-header-check:
     name: License Header Check
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4
-      - name: Check License Headers
-        run: |
-          ./check-headers.sh
+    uses: linuxfoundation/lfx-workflows/.github/workflows/license-header-check.yml@main
