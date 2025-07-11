@@ -17,5 +17,8 @@ dependencies:
 - name: mailpit
   repository: https://jouve.github.io/charts/
   version: 0.25.0
-digest: sha256:6770b56eb825efdb89ccbe72d7860498bf905e26af5dafa18239d518cc97ceee
-generated: "2025-07-09T08:54:45.015538-07:00"
+- name: authelia
+  repository: https://charts.authelia.com
+  version: 0.10.37
+digest: sha256:70d98e61d55843bba04111b9052952de3bb6bf431430f98ed744710cd9edcfd8
+generated: "2025-07-09T12:48:39.176101-07:00"

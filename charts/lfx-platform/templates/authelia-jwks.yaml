@@ -1,0 +1,18 @@
+# Copyright The Linux Foundation and each contributor to LFX.
+# SPDX-License-Identifier: MIT
+---
+{{ if and .Values.authelia_enabled .Values.authelia_generate_jwks.enabled }}
+{{- $autheliapem := genPrivateKey "rsa" -}}
+
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: authelia-jwks-keys
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "lfx-platform.labels" . | nindent 4 }}
+    app.kubernetes.io/component: authelia
+data:
+  "jwks-key-1.pem": "{{ $autheliapem | b64enc }}"
+{{- end }}

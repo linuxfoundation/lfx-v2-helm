@@ -1,0 +1,351 @@
+# Copyright The Linux Foundation and each contributor to LFX.
+# SPDX-License-Identifier: MIT
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: authelia-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "lfx-platform.labels" . | nindent 4 }}
+    app.kubernetes.io/component: authelia
+data:
+  configuration.yaml: |
+    theme: 'light'
+    default_2fa_method: ''
+    server:
+      address: 'tcp://0.0.0.0:9091/'
+      asset_path: ''
+      headers:
+        csp_template: ""
+      buffers:
+        read: 4096
+        write: 4096
+      timeouts:
+        read: '6 seconds'
+        write: '6 seconds'
+        idle: '30 seconds'
+      endpoints:
+        enable_pprof: false
+        enable_expvars: false
+        authz:
+          auth-request:
+            implementation: 'AuthRequest'
+          ext-authz:
+            implementation: 'ExtAuthz'
+          forward-auth:
+            implementation: 'ForwardAuth'
+    log:
+      level: 'info'
+      format: 'json'
+      file_path: ''
+      keep_stdout: true
+    telemetry:
+      metrics:
+        enabled: false
+    identity_validation:
+      elevated_session:
+        code_lifespan: '5 minutes'
+        elevation_lifespan: '10 minutes'
+        characters: 8
+        require_second_factor: false
+        skip_second_factor: false
+      reset_password:
+        jwt_lifespan: '5 minutes'
+        jwt_algorithm: 'HS256'
+    totp:
+      disable: {{ .Values.autheliaConfigMap.totp.disable | default false }}
+      issuer: 'Authelia'
+      skew: 1
+      secret_size: 32
+      algorithm: 'SHA1'
+      digits: 6
+      period: 30
+      allowed_algorithms:
+        - 'SHA1'
+      allowed_digits:
+        - 6
+      allowed_periods:
+        - 30
+    webauthn:
+      disable: {{ .Values.autheliaConfigMap.webauthn.disable | default false }}
+      enable_passkey_login: false
+      display_name: 'Authelia'
+      attestation_conveyance_preference: 'indirect'
+      timeout: '60 seconds'
+      filtering:
+        permitted_aaguids: []
+        prohibited_aaguids: []
+        prohibit_backup_eligibility: false
+      selection_criteria:
+        attachment: ''
+        discoverability: 'preferred'
+        user_verification: 'preferred'
+      metadata:
+        enabled: false
+        validate_trust_anchor: true
+        validate_entry: true
+        validate_entry_permit_zero_aaguid: false
+        validate_status: true
+        validate_status_permitted: []
+        validate_status_prohibited: []
+    ntp:
+      address: 'udp://time.cloudflare.com:123'
+      version: 4
+      max_desync: '3 seconds'
+      disable_startup_check: false
+      disable_failure: false
+    authentication_backend:
+      password_reset:
+        disable: false
+        custom_url: ''
+      password_change:
+        disable: false
+      file:
+        path: '/config2/users_database.yml'
+        watch: false
+        search:
+          email: false
+          case_insensitive: false
+        password:
+          algorithm: 'argon2'
+          argon2:
+            variant: 'argon2id'
+            iterations: 3
+            memory: 65536
+            parallelism: 4
+            key_length: 32
+            salt_length: 16
+          scrypt:
+            variant: 'scrypt'
+            iterations: 16
+            block_size: 8
+            parallelism: 1
+            key_length: 32
+            salt_length: 16
+          pbkdf2:
+            variant: 'sha512'
+            iterations: 310000
+            salt_length: 16
+          sha2crypt:
+            variant: 'sha512'
+            iterations: 50000
+            salt_length: 16
+          bcrypt:
+            variant: 'standard'
+            cost: 12
+    password_policy:
+      standard:
+        enabled: false
+        min_length: 8
+        max_length: 0
+        require_uppercase: false
+        require_lowercase: false
+        require_number: false
+        require_special: false
+      zxcvbn:
+        enabled: false
+        min_score: 0
+    session:
+      name: 'authelia_session'
+      same_site: 'lax'
+      inactivity: '5 minutes'
+      expiration: '1 hour'
+      remember_me: '1 month'
+      cookies:
+        - domain: '{{ .Values.lfx.domain }}'
+          authelia_url: 'https://auth.{{ .Values.lfx.domain }}'
+    regulation:
+      modes:
+      - 'user'
+      max_retries: 3
+      find_time: '2 minutes'
+      ban_time: '5 minutes'
+    storage:
+      local:
+        path: '/config/db.sqlite3'
+    notifier:
+      disable_startup_check: false
+      smtp:
+        address: 'smtp://{{ .Release.Name }}-mailpit-smtp.{{ .Values.lfx.domain }}:25'
+        timeout: '5 seconds'
+        username: '{{ .Values.autheliaConfigMap.notifier.smtp.username | default "" }}'
+        sender: '{{ .Values.autheliaConfigMap.notifier.smtp.sender | default "Authelia <admin@example.com>" }}'
+        identifier: 'localhost'
+        subject: '[Authelia] {title}'
+        startup_check_address: 'test@authelia.com'
+        disable_html_emails: false
+        disable_require_tls: {{ .Values.autheliaConfigMap.notifier.smtp.disable_require_tls | default true }}
+        disable_starttls: false
+        tls:
+          server_name: ''
+          skip_verify: false
+          minimum_version: 'TLS1.2'
+          maximum_version: 'TLS1.3'
+    identity_providers:
+      oidc:
+        lifespans:
+          access_token: {{ quote (.Values.autheliaConfigMap.identity_providers.oidc.lifespans.access_token) | default "1 hour" }}
+          refresh_token: {{ quote (.Values.autheliaConfigMap.identity_providers.oidc.lifespans.refresh_token) | default "1 hour and 30 minutes" }}
+          id_token: {{ quote (.Values.autheliaConfigMap.identity_providers.oidc.lifespans.id_token | default "1 hour") }}
+          authorize_code: {{ quote (.Values.autheliaConfigMap.identity_providers.oidc.lifespans.authorize_code | default "1 minute") }}
+          {{- if semverCompare ">=4.39.2" (include "authelia.version" $) }}
+          device_code: {{ quote (.Values.autheliaConfigMap.identity_providers.oidc.lifespans.device_code | default "10 minutes") }}
+          {{- end }}
+        {{- if .Values.autheliaConfigMap.identity_providers.oidc.lifespans.custom }}
+          custom:
+          {{- range $key, $lifespan := .Values.autheliaConfigMap.identity_providers.oidc.lifespans.custom }}
+            {{ $key }}:
+              access_token: {{ quote ($lifespan.access_token | default $.Values.autheliaConfigMap.identity_providers.oidc.lifespans.access_token | default "1 hour") }}
+              refresh_token: {{ quote ($lifespan.refresh_token | default $.Values.autheliaConfigMap.identity_providers.oidc.lifespans.refresh_token | default "1 hour and 30 minutes") }}
+              id_token: {{ quote ($lifespan.id_token | default $.Values.autheliaConfigMap.identity_providers.oidc.lifespans.id_token | default "1 hour") }}
+              authorize_code: {{ quote ($lifespan.authorize_code | default $.Values.autheliaConfigMap.identity_providers.oidc.lifespans.authorize_code | default "1 minute") }}
+              {{- if semverCompare ">=4.39.2" (include "authelia.version" $) }}
+              device_code: {{ quote ($lifespan.device_code | default "10 minutes") }}
+              {{- end }}
+            {{- if $lifespan.grants }}
+              grants:
+              {{- if $lifespan.grants.authorize_code }}
+                authorize_code:
+                  access_token: {{ quote ($lifespan.grants.authorize_code.access_token | default $lifespan.access_token | default $.Values.autheliaConfigMap.identity_providers.oidc.lifespans.access_token | default "1 hour") }}
+                  refresh_token: {{ quote ($lifespan.grants.authorize_code.refresh_token | default $lifespan.refresh_token | default $.Values.autheliaConfigMap.identity_providers.oidc.lifespans.refresh_token | default "1 hour and 30 minutes") }}
+                  id_token: {{ quote ($lifespan.grants.authorize_code.id_token | default $lifespan.id_token | default $.Values.autheliaConfigMap.identity_providers.oidc.lifespans.id_token | default "1 hour") }}
+              {{- end }}
+              {{- if and (semverCompare ">=4.39.2" (include "authelia.version" $)) $lifespan.grants.device_code }}
+                device_code:
+                  access_token: {{ quote ($lifespan.grants.device_code.access_token | default $lifespan.access_token | default $.Values.autheliaConfigMap.identity_providers.oidc.lifespans.access_token | default "1 hour") }}
+                  refresh_token: {{ quote ($lifespan.grants.device_code.refresh_token | default $lifespan.refresh_token | default $.Values.autheliaConfigMap.identity_providers.oidc.lifespans.refresh_token | default "1 hour and 30 minutes") }}
+                  id_token: {{ quote ($lifespan.grants.device_code.id_token | default $lifespan.id_token | default $.Values.autheliaConfigMap.identity_providers.oidc.lifespans.id_token | default "1 hour") }}
+              {{- end }}
+              {{- if $lifespan.grants.implicit }}
+                implicit:
+                  access_token: {{ quote ($lifespan.grants.implicit.access_token | default $lifespan.access_token | default $.Values.autheliaConfigMap.identity_providers.oidc.lifespans.access_token | default "1 hour") }}
+                  refresh_token: {{ quote ($lifespan.grants.implicit.refresh_token | default $lifespan.refresh_token | default $.Values.autheliaConfigMap.identity_providers.oidc.lifespans.refresh_token | default "1 hour and 30 minutes") }}
+                  id_token: {{ quote ($lifespan.grants.implicit.id_token | default $lifespan.id_token | default $.Values.autheliaConfigMap.identity_providers.oidc.lifespans.id_token | default "1 hour") }}
+              {{- end }}
+              {{- if $lifespan.grants.client_credentials }}
+                client_credentials:
+                  access_token: {{ quote ($lifespan.grants.client_credentials.access_token | default $lifespan.access_token | default $.Values.autheliaConfigMap.identity_providers.oidc.lifespans.access_token | default "1 hour") }}
+                  refresh_token: {{ quote ($lifespan.grants.client_credentials.refresh_token | default $lifespan.refresh_token | default $.Values.autheliaConfigMap.identity_providers.oidc.lifespans.refresh_token | default "1 hour and 30 minutes") }}
+                  id_token: {{ quote ($lifespan.grants.client_credentials.id_token | default $lifespan.id_token | default $.Values.autheliaConfigMap.identity_providers.oidc.lifespans.id_token | default "1 hour") }}
+              {{- end }}
+              {{- if $lifespan.grants.refresh_token }}
+                refresh_token:
+                  access_token: {{ quote ($lifespan.grants.refresh_token.access_token | default $lifespan.access_token | default $.Values.autheliaConfigMap.identity_providers.oidc.lifespans.access_token | default "1 hour") }}
+                  refresh_token: {{ quote ($lifespan.grants.refresh_token.refresh_token | default $lifespan.refresh_token | default $.Values.autheliaConfigMap.identity_providers.oidc.lifespans.refresh_token | default "1 hour and 30 minutes") }}
+                  id_token: {{ quote ($lifespan.grants.refresh_token.id_token | default $lifespan.id_token | default $.Values.autheliaConfigMap.identity_providers.oidc.lifespans.id_token | default "1 hour") }}
+              {{- end }}
+              {{- if $lifespan.grants.jwt_bearer }}
+                jwt_bearer:
+                  access_token: {{ quote ($lifespan.grants.jwt_bearer.access_token | default $lifespan.access_token | default $.Values.autheliaConfigMap.identity_providers.oidc.lifespans.access_token | default "1 hour") }}
+                  refresh_token: {{ quote ($lifespan.grants.jwt_bearer.refresh_token | default $lifespan.refresh_token | default $.Values.autheliaConfigMap.identity_providers.oidc.lifespans.refresh_token | default "1 hour and 30 minutes") }}
+                  id_token: {{ quote ($lifespan.grants.jwt_bearer.id_token | default $lifespan.id_token | default $.Values.autheliaConfigMap.identity_providers.oidc.lifespans.id_token | default "1 hour") }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+        enforce_pkce: {{ .Values.autheliaConfigMap.identity_providers.oidc.enforce_pkce | default "public_clients_only" | squote }}
+        enable_pkce_plain_challenge: {{ .Values.autheliaConfigMap.identity_providers.oidc.enable_pkce_plain_challenge | default false }}
+        enable_client_debug_messages: {{ .Values.autheliaConfigMap.identity_providers.oidc.enable_client_debug_messages | default false }}
+        enable_jwt_access_token_stateless_introspection: {{ .Values.autheliaConfigMap.identity_providers.oidc.enable_jwt_access_token_stateless_introspection | default false }}
+        minimum_parameter_entropy: {{ .Values.autheliaConfigMap.identity_providers.oidc.minimum_parameter_entropy | default 8 }}
+        discovery_signed_response_alg: {{ .Values.autheliaConfigMap.identity_providers.oidc.discovery_signed_response_alg | default "" | squote }}
+        discovery_signed_response_key_id: {{ .Values.autheliaConfigMap.identity_providers.oidc.discovery_signed_response_key_id | default "" | squote }}
+        require_pushed_authorization_requests: {{ .Values.autheliaConfigMap.identity_providers.oidc.require_pushed_authorization_requests | default false }}
+        {{- with .Values.autheliaConfigMap.identity_providers.oidc.authorization_policies }}
+        authorization_policies:
+        {{- range $name, $policy := $.Values.autheliaConfigMap.identity_providers.oidc.authorization_policies }}
+          {{ $name }}:
+            default_policy: {{ $policy.default_policy | default "deny" | squote }}
+            {{- with $policy.rules }}
+            rules:
+            {{- range $policy.rules }}
+            - policy: {{ .policy | default "deny" | squote }}
+              {{- if .subject }}
+              subject:
+              {{- if kindIs "string" .subject }}
+                - [{{ .subject | squote }}]
+              {{- else }}
+              {{- range .subject }}
+                - [{{ include "authelia.squote.join" . }}]
+              {{- end }}
+              {{- end }}
+              {{- end }}
+              {{- if and .networks (semverCompare ">=4.39.0" (include "authelia.version" $)) }}
+              networks:
+              {{- range .networks }}
+              - {{ . | squote }}
+              {{- end }}
+              {{- end }}
+              {{- end }}
+            {{- end }}
+        {{- end }}
+        {{- end }}
+        {{- if and .Values.autheliaConfigMap.identity_providers.oidc.claims_policies (gt (len .Values.configMap.identity_providers.oidc.claims_policies) 0) (semverCompare ">=4.39.0" (include "authelia.version" $)) }}
+        claims_policies:
+        {{- range $policy_name, $policy := .Values.autheliaConfigMap.identity_providers.oidc.claims_policies }}
+          {{ $policy_name }}:
+            {{- if $policy.id_token }}
+            id_token:
+            {{- range $policy.id_token }}
+            - {{ . | squote }}
+            {{- end }}
+            {{- end }}
+            {{- if $policy.access_token }}
+            access_token:
+            {{- range $policy.access_token }}
+            - {{ . | squote }}
+            {{- end }}
+            {{- end }}
+            id_token_audience_mode: {{ $policy.id_token_audience_mode | default "specification" | squote }}
+            {{- if $policy.custom_claims }}
+            custom_claims:
+            {{- range $claim_name, $claim := $policy.custom_claims }}
+              {{ $claim_name }}:
+                {{- if $claim }}
+                attribute: {{ $claim.attribute | default $claim_name | squote }}
+                {{- else }}
+                attribute: {{ $claim_name | squote }}
+                {{- end }}
+            {{- end }}
+            {{- end }}
+        {{- end }}
+        {{- end }}
+        {{- if and .Values.autheliaConfigMap.identity_providers.oidc.scopes (gt (len .Values.configMap.identity_providers.oidc.scopes) 0) (semverCompare ">=4.39.0" (include "authelia.version" $)) }}
+        scopes:
+          {{- range $scope_name, $scope := .Values.autheliaConfigMap.identity_providers.oidc.scopes }}
+          {{ $scope_name }}:
+            {{- if le (len $scope.claims) 0 }}
+            claims: []
+            {{- else }}
+            claims:
+            {{- range $scope.claims }}
+            - {{ . | squote }}
+            {{- end }}
+            {{- end }}
+          {{- end }}
+        {{- end }}
+        jwks:
+        {{- range $key := .Values.autheliaConfigMap.identity_providers.oidc.jwks }}
+        {{- tpl ($.Files.Get "files/configuration.oidc.jwk.yaml") (merge (dict "Key" $key "Indent" 6) $) | trim | nindent 10 }}
+        {{- end }}
+        cors:
+          {{- if .Values.autheliaConfigMap.identity_providers.oidc.cors.endpoints }}
+          endpoints:
+          {{- range $endpoint := .Values.autheliaConfigMap.identity_providers.oidc.cors.endpoints }}
+          - {{ $endpoint | squote }}
+          {{- end }}
+          {{- end }}
+          {{- if .Values.autheliaConfigMap.identity_providers.oidc.cors.allowed_origins }}
+          allowed_origins:
+          {{- range $origin := .Values.autheliaConfigMap.identity_providers.oidc.cors.allowed_origins }}
+          - {{ $origin | squote }}
+          {{- end }}
+          {{- end }}
+          allowed_origins_from_client_redirect_uris: {{ .Values.autheliaConfigMap.identity_providers.oidc.cors.allowed_origins_from_client_redirect_uris }}
+      {{- if .Values.autheliaConfigMap.identity_providers.oidc.clients }}
+        clients:
+      {{- range $client := .Values.autheliaConfigMap.identity_providers.oidc.clients }}
+        {{- tpl ($.Files.Get "files/configuration.oidc.client.yaml") (merge (dict "Client" $client "LFXDomain" $.Values.lfx.domain) $) | trim | nindent 10 }}
+      {{- end }}
+        {{- end }}

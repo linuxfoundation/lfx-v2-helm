@@ -146,6 +146,135 @@ opensearch:
 mailpit:
   enabled: true
 
+autheliaConfigMap:
+    log:
+      format: json
+    session:
+      cookies:
+        - domain: k8s.orb.local
+          subdomain: auth
+    totp:
+      disable: true
+    webauthn:
+      disable: true
+    authentication_backend:
+      file:
+        enabled: true
+        path: /config2/users_database.yml
+    access_control:
+      default_policy: one_factor
+    storage:
+      local:
+        enabled: true
+    notifier:
+      smtp:
+        enabled: true
+        address: "smtp://lfx-platform-mailpit-smtp.lfx.svc.cluster.local:25"
+        username: ""
+        password:
+          disabled: true
+        disable_require_tls: true
+    identity_providers:
+      oidc:
+        lifespans: {}
+        cors: {}
+        enabled: true
+        jwks:
+          - key_id: "1"
+            algorithm: "RS256"
+            key:
+              path: /secrets/authelia-jwks-keys/jwks-key-1.pem
+        clients:
+          - client_id: heimdall
+            client_name: Heimdall backend
+            client_secret:
+              path: /secrets/authelia-clients-hashed/heimdall
+            public: false
+            scopes:
+              - none
+            grant_types:
+              - client_credentials
+            authorization_policy: one_factor
+            token_endpoint_auth_method: client_secret_basic
+          - client_id: m2m_test
+            client_name: M2M Test Client
+            client_secret:
+              path: /secrets/authelia-clients-hashed/m2m_test
+            public: false
+            scopes:
+              - none
+            audience_lfx_domain:
+              - "http://lfx-api"
+            grant_types:
+              - client_credentials
+            authorization_policy: one_factor
+            token_endpoint_auth_method: client_secret_basic
+          - client_id: token_helper
+            client_name: Token Helper CLI
+            public: true
+            redirect_uris:
+              - "http://localhost:55001/callback"
+            scopes:
+              - openid
+              - email
+              - profile
+              - offline_access
+            audience_lfx_domain:
+              - "http://lfx-api"
+            grant_types:
+              - authorization_code
+              - refresh_token
+            authorization_policy: one_factor
+# Authelia configuration
+authelia_enabled: true
+authelia:
+  ingress:
+    enabled: true
+  secret:
+    additionalSecrets:
+      authelia-jwks-keys: {}
+      authelia-clients-hashed: {}
+  persistence:
+    enabled: true
+  pod:
+    extraVolumes:
+      - name: authelia-users
+        configMap:
+          name: authelia-users
+          items:
+            - key: users_database.yml
+              path: users_database.yml
+    extraVolumeMounts:
+      - name: authelia-users
+        mountPath: /config2
+        subpath: users_database.yml
+  configMap:
+    existingConfigMap: 'authelia-config'
+    # needed to pass authelia validation or it won't
+    # create an ingress
+    session:
+      cookies:
+        - domain: k8s.orb.local
+          subdomain: auth
+
+authelia_generate_jwks:
+  enabled: true
+
+authelia_client_generation:
+  enabled: true
+  clients:
+    - heimdall
+    - m2m_test
+
+authelia_user_generation:
+  enabled: true
+  users:
+    - project_super_admin
+    - project_admin_1
+    - project_admin_2
+    - committee_member_1
+    - committee_member_2
+
 # Additional services. These will be included in the future when LFX platform
 # services are added.
 additionalServices:

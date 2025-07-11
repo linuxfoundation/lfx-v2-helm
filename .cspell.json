@@ -21,7 +21,9 @@
     "subchart",
     "subcharts",
     "tcsh",
-    "traefik"
+    "totp",
+    "traefik",
+    "webauthn"
   ],
   "flagWords": [
     "abort",
