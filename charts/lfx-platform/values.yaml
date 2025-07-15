@@ -271,6 +271,13 @@ authelia_user_generation:
     - committee_member_1
     - committee_member_2
 
+nack:
+  enabled: true
+  jetstream:
+    nats:
+      url: nats://lfx-platform-nats:4222
+    additionalArgs: [--control-loop]
+
 # Additional services. These will be included in the future when LFX platform
 # services are added.
 additionalServices:

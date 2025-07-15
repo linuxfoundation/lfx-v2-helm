@@ -109,6 +109,14 @@ For more mailpit configuration options, see the [Mailpit documentation](https://
 
 For more authelia configuration options, see the [Authelia documentation](https://github.com/authelia/chartrepo/tree/master/charts/authelia).
 
+#### NACK
+
+| Parameter          | Description     | Default |
+|--------------------|-----------------|---------|
+| `nack.enabled`     | Enable Nack     | `true`  |
+
+For more NACK configuration options, see the [NACK documentation](https://github.com/nats-io/k8s/tree/main/helm/charts/nack).
+
 ## Using external PostgreSQL with OpenFGA
 
 To use an external PostgreSQL database with OpenFGA:
