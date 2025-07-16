@@ -66,6 +66,12 @@ heimdall:
       - name: heimdall-signer-cert
         mountPath: "/heimdall/cert/"
 
+  env:
+    CLIENT_SECRET:
+      secretKeyRef:
+        name: authelia-clients
+        key: heimdall
+
   log:
     format: gelf
     level: info
@@ -83,6 +89,40 @@ heimdall:
         type: anonymous
         config:
           subject: "_anonymous"
+      - id: authelia
+        type: oauth2_introspection
+        config:
+          metadata_endpoint:
+            url: http://auth.k8s.orb.local/.well-known/oauth-authorization-server
+            resolved_endpoints:
+              introspection_endpoint:
+                auth:
+                  type: basic_auth
+                  config:
+                    user: heimdall
+                    password: ${CLIENT_SECRET}
+          assertions:
+            audience:
+              - "http://lfx-api.k8s.orb.local/"
+          subject:
+            # Authelia doesn't provide a "sub" claim for client_credentials token
+            # introspection. Use a GJSON query to extract either the username or
+            # the client_id. Client IDs can collide with usernames (and GJSON
+            # doesn't let us do array concatenation to add a literal prefix), so
+            # the `sub` claim should NOT be used downstream.
+            id: '[username,client_id].0'
+    contextualizers:
+      - id: authelia_userinfo
+        type: generic
+        config:
+          endpoint:
+            url: http://auth.k8s.orb.local/api/oidc/userinfo
+            method: GET
+          forward_headers:
+            - Authorization
+          # Continuing on error is needed if this contextualizer is used in any
+          # rulesets that support anonymous access.
+          continue_pipeline_on_error: true
     authorizers:
       - id: allow_all
         type: allow

@@ -4,10 +4,13 @@
   "words": [
     "aquasecurity",
     "authelia",
+    "contextualizer",
+    "contextualizers",
     "dadrus",
     "dbname",
     "finalizer",
     "gelf",
+    "gjson",
     "jetstream",
     "jouve",
     "kubeconform",
