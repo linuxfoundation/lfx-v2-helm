@@ -14,12 +14,28 @@ lfx:
 # Traefik configuration
 traefik:
   enabled: true
-  # Additional traefik configuration can be added here
-  # Values will be merged with the subchart's values
-  ingressRoute:
-    dashboard:
+  providers:
+    # Enable Kubernetes Gateway provider
+    kubernetesGateway:
       enabled: true
-      # Additional dashboard configuration
+    # Disable Kubernetes Ingress provider
+    kubernetesIngress:
+      enabled: false
+  gateway:
+    # Create a default gateway
+    enabled: true
+    name: "lfx-platform-gateway"
+    listeners:
+      web:
+        port: 8000
+        protocol: HTTP
+      traefik:
+        port: 8080
+        protocol: HTTP
+  logs:
+    # Enable access logs
+    access:
+      enabled: true
 
 # OpenFGA configuration
 openfga:
@@ -212,7 +228,6 @@ authelia:
     extraVolumeMounts:
       - name: authelia-users
         mountPath: /config-users
-        subpath: users_database.yml
   configMap:
     log:
       format: json
