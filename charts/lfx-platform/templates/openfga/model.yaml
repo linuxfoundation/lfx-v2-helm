@@ -1,0 +1,51 @@
+# Copyright The Linux Foundation and each contributor to LFX.
+# SPDX-License-Identifier: MIT
+---
+{{- if and .Values.openfga.enabled (index .Values "fga-operator" "enabled") }}
+apiVersion: extensions.fga-operator/v1
+kind: AuthorizationModelRequest
+metadata:
+  name: {{ index .Values "fga-operator" "store" }}
+  labels:
+    {{- include "lfx-platform.labels" . | nindent 4 }}
+    app.kubernetes.io/component: openfga
+spec:
+  instances:
+    - version:
+        major: 1
+        minor: 1
+        patch: 1
+      authorizationModel: |
+        model
+          schema 1.1
+
+        type user
+
+        type team
+          relations
+            define member: [user]
+
+        type project
+          relations
+            define parent: [project]
+            define owner: [team#member] or owner from parent
+            define writer: [user] or owner or writer from parent
+            define auditor: [user, team#member] or writer or auditor from parent
+            define viewer: [user:*] or auditor or auditor from parent
+
+        type committee
+          relations
+            define member: [user]
+            define project: [project]
+            define writer: writer from project
+            define auditor: auditor from project
+            define viewer: [user:*] or auditor from project
+
+        type meeting
+          relations
+            define project: [project]
+            define committee: [committee]
+            define organizer: [user]
+            define participant: [user, committee#member]
+            define viewer: [user:*, committee#member] or participant or auditor from project
+{{- end }}

@@ -11,6 +11,17 @@ lfx:
     registry: linuxfoundation
     pullPolicy: IfNotPresent
 
+fga-operator:
+  enabled: true
+  # Non-chart value
+  store: "lfx-core"
+  controllerManager:
+    openFgaUrlEnvVar: 'http://lfx-platform-openfga:8080'
+    # This value needs to be set in order for the operator to start, but
+    # because no auth is required for the openfga API this value will be
+    # ignored by openfga
+    openFgaApiTokenEnvVar: "fake"
+
 # Traefik configuration
 traefik:
   enabled: true
