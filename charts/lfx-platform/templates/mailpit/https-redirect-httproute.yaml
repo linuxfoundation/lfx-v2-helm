@@ -1,7 +1,7 @@
 # Copyright The Linux Foundation and each contributor to LFX.
 # SPDX-License-Identifier: MIT
 ---
-{{ if and .Values.mailpit.enabled .Values.traefik.enabled (include "lfx-platform.https-enabled" .) -}}
+{{ if and .Values.mailpit.enabled .Values.traefik.enabled (eq (include "lfx-platform.https-enabled" .) "true") -}}
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
