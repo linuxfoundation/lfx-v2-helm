@@ -13,7 +13,7 @@ spec:
   instances:
     - version:
         major: 1
-        minor: 1
+        minor: 2
         patch: 1
       authorizationModel: |
         model
@@ -31,6 +31,9 @@ spec:
             define owner: [team#member] or owner from parent
             define writer: [user] or owner or writer from parent
             define auditor: [user, team#member] or writer or auditor from parent
+            # The meeting_coordinator relation identifies a user who can manage any meeting
+            # for a given project.
+            define meeting_coordinator: [user]
             define viewer: [user:*] or auditor or auditor from parent
 
         type committee
@@ -38,14 +41,32 @@ spec:
             define member: [user]
             define project: [project]
             define writer: writer from project
-            define auditor: auditor from project
+            define auditor: auditor from project or meeting_coordinator from project
             define viewer: [user:*] or auditor from project
 
         type meeting
           relations
             define project: [project]
             define committee: [committee]
-            define organizer: [user]
-            define participant: [user, committee#member]
-            define viewer: [user:*, committee#member] or participant or auditor from project
+            # The organizer relation identifies a user who can manage this one meeting.
+            # That means they can update the meeting details, invite/uninvite participants, etc.
+            define organizer: [user] or meeting_coordinator from project or writer from project
+            # The host relation identifies a user who is a host of this meeting.
+            # This is different than the organizer relation because an organizer isn't necessarily
+            # the user who is hosting the meeting, nor is the host necessarily the one who is
+            # organizing the meeting. For example, a host may need to retrieve the Zoom host key
+            # but shouldn't be able to update the meeting details.
+            define host: [user] or organizer
+            # The participant relation identifies a user who is a participant in this meeting.
+            # This can either mean they are invited to the meeting or they attended the meeting
+            # without being invited. In either case, they are a participant of that meeting.
+            # Note that committee members are not automatically participants of meetings,
+            # because the backend service needs to only include members from the committee
+            # based on the voting status filters of that meeting. That is managed by the backend
+            # services and therefore can't be a relationship in the authorization model.
+            define participant: [user] or host
+            # The viewer relation identifies a user who can view this meeting.
+            # If the meeting is public, then any user can view it; but if it is private, then
+            # only certain privileged users can view it.
+            define viewer: [user:*] or participant or organizer or auditor from project
 {{- end }}
