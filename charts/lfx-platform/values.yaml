@@ -336,6 +336,8 @@ authelia:
       file:
         enabled: true
         path: /config-users/users_database.yml
+        password:
+          algorithm: bcrypt
     access_control:
       default_policy: one_factor
     storage:
