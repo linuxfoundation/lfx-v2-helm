@@ -485,3 +485,13 @@ lfx-v2-project-service:
   enabled: true
   lfx:
     domain: k8s.orb.local
+
+lfx-v2-committee-service:
+  enabled: true
+  lfx:
+    domain: k8s.orb.local
+
+lfx-v2-meeting-service:
+  enabled: true
+  lfx:
+    domain: k8s.orb.local
