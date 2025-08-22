@@ -1,0 +1,10 @@
+# Copyright The Linux Foundation and each contributor to LFX.
+---
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: lfx-v2-helm
+  description: LFX V2 Helm Chart
+spec:
+  targets:
+    - ./.backstage/lfx-v2-helm.yaml

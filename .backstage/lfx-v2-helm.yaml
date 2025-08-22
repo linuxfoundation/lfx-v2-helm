@@ -1,0 +1,11 @@
+# Copyright The Linux Foundation and each contributor to LFX.
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: lfx-v2-helm
+  description: LFX V2 Helm Chart
+spec:
+  type: library
+  lifecycle: production
+  owner: linuxfoundation/lfx-platform
