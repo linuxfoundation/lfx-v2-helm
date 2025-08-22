@@ -1,0 +1,44 @@
+# Copyright The Linux Foundation and each contributor to LFX.
+# SPDX-License-Identifier: MIT
+---
+{{- if and .Values.lfx.swagger_ui.enabled (or .Values.gateway.enabled .Values.lfx.parentGateway.enabled) }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: swagger-ui
+  namespace: {{ .Release.Namespace }}
+spec:
+  parentRefs:
+{{- if .Values.gateway.enabled }}
+    - name: {{ .Values.gateway.name | default "lfx-platform-gateway" }}
+      sectionName: {{ include "lfx-platform.default-listener" . }}
+      namespace: {{ .Release.Namespace }}
+{{- else }}
+    - name: {{ .Values.lfx.parentGateway.name }}
+      sectionName: {{ .Values.lfx.parentGateway.sectionName }}
+      namespace: {{ .Values.lfx.parentGateway.namespace }}
+{{- end }}
+  hostnames:
+    - "lfx-api.{{ .Values.lfx.domain }}"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /docs
+      filters:
+        {{- if and .Values.heimdall.enabled .Values.lfx.swagger_ui.auth.enabled }}
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: heimdall
+        {{- end }}
+        - type: URLRewrite
+          urlRewrite:
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
+      backendRefs:
+        - name: swagger-ui
+          port: 80
+{{- end }}

@@ -1,0 +1,19 @@
+# Copyright The Linux Foundation and each contributor to LFX.
+# SPDX-License-Identifier: MIT
+---
+{{- if .Values.lfx.swagger_ui.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: swagger-ui
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: swagger-ui
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+  selector:
+    app: swagger-ui
+{{- end }}
