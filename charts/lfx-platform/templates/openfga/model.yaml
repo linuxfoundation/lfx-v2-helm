@@ -44,6 +44,14 @@ spec:
             define auditor: auditor from project or meeting_coordinator from project
             define viewer: [user:*] or auditor from project
 
+        type groupsio_service
+          relations
+            define project: [project]
+            define owner: owner from project
+            define writer: writer from project or owner
+            define auditor: auditor from project or writer
+            define viewer: [user:*] or auditor from project
+
         type meeting
           relations
             define project: [project]
