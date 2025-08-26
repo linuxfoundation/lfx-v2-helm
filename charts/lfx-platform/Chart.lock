@@ -47,5 +47,11 @@ dependencies:
 - name: lfx-v2-indexer-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-indexer-service/chart
   version: 0.2.0
-digest: sha256:a4308bf013728b0d0114c4b3eb0f4eeda5713c241d5fa37e4ddfcfc850773159
-generated: "2025-08-19T15:22:38.814964-07:00"
+- name: lfx-v2-committee-service
+  repository: oci://ghcr.io/linuxfoundation/lfx-v2-committee-service/chart
+  version: 0.1.1
+- name: lfx-v2-meeting-service
+  repository: oci://ghcr.io/linuxfoundation/lfx-v2-meeting-service/chart
+  version: 0.1.1
+digest: sha256:f03592529588cfd12deed3d7ac46a48c0c01f1177382f136a220274be0797239
+generated: "2025-08-21T12:37:06.947331781-07:00"
