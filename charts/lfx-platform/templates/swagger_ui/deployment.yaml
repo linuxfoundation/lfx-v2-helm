@@ -1,0 +1,80 @@
+# Copyright The Linux Foundation and each contributor to LFX.
+# SPDX-License-Identifier: MIT
+---
+{{- if .Values.lfx.swagger_ui.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: swagger-ui
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: swagger-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: swagger-ui
+  template:
+    metadata:
+      labels:
+        app: swagger-ui
+    spec:
+      initContainers:
+        - name: spec-merger
+          image: {{ .Values.lfx.swagger_ui.merger.image }}:{{ .Values.lfx.swagger_ui.merger.tag }}
+          command:
+            - /bin/sh
+            - /scripts/merge-specs.sh
+          volumeMounts:
+            - name: shared-volume
+              mountPath: /shared
+            - name: merge-script
+              mountPath: /scripts
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "200m"
+      containers:
+        - name: swagger-ui
+          image: {{ .Values.lfx.swagger_ui.image }}:{{ .Values.lfx.swagger_ui.tag }}
+          ports:
+            - name: http
+              containerPort: 8080
+          volumeMounts:
+            - name: shared-volume
+              mountPath: /usr/share/nginx/html/spec
+          env:
+            - name: SWAGGER_JSON_URL
+              value: "spec/openapi-merged.yaml"
+            - name: OAUTH_CLIENT_ID
+              value: {{ .Values.lfx.swagger_ui.auth.clientId | quote }}
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "200m"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+      volumes:
+        - name: shared-volume
+          emptyDir: {}
+        - name: merge-script
+          configMap:
+            name: swagger-ui-merge-script
+            defaultMode: 0755
+{{- end }}

@@ -1,0 +1,106 @@
+# Copyright The Linux Foundation and each contributor to LFX.
+# SPDX-License-Identifier: MIT
+---
+{{- if .Values.lfx.swagger_ui.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: swagger-ui-merge-script
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: swagger_ui
+data:
+  merge-specs.sh: |
+    #!/bin/sh
+    set -e
+
+    echo "Starting OpenAPI spec merge process..."
+
+    # Install openapi-merge-cli and curl
+    echo "Installing openapi-merge-cli and curl..."
+    npm install -g openapi-merge-cli
+    apk add --no-cache curl
+
+    # Create temp directory for config
+    TEMP_DIR="/tmp/specs"
+    mkdir -p $TEMP_DIR
+
+    # Create merge configuration for openapi-merge-cli with URLs
+    echo '{
+      "inputs": [
+    {{- range $index, $spec := .Values.lfx.swagger_ui.specs }}
+        {{- if $index }},{{- end }}
+        {
+          "inputURL": {{ printf "%s/%s" $.Values.lfx.swagger_ui.server $spec | quote }}
+        }
+    {{- end }}
+      ],
+      "output": "shared/openapi-merged.yaml"
+    }' > $TEMP_DIR/merge-config.json
+
+    # Ensure shared directory exists and use openapi-merge-cli to fetch and merge the specs
+    mkdir -p /shared
+    # Create symlink in working directory to point to the shared volume
+    ln -sf /shared $TEMP_DIR/shared
+    echo "Generated config:"
+    cat $TEMP_DIR/merge-config.json
+
+    # Validate all URLs first - fail if any return 404 or are unreachable
+    echo "Validating all OpenAPI spec URLs..."
+    {{- range $index, $spec := .Values.lfx.swagger_ui.specs }}
+    {{- $fullURL := printf "%s/%s" $.Values.lfx.swagger_ui.server $spec }}
+    echo "Checking {{ $fullURL }}..."
+    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "{{ $fullURL }}")
+    if [ "$HTTP_CODE" -ne "200" ]; then
+      echo "✗ ERROR: {{ $fullURL }} returned HTTP $HTTP_CODE"
+      exit 1
+    fi
+    echo "✓ {{ $fullURL }} is accessible (HTTP 200)"
+    {{- end }}
+
+    echo "Using openapi-merge-cli for fetching and merging..."
+    cd $TEMP_DIR
+    openapi-merge-cli --config merge-config.json
+
+    echo "OpenAPI spec merge completed!"
+
+    # Install yq for YAML manipulation
+    apk add --no-cache yq
+
+    # Remove the server component so we can add our own
+    yq eval 'del(.servers)' -i /shared/openapi-merged.yaml
+
+    yq eval '.servers = [{"url": "{{ .Values.lfx.swagger_ui.server }}", "description": "Default api server"}]' -i /shared/openapi-merged.yaml
+
+    {{- if .Values.lfx.swagger_ui.auth.enabled }}
+    # Add OAuth2 security scheme to the merged spec
+    echo "Adding OIDC configuration to merged spec..."
+
+    # Merge the auth config into the OpenAPI spec using direct yq operations
+    echo "Merging auth config with OpenAPI spec..."
+
+    # Add components.securitySchemes to the spec with client ID
+    # https://auth.k8s.orb.local/api/oidc/authorization
+    yq eval '.components.securitySchemes.oidc = {"type": "oauth2", "flows": {"implicit": {"authorizationUrl": "{{ .Values.lfx.swagger_ui.auth.authorizationUrl }}", "scopes": {"api:access": "Access to the API"}}}}' -i /shared/openapi-merged.yaml
+
+
+    # Remove global security requirement (endpoints have their own security)
+    yq eval 'del(.security)' -i /shared/openapi-merged.yaml
+
+    # Add oidc as an alternative security option to all endpoints
+    yq eval '.paths[].*.security += [{"oidc": ["api:access"]}]' -i /shared/openapi-merged.yaml
+
+    echo "✓ oidc configuration added to OpenAPI spec"
+    {{- end }}
+
+    echo "Contents of /shared/:"
+    ls -la /shared/
+    if [ -f "/shared/openapi-merged.yaml" ]; then
+      echo "✓ openapi-merged.yaml exists!"
+      echo "File size: $(wc -c < /shared/openapi-merged.yaml) bytes"
+      echo "First few lines:"
+      head -10 /shared/openapi-merged.yaml
+    else
+      echo "✗ openapi-merged.yaml NOT found!"
+    fi
+{{- end }}

@@ -19,6 +19,23 @@ lfx:
   whoami:
     enabled: true
 
+  swagger_ui:
+    enabled: true
+    image: swaggerapi/swagger-ui
+    tag: latest
+    merger:
+      image: node
+      tag: 24-alpine
+    auth:
+      enabled: true
+      domain: "https://auth.k8s.orb.local"
+      authorizationUrl: "https://auth.k8s.orb.local/api/oidc/authorization"
+      clientId: "docs"
+    server: "http://lfx-api.k8s.orb.local"
+    specs:
+      - "_projects/openapi3.yaml"
+      - "_query/openapi3.yaml"
+
   # Tells rulesets to use the oidc_contextualizer, needed for
   # local dev with authelia
   use_oidc_contextualizer: true
@@ -420,6 +437,26 @@ authelia:
               - refresh_token
             authorization_policy: one_factor
             token_endpoint_auth_method: client_secret_basic
+          - client_id: docs
+            client_name: LFX Swagger UI Docs
+            public: true
+            redirect_uris:
+              - "http://lfx-api.k8s.orb.local/docs/oauth2-redirect.html"
+              - "https://lfx-api.k8s.orb.local/docs/oauth2-redirect.html"
+            scopes:
+              - openid
+              - email
+              - profile
+              - api:access
+            audience:
+              - "http://lfx-api.k8s.orb.local"
+            grant_types:
+              - implicit
+            authorization_policy: one_factor
+            response_types:
+              - code
+              - id_token
+              - token
 
 authelia_generate_jwks:
   enabled: true
