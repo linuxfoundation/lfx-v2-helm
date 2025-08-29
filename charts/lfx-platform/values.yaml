@@ -192,6 +192,13 @@ heimdall:
         type: allow
       - id: deny_all
         type: deny
+      - id: json_content_type
+        type: cel
+        config:
+          expressions:
+            - expression: |
+                Request.Header("Content-Type") == "application/json"
+              message: "Content-Type must be application/json"
       - id: openfga_check
         type: remote
         config:
