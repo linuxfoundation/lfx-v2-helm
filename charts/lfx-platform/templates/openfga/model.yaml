@@ -11,6 +11,13 @@ metadata:
     app.kubernetes.io/component: openfga
 spec:
   instances:
+{{/*
+  Each change to the authorization model should be accompanied by a version bump.
+  These are the recommended guidelines for versioning:
+    - major: Modifications, deletions, or additions of type
+    - minor: Additions or deletions of relations
+    - patch: Modifications of define
+*/}}
     - version:
         major: 4
         minor: 0
