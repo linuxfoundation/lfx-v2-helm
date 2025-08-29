@@ -13,7 +13,7 @@ spec:
   instances:
     - version:
         major: 4
-        minor: 0
+        minor: 1
         patch: 0
       authorizationModel: |
         model
@@ -40,9 +40,10 @@ spec:
           relations
             define member: [user]
             define project: [project]
-            define writer: writer from project
-            define auditor: auditor from project or meeting_coordinator from project
-            define viewer: [user:*] or auditor from project
+            define owner: [user, team#member]
+            define writer: [user] or owner or writer from project
+            define auditor: [user, team#member] or auditor from project or meeting_coordinator from project
+            define viewer: [user:*] or auditor or auditor from project
 
         type groupsio_service
           relations
@@ -57,7 +58,7 @@ spec:
             define groupsio_service: [groupsio_service]  # Parent relationship
             define project: project from groupsio_service # Inherit project permissions
             define committee: [committee] # Inherit committee permissions
-            define owner: owner from groupsio_service
+            define owner: owner from groupsio_service or owner from committee
             define writer: writer from groupsio_service or writer from committee
             define auditor: auditor from groupsio_service or auditor from committee
             define viewer: viewer from groupsio_service or member from committee
@@ -70,7 +71,7 @@ spec:
             define auditor: auditor from project
             # The organizer relation identifies a user who can manage this one meeting.
             # That means they can update the meeting details, invite/uninvite participants, etc.
-            define organizer: [user] or meeting_coordinator from project or writer from project
+            define organizer: [user] or meeting_coordinator from project or writer from committee or writer from project
             # The host relation identifies a user who is a host of this meeting.
             # This is different than the organizer relation because an organizer isn't necessarily
             # the user who is hosting the meeting, nor is the host necessarily the one who is
