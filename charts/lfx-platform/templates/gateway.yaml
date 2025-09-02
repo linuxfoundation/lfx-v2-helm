@@ -22,10 +22,10 @@ spec:
   listeners:
     {{- range $name, $listener := .Values.gateway.listeners }}
     - name: {{ $name }}
-      port: {{ $listener.port }}
+      port: {{ $listener.port | int }}
       protocol: {{ $listener.protocol }}
       {{- if $listener.hostname }}
-      hostname: {{ $listener.hostname }}
+      hostname: {{ $listener.hostname | quote }}
       {{- end }}
       {{- if $listener.allowedRoutes }}
       allowedRoutes:
