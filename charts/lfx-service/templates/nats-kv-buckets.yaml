@@ -1,0 +1,46 @@
+{{- if .Values.nats.kvBuckets -}}
+# Copyright The Linux Foundation and each contributor to LFX.
+# SPDX-License-Identifier: MIT
+{{- range .Values.nats.kvBuckets }}
+{{- if .creation }}
+---
+apiVersion: jetstream.nats.io/v1beta2
+kind: KeyValue
+metadata:
+  name: {{ .name }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "lfx-service.mergedLabels" (dict "context" $ "resourceLabels" $.Values.nats.labels) | nindent 4 }}
+  {{- $annotations := include "lfx-service.mergedAnnotations" (dict "context" $ "resourceAnnotations" $.Values.nats.annotations) }}
+  {{- if or $annotations .keep }}
+  annotations:
+    {{- if $annotations }}
+    {{- $annotations | nindent 4 }}
+    {{- end }}
+    {{- if .keep }}
+    "helm.sh/resource-policy": keep
+    {{- end }}
+  {{- end }}
+spec:
+  bucket: {{ .name }}
+  {{- with .history }}
+  history: {{ . }}
+  {{- end }}
+  {{- with .storage }}
+  storage: {{ . }}
+  {{- end }}
+  {{- with .maxValueSize }}
+  maxValueSize: {{ . }}
+  {{- end }}
+  {{- with .maxBytes }}
+  maxBytes: {{ . }}
+  {{- end }}
+  {{- with .compression }}
+  compression: {{ . }}
+  {{- end }}
+  {{- with .ttl }}
+  ttl: {{ . }}
+  {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

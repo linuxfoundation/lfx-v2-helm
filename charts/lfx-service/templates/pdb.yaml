@@ -1,0 +1,27 @@
+{{- if .Values.podDisruptionBudget.enabled -}}
+# Copyright The Linux Foundation and each contributor to LFX.
+# SPDX-License-Identifier: MIT
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "lfx-service.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "lfx-service.mergedLabels" (dict "context" . "resourceLabels" .Values.podDisruptionBudget.labels) | nindent 4 }}
+  {{- $annotations := include "lfx-service.mergedAnnotations" (dict "context" . "resourceAnnotations" .Values.podDisruptionBudget.annotations) }}
+  {{- if $annotations }}
+  annotations:
+    {{- $annotations | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.podDisruptionBudget.minAvailable }}
+  minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
+  {{- end }}
+  {{- if .Values.podDisruptionBudget.maxUnavailable }}
+  maxUnavailable: {{ .Values.podDisruptionBudget.maxUnavailable }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "lfx-service.selectorLabels" . | nindent 6 }}
+{{- end }}

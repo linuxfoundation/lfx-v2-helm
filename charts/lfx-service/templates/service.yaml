@@ -1,0 +1,26 @@
+{{- if .Values.service.enabled -}}
+# Copyright The Linux Foundation and each contributor to LFX.
+# SPDX-License-Identifier: MIT
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "lfx-service.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "lfx-service.mergedLabels" (dict "context" . "resourceLabels" .Values.service.labels) | nindent 4 }}
+  {{- $annotations := include "lfx-service.mergedAnnotations" (dict "context" . "resourceAnnotations" .Values.service.annotations) }}
+  {{- if $annotations }}
+  annotations:
+    {{- $annotations | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - name: web
+      port: {{ .Values.service.port }}
+      targetPort: web
+      protocol: TCP
+  selector:
+    {{- include "lfx-service.selectorLabels" . | nindent 4 }}
+{{- end }}
