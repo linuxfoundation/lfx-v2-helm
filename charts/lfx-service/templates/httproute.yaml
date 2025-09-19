@@ -1,0 +1,45 @@
+{{- if .Values.httpRoute.enabled -}}
+# Copyright The Linux Foundation and each contributor to LFX.
+# SPDX-License-Identifier: MIT
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "lfx-service.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "lfx-service.mergedLabels" (dict "context" . "resourceLabels" .Values.httpRoute.labels) | nindent 4 }}
+  {{- $annotations := include "lfx-service.mergedAnnotations" (dict "context" . "resourceAnnotations" .Values.httpRoute.annotations) }}
+  {{- if $annotations }}
+  annotations:
+    {{- $annotations | nindent 4 }}
+  {{- end }}
+spec:
+  parentRefs:
+  - name: {{ .Values.httpRoute.gateway.name }}
+    namespace: {{ .Values.httpRoute.gateway.namespace }}
+  hostnames:
+  {{- if .Values.httpRoute.hostnames }}
+  {{- range .Values.httpRoute.hostnames }}
+  - {{ . | quote }}
+  {{- end }}
+  {{- else }}
+  - {{ include "lfx-service.defaultHostname" . | quote }}
+  {{- end }}
+  rules:
+  - {{- if .Values.httpRoute.matches }}
+    matches:
+      {{- range .Values.httpRoute.matches }}
+      - path:
+          type: {{ .path.type }}
+          value: {{ .path.value }}
+      {{- end }}
+    {{- end }}
+    {{- with .Values.httpRoute.filters }}
+    filters:
+    {{- toYaml . | nindent 4 }} ws
+    {{- end }}
+    backendRefs:
+    - name: {{ include "lfx-service.fullname" . }}
+      port: {{ .Values.service.port }}
+{{- end }}
