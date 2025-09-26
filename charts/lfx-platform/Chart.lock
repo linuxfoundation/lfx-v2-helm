@@ -34,7 +34,7 @@ dependencies:
   version: v0.18.0
 - name: lfx-v2-query-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-query-service/chart
-  version: 0.4.4
+  version: 0.4.6
 - name: lfx-v2-project-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-project-service/chart
   version: 0.4.3
@@ -46,9 +46,9 @@ dependencies:
   version: 0.2.3
 - name: lfx-v2-indexer-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-indexer-service/chart
-  version: 0.4.3
+  version: 0.4.4
 - name: lfx-v2-auth-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-auth-service/chart
-  version: 0.1.1
-digest: sha256:5694f4680e1a9e638879d26fbfa8a3ca219e07894971253ded7f302a402db88f
-generated: "2025-09-25T08:36:20.482743-03:00"
+  version: 0.2.0
+digest: sha256:5108d054e0daa04b05b15c61b4976b68818bc0d4f6991da0d93738b63edfd639
+generated: "2025-09-26T15:25:18.04846-03:00"

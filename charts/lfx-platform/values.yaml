@@ -543,3 +543,11 @@ lfx-v2-auth-service:
   enabled: true
   lfx:
     domain: k8s.orb.local
+  app:
+    environment:
+      # Repository type for user management
+      # It can be authelia, auth0 or mock
+      # In case of auth0, please refer to the following documentation
+      ## https://github.com/linuxfoundation/lfx-v2-auth-service?tab=readme-ov-file#auth0-configuration
+      USER_REPOSITORY_TYPE:
+        value: mock
