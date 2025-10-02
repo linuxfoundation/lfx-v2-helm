@@ -1,0 +1,35 @@
+{{- if .Values.ruleSet.enabled -}}
+# Copyright The Linux Foundation and each contributor to LFX.
+# SPDX-License-Identifier: MIT
+---
+apiVersion: heimdall.dadrus.github.com/v1alpha4
+kind: RuleSet
+metadata:
+  name: {{ include "lfx-service.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "lfx-service.mergedLabels" (dict "context" . "resourceLabels" .Values.ruleSet.labels) | nindent 4 }}
+  {{- $annotations := include "lfx-service.mergedAnnotations" (dict "context" . "resourceAnnotations" .Values.ruleSet.annotations) }}
+  {{- if $annotations }}
+  annotations:
+    {{- $annotations | nindent 4 }}
+  {{- end }}
+spec:
+  rules:
+    {{- range .Values.ruleSet.rules }}
+    - id: {{ .id | quote }}
+      match:
+        {{- with .match.methods }}
+        methods:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .match.routes }}
+        routes:
+          {{- range . }}
+          - path: {{ . }}
+          {{- end }}
+        {{- end }}
+      execute:
+        {{- include "lfx-service.ruleExecute" (dict "Values" $.Values "authorization" .authorization) | nindent 8 }}
+    {{- end }}
+{{- end }}
