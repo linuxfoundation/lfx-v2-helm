@@ -14,6 +14,8 @@
     "finalizer",
     "gelf",
     "gjson",
+    "heimdallcfg",
+    "jaegertracing",
     "jetstream",
     "jouve",
     "kubeconform",
@@ -32,6 +34,7 @@
     "swaggerapi",
     "tcsh",
     "totp",
+    "tracecontext",
     "traefik",
     "webauthn",
     "websecure"

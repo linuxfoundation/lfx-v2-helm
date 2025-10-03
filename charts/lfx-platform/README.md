@@ -156,4 +156,88 @@ openfga:
     existingSecret: openfga-postgresql-client
 ```
 
-## Documentation
+## Jaeger
+
+Jaeger provides distributed tracing capabilities for the LFX platform.
+It should be installed in a separate `observability` namespace.
+
+### Jaeger Prerequisites
+
+Add the Jaeger Helm repository:
+
+```bash
+helm repo add jaegertracing https://jaegertracing.github.io/helm-charts
+helm repo update
+```
+
+### Installing Jaeger
+
+Install Jaeger using the all-in-one chart (suitable for development/testing):
+
+```bash
+helm install jaeger jaegertracing/jaeger \
+  -n observability \
+  --create-namespace \
+  --set allInOne.enabled=true \
+  --set agent.enabled=false \
+  --set collector.enabled=false \
+  --set query.enabled=false \
+  --set storage.type=memory \
+  --set provisionDataStore.cassandra=false
+```
+
+### Set Helm Values
+
+Either update `charts/lfx-platform/values.yaml` directly or create a new
+`tracing-values.yaml` file with the following values to enable traces to
+be sent to Jaeger.
+
+#### Traefik Values
+
+```yaml
+traefik:
+  tracing:
+    otlp:
+      enabled: true
+```
+
+#### OpenFGA Values
+
+```yaml
+openfga:
+  telemetry:
+    trace:
+      enabled: true
+```
+
+#### Heimdall Values
+
+```yaml
+heimdall:
+  env:
+    HEIMDALLCFG_TRACING_ENABLED: "true"
+```
+
+### Upgrade Helm Deployment
+
+Then upgrade the helm deployment.
+
+```bash
+helm upgrade lfx-platform charts/lfx-platform
+```
+
+If using a values file, pass it to the command:
+
+```bash
+helm upgrade -f tracing-values.yaml lfx-platform charts/lfx-platform
+```
+
+### Accessing Jaeger UI
+
+To access the Jaeger UI locally:
+
+```bash
+kubectl port-forward -n observability svc/jaeger-query 16686:16686
+```
+
+Then open `http://localhost:16686` in your browser.

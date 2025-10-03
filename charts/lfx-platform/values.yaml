@@ -61,6 +61,16 @@ fga-operator:
 # Traefik configuration
 traefik:
   enabled: true
+  tracing:
+    otlp:
+      enabled: false
+      grpc:
+        enabled: true
+        endpoint: "jaeger-collector.observability:4317"
+        insecure: true
+  env:
+    - name: OTEL_PROPAGATORS
+      value: tracecontext,baggage,jaeger
   providers:
     # Enable Kubernetes Gateway provider
     kubernetesGateway:
@@ -98,7 +108,6 @@ gateway:
         namespaces:
           from: Same
 
-
 # OpenFGA configuration
 openfga:
   enabled: true
@@ -121,6 +130,16 @@ openfga:
       username: openfga
       database: openfga
       existingSecret: openfga-postgresql-server
+
+  # Tracing configuration
+  telemetry:
+    trace:
+      enabled: false
+      otlp:
+        endpoint: "jaeger-collector.observability:4317"
+        tls:
+          enabled: false
+      sampleRatio: 1.0
 
   # Additional OpenFGA configuration
   replicaCount: 1
@@ -148,6 +167,12 @@ heimdall:
         mountPath: "/heimdall/cert/"
 
   env:
+    # Tracing Configuration
+    HEIMDALLCFG_TRACING_ENABLED: "false"
+    OTEL_PROPAGATORS: jaeger
+    OTEL_TRACE_EXPORTER: otlp
+    OTEL_EXPORTER_OTLP_TRACES_PROTOCOL: grpc
+    OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: "http://jaeger-collector.observability:4317"
     CLIENT_SECRET:
       secretKeyRef:
         name: authelia-clients
