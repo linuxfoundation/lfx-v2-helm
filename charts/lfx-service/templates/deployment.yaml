@@ -1,5 +1,11 @@
 # Copyright The Linux Foundation and each contributor to LFX.
 # SPDX-License-Identifier: MIT
+{{- if not .Values.image.repository -}}
+{{- fail "image.repository is required" -}}
+{{- end -}}
+{{- if not .Values.image.tag -}}
+{{- fail "image.tag is required" -}}
+{{- end -}}
 ---
 apiVersion: apps/v1
 kind: Deployment

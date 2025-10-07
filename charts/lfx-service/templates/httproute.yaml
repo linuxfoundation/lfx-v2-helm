@@ -1,6 +1,6 @@
-{{- if .Values.httpRoute.enabled -}}
 # Copyright The Linux Foundation and each contributor to LFX.
 # SPDX-License-Identifier: MIT
+{{- if .Values.httpRoute.enabled -}}
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
@@ -37,7 +37,7 @@ spec:
     {{- end }}
     {{- with .Values.httpRoute.filters }}
     filters:
-    {{- toYaml . | nindent 4 }} ws
+    {{- toYaml . | nindent 4 }}
     {{- end }}
     backendRefs:
     - name: {{ include "lfx-service.fullname" . }}
