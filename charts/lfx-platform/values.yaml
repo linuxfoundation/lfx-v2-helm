@@ -556,6 +556,11 @@ lfx-v2-meeting-service:
   lfx:
     domain: k8s.orb.local
 
+lfx-v2-mailing-list-service:
+  enabled: true
+  lfx:
+    domain: k8s.orb.local
+
 lfx-v2-auth-service:
   enabled: true
   lfx:
