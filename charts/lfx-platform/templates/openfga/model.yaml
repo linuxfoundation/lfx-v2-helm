@@ -21,7 +21,7 @@ spec:
     - version:
         major: 5
         minor: 3
-        patch: 2
+        patch: 3
       authorizationModel: |
         model
           schema 1.1
@@ -143,7 +143,7 @@ spec:
             # should be able to view the recording.
             # If it is set to only meeting hosts, then only the meeting hosts should be able
             # to view the recording.
-            define viewer: [user:*] or writer or auditor
+            define viewer: [user, user:*] or writer or auditor
 
           # The past_meeting_transcript type identifies a transcript of a past meeting.
           # Access to a transcript is limited to one of the following groups:
@@ -166,7 +166,7 @@ spec:
             # should be able to view the transcript.
             # If it is set to only meeting hosts, then only the meeting hosts should be able
             # to view the transcript.
-            define viewer: [user:*] or writer or auditor
+            define viewer: [user, user:*] or writer or auditor
 
           # The past_meeting_summary type identifies a summary of a past meeting.
           # Access to a summary is limited to one of the following groups:
@@ -189,5 +189,5 @@ spec:
             # should be able to view the summary.
             # If it is set to only meeting hosts, then only the meeting hosts should be able
             # to view the summary.
-            define viewer: [user:*] or writer or auditor
+            define viewer: [user, user:*] or writer or auditor
 {{- end }}
