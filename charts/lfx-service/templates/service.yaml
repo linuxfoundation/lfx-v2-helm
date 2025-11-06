@@ -1,11 +1,10 @@
 # Copyright The Linux Foundation and each contributor to LFX.
 # SPDX-License-Identifier: MIT
-{{- if .Values.service.enabled -}}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "lfx-service.fullname" . }}
+  name: {{ .Values.name }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "lfx-service.mergedLabels" (dict "context" . "resourceLabels" .Values.service.labels) | nindent 4 }}
@@ -15,12 +14,11 @@ metadata:
     {{- $annotations | nindent 4 }}
   {{- end }}
 spec:
-  type: {{ .Values.service.type }}
+  type: ClusterIP
   ports:
     - name: web
-      port: {{ .Values.service.port }}
+      port: 8080
       targetPort: web
       protocol: TCP
   selector:
     {{- include "lfx-service.selectorLabels" . | nindent 4 }}
-{{- end }}

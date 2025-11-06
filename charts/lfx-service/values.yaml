@@ -6,43 +6,45 @@
 global:
   # Domain for routing
   domain: ""
-  # AWS region for external secrets (leave blank for local installs)
-  awsRegion: ""
-
-# Application name - should be set for each service
-nameOverride: ""
-fullnameOverride: ""
 
 # Common labels to apply to all resources
 commonLabels: {}
 
 # Common annotations to apply to all resources
 commonAnnotations: {}
+name: "" # Required
 
 # Image configuration
 image:
-  repository: ""  # Required - set per service
-  tag: ""         # Defaults to Chart.appVersion if not set
+  repository: ""  # Required
+  tag: ""         # Required
   pullPolicy: IfNotPresent
 
 # Deployment configuration
 deployment:
   replicaCount: 1
-  port: 8080
 
   environment: {}
 
-  # Security context for the container
-  securityContext:
-    allowPrivilegeEscalation: false
+  # Init containers configuration
+  initContainers: []
+  # Example:
+  # initContainers:
+  #   - name: init-myservice
+  #     image: busybox:1.28
+  #     command: ['sh', '-c', 'until nslookup myservice; do echo waiting for myservice; sleep 2; done;']
+
+  # Termination grace period in seconds (default: 30)
+  terminationGracePeriodSeconds: 30
 
   # Resource limits and requests
-  resources: {}
-
-  # Node selector, tolerations, and affinity
-  nodeSelector: {}
-  tolerations: []
-  affinity: {}
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
 
   # Health check configuration
   healthChecks:
@@ -67,23 +69,19 @@ deployment:
       periodSeconds: 1
 
   # Deployment-specific labels and annotations
-  annotations: {}
+  annotations: {
+    reloader.stakater.com/auto: "true"
+  }
   labels: {}
 
 # Service configuration
 service:
-  enabled: true
-  type: ClusterIP
-  port: 8080
-
   # Service-specific labels and annotations
   annotations: {}
   labels: {}
 
 # ServiceAccount configuration
 serviceAccount:
-  create: true
-  name: ""
   automountServiceAccountToken: true
 
   # ServiceAccount-specific labels and annotations
@@ -93,7 +91,7 @@ serviceAccount:
 
 # HTTP routing configuration using Gateway API
 httpRoute:
-  enabled: false
+  enabled: true
   gateway:
     name: lfx-platform-gateway
     namespace: lfx
@@ -109,12 +107,10 @@ httpRoute:
 
 # Heimdall authentication middleware
 heimdall:
-  enabled: false
+  enabled: true
   url: http://lfx-platform-heimdall.lfx.svc.cluster.local:4456
   # Whether to create the middleware resources
   createMiddleware: true
-  # Whether to use body forwarding middleware
-  forwardBody: true
 
   # Heimdall-specific labels and annotations
   annotations: {}
@@ -122,7 +118,7 @@ heimdall:
 
 # Heimdall RuleSet for authentication rules
 ruleSet:
-  enabled: false
+  enabled: true
   # JWT audience for the service
   audience: ""
   # Whether to use OIDC contextualizer
@@ -144,34 +140,13 @@ nats:
   annotations: {}
   labels: {}
 
-
-# Pod disruption budget
-podDisruptionBudget:
-  enabled: false
-  minAvailable: 1
-
-  # PodDisruptionBudget-specific labels and annotations
-  annotations: {}
-  labels: {}
-
-# Horizontal Pod Autoscaler
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 10
-  targetCPUUtilizationPercentage: 80
-
-  # HPA-specific labels and annotations
-  annotations: {}
-  labels: {}
-
 # External Secrets Operator configuration
 externalSecretsOperator:
-  enabled: false
+  enabled: false # defaults to false for local installs
 
   # SecretStore configuration
   secretStore:
-    name: ""  # Defaults to "{release-name}-secret-store"
+    region: "us-west-2"  # AWS region override (defaults to global.awsRegion)
 
     # SecretStore-specific labels and annotations
     annotations: {}
@@ -179,23 +154,8 @@ externalSecretsOperator:
 
   # ExternalSecret configuration
   externalSecret:
-    name: ""  # Defaults to "{release-name}-external-secret"
-    refreshInterval: "10m"
+    refreshInterval: "6h"
 
     # ExternalSecret-specific labels and annotations
     annotations: {}
     labels: {}
-
-    # Target secret configuration
-    target:
-      name: ""  # Defaults to "{release-name}-secrets"
-      creationPolicy: "Owner"
-      deletionPolicy: "Retain"
-      template: {}
-
-    # Secret data configuration - use either data OR dataFrom, not both
-    # If both are empty, defaults to tag-based discovery
-    # Individual secret mappings
-    data: []
-    # Bulk secret import
-    dataFrom: []

@@ -5,7 +5,7 @@
 apiVersion: heimdall.dadrus.github.com/v1alpha4
 kind: RuleSet
 metadata:
-  name: {{ include "lfx-service.fullname" . }}
+  name: {{ .Values.name }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "lfx-service.mergedLabels" (dict "context" . "resourceLabels" .Values.ruleSet.labels) | nindent 4 }}
