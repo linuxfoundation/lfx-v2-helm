@@ -499,6 +499,19 @@ authelia:
               - code
               - id_token
               - token
+          - client_id: v1_sync_helper
+            client_name: LFX Data Backfill Service
+            client_secret:
+              path: /secrets/authelia-clients-hashed/v1_sync_helper
+            public: false
+            scopes:
+              - none
+            audience:
+              - "http://lfx-api.k8s.orb.local"
+            grant_types:
+              - client_credentials
+            authorization_policy: one_factor
+            token_endpoint_auth_method: client_secret_basic
 
 authelia_generate_jwks:
   enabled: true
@@ -509,6 +522,7 @@ authelia_client_generation:
     - heimdall
     - m2m_test
     - lfx
+    - v1_sync_helper
 
 authelia_user_generation:
   enabled: true
