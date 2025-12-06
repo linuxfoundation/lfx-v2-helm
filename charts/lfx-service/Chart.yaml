@@ -1,0 +1,9 @@
+# Copyright The Linux Foundation and each contributor to LFX.
+# SPDX-License-Identifier: MIT
+---
+apiVersion: v2
+name: lfx-service
+description: LFX Service v2 Helm chart
+type: application
+version: 1.0.0
+icon: https://github.com/linuxfoundation/lfx-v2-helm/raw/main/img/lfx-logo-color.svg
