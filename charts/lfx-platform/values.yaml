@@ -289,7 +289,7 @@ heimdall:
                         "_anonymous"
                         (or
                           .Subject.Attributes.username
-                          (list "clients@" .Subject.Attributes.client_id | join ""))
+                          (list .Subject.Attributes.client_id "@clients" | join ""))
                     )
                   | join "" | quote
                 }},
@@ -308,23 +308,23 @@ heimdall:
             key_store:
               path: /heimdall/cert/signer.pem
           claims: |
-                    {
-                      "principal": {{
-                        eq .Subject.ID "_anonymous"
-                        | ternary
-                          "_anonymous"
-                          (or
-                            .Subject.Attributes.username
-                            (list "clients@" .Subject.Attributes.client_id | join ""))
-                        | quote
-                      }}
-                      {{ if .Outputs.oidc_contextualizer.email -}},
-                      "email": {{ quote .Outputs.oidc_contextualizer.email }}
-                      {{ end -}}
-                      {{ if .Values.aud -}},
-                      "aud": {{ quote .Values.aud }}
-                      {{ end -}}
-                    }
+            {
+              "principal": {{
+                eq .Subject.ID "_anonymous"
+                | ternary
+                  "_anonymous"
+                  (or
+                    .Subject.Attributes.username
+                    (list .Subject.Attributes.client_id "@clients" | join ""))
+                | quote
+              }}
+              {{ if .Outputs.oidc_contextualizer.email -}},
+              "email": {{ quote .Outputs.oidc_contextualizer.email }}
+              {{ end -}}
+              {{ if .Values.aud -}},
+              "aud": {{ quote .Values.aud }}
+              {{ end -}}
+            }
 
   default_rule:
     execute:
