@@ -19,8 +19,8 @@ spec:
     - patch: Modifications of define
 */}}
     - version:
-        major: 7
-        minor: 1
+        major: 8
+        minor: 0
         patch: 0
       authorizationModel: |
         model
@@ -31,6 +31,11 @@ spec:
         type team
           relations
             define member: [user]
+
+        type visibility_policy
+          relations
+            define allows_basic_profile: [committee#member]
+            define hides_basic_profile: [committee#member]
 
         type project
           relations
@@ -47,9 +52,11 @@ spec:
           relations
             define member: [user]
             define project: [project]
+            define visibility_policy: [visibility_policy]
             define writer: [user] or writer from project
             define auditor: [user, team#member] or auditor from project or meeting_coordinator from project
-            define viewer: [user:*] or member or auditor or auditor from project
+            define viewer: [user:*] or can_see_basic_profile or auditor or auditor from project
+            define can_see_basic_profile: member and allows_basic_profile from visibility_policy
 
         type groupsio_service
           relations
