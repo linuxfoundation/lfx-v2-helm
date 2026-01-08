@@ -20,7 +20,7 @@ spec:
 */}}
     - version:
         major: 7
-        minor: 1
+        minor: 2
         patch: 2
       authorizationModel: |
         model
@@ -47,9 +47,14 @@ spec:
           relations
             define member: [user]
             define project: [project]
+            # The self_for_member_basic_profile_access relation provides a self-referential
+            # relationship that allows committee members to view basic profile information of
+            # other members within the same committee.
+            define self_for_member_basic_profile_access: [committee]
             define writer: [user] or writer from project
-            define auditor: [user, team#member] or auditor from project or meeting_coordinator from project
-            define viewer: [user:*] or member or auditor or auditor from project
+            define auditor: [user, team#member] or writer or auditor from project or meeting_coordinator from project
+            define basic_profile_viewer: auditor or member from self_for_member_basic_profile_access
+            define viewer: [user:*] or member or auditor
 
         type groupsio_service
           relations
