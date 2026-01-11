@@ -656,3 +656,5 @@ lfx-v2-auth-service:
         value: lfx-platform-authelia
       AUTHELIA_SECRET_NAME:
         value: authelia-users
+      AUTHELIA_OIDC_USERINFO_URL:
+        value: https://auth.k8s.orb.local/api/oidc/userinfo
