@@ -19,9 +19,9 @@ spec:
     - patch: Modifications of define
 */}}
     - version:
-        major: 7
-        minor: 1
-        patch: 2
+        major: 8
+        minor: 0
+        patch: 0
       authorizationModel: |
         model
           schema 1.1
@@ -289,4 +289,28 @@ spec:
             define past_meeting_for_host_view: [v1_past_meeting]
             # If the artifact_visibility is public, then every user should be a viewer
             define viewer: [user:*] or writer or auditor or invitee from past_meeting_for_participant_view or attendee from past_meeting_for_attendee_view or host from past_meeting_for_host_view
+
+        type vote
+          relations
+            define committee: [committee]
+            define project: [project]
+            define writer: writer from project or writer from committee
+            define auditor: writer or auditor from project or auditor from committee
+            define viewer: [user:*] or auditor
+
+        type individual_vote
+          relations
+            define vote: [vote]
+            define auditor: auditor from vote
+            define writer: [user] # Only individuals can update their own vote
+            define viewer: [user]
+
+        # Vote results are not updated directly, but are instead an aggregation
+        # of individual votes. This is done because the results of votes can themselves
+        # be public or not, independently from the vote itself.
+        type vote_results
+          relations
+            define vote: [vote]
+            define auditor: auditor from vote
+            define viewer: [user:*] or auditor
 {{- end }}
