@@ -19,7 +19,7 @@ spec:
     - patch: Modifications of define
 */}}
     - version:
-        major: 8
+        major: 9
         minor: 0
         patch: 0
       authorizationModel: |
@@ -295,22 +295,44 @@ spec:
             define committee: [committee]
             define project: [project]
             define writer: writer from project or writer from committee
+            # auditor has access to participants, viewer does not
             define auditor: writer or auditor from project or auditor from committee
-            define viewer: [user:*] or auditor
+            define participant: [user]
+            define viewer: [user:*] or auditor or participant
+            define vote_for_participant_result_access: [vote] # set this relation to "self" to enable access
+            # results_viewer is not for viewing the actual related vote_response objects,
+            # but rather for an aggregate summary which can be made optionally public
+            define results_viewer: [user:*] or auditor or participant from vote_for_participant_result_access
 
-        type individual_vote
+        type vote_response
           relations
             define vote: [vote]
-            define auditor: auditor from vote
-            define writer: [user] # Only individuals can update their own vote
-            define viewer: [user]
+            # owner is the user who cast this response
+            define owner: [user]
+            # we don't need to create a "writer" relation that is defined as just "owner":
+            # we just use the "owner" relation in our access checks!
+            define auditor: owner or auditor from vote
 
-        # Vote results are not updated directly, but are instead an aggregation
-        # of individual votes. This is done because the results of votes can themselves
-        # be public or not, independently from the vote itself.
-        type vote_results
+        type survey
           relations
-            define vote: [vote]
-            define auditor: auditor from vote
-            define viewer: [user:*] or auditor
+            define committee: [committee]
+            define project: [project]
+            define writer: writer from project or writer from committee
+            # auditor has access to participants, viewer does not
+            define auditor: writer or auditor from project or auditor from committee
+            define participant: [user]
+            define viewer: [user:*] or auditor or participant
+            define survey_for_participant_result_access: [survey] # set this relation to "self" to enable access
+            # results_viewer is not for viewing the actual related survey_response objects,
+            # but rather for an aggregate summary which can be made optionally public
+            define results_viewer: [user:*] or auditor or participant from survey_for_participant_result_access
+
+        type survey_response
+          relations
+            define survey: [survey]
+            # owner is the user who cast this response
+            define owner: [user]
+            # we don't need to create a "writer" relation that is defined as just "owner":
+            # we just use the "owner" relation in our access checks!
+            define auditor: owner or auditor from survey
 {{- end }}
