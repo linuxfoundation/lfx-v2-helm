@@ -82,9 +82,9 @@ dependencies:
     condition: lfx-v2-meeting-service.enabled
   - name: lfx-v2-mailing-list-service
     repository: oci://ghcr.io/linuxfoundation/lfx-v2-mailing-list-service/chart
-    version: ~0.1.1
+    version: ~0.1.2
     condition: lfx-v2-mailing-list-service.enabled
   - name: lfx-v2-auth-service
     repository: oci://ghcr.io/linuxfoundation/lfx-v2-auth-service/chart
-    version: ~0.3.1
+    version: ~0.3.4
     condition: lfx-v2-auth-service.enabled

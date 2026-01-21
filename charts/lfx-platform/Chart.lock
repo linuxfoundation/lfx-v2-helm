@@ -55,9 +55,9 @@ dependencies:
   version: 0.5.13
 - name: lfx-v2-mailing-list-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-mailing-list-service/chart
-  version: 0.1.1
+  version: 0.1.2
 - name: lfx-v2-auth-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-auth-service/chart
-  version: 0.3.3
-digest: sha256:36bc8b5a8a3749d0dac16491c486d68334ba3c75fedc17440dcfe8d6a6c0c290
-generated: "2025-12-29T15:00:24.698017-08:00"
+  version: 0.3.4
+digest: sha256:8b73e3d14b4ba49313b87f51e1cf47b8d50e29f7d0384fb830900cf54eae9e9d
+generated: "2025-12-30T13:32:30.201772-03:00"
