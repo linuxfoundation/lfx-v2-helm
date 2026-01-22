@@ -4,10 +4,10 @@ dependencies:
   version: 36.2.0
 - name: openfga
   repository: https://openfga.github.io/helm-charts
-  version: 0.2.50
+  version: 0.2.51
 - name: heimdall
   repository: oci://ghcr.io/dadrus/heimdall/chart
-  version: 0.16.6
+  version: 0.16.8
 - name: nats
   repository: https://nats-io.github.io/k8s/helm/charts/
   version: 1.3.16
@@ -37,27 +37,27 @@ dependencies:
   version: 0.4.9
 - name: lfx-v2-project-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-project-service/chart
-  version: 0.5.3
+  version: 0.5.4
 - name: lfx-v2-fga-sync
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-fga-sync/chart
-  version: 0.2.10
+  version: 0.2.12
 - name: lfx-v2-access-check
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-access-check/chart
   version: 0.2.5
 - name: lfx-v2-indexer-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-indexer-service/chart
-  version: 0.4.12
+  version: 0.4.14
 - name: lfx-v2-committee-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-committee-service/chart
   version: 0.2.19
 - name: lfx-v2-meeting-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-meeting-service/chart
-  version: 0.5.13
+  version: 0.5.14
 - name: lfx-v2-mailing-list-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-mailing-list-service/chart
-  version: 0.1.1
+  version: 0.1.9
 - name: lfx-v2-auth-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-auth-service/chart
-  version: 0.3.3
-digest: sha256:36bc8b5a8a3749d0dac16491c486d68334ba3c75fedc17440dcfe8d6a6c0c290
-generated: "2025-12-29T15:00:24.698017-08:00"
+  version: 0.3.4
+digest: sha256:735ff4b0d2612dca43b59d6b89a638ed1e466a62792b39dfe7f89487a4d42206
+generated: "2026-01-22T14:02:01.953429-08:00"
