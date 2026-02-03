@@ -80,7 +80,15 @@ dependencies:
     repository: oci://ghcr.io/linuxfoundation/lfx-v2-meeting-service/chart
     version: ~0.5.8
     condition: lfx-v2-meeting-service.enabled
+  - name: lfx-v2-mailing-list-service
+    repository: oci://ghcr.io/linuxfoundation/lfx-v2-mailing-list-service/chart
+    version: ~0.1.1
+    condition: lfx-v2-mailing-list-service.enabled
   - name: lfx-v2-auth-service
     repository: oci://ghcr.io/linuxfoundation/lfx-v2-auth-service/chart
     version: ~0.3.1
     condition: lfx-v2-auth-service.enabled
+  - name: lfx-v2-voting-service
+    repository: oci://ghcr.io/linuxfoundation/lfx-v2-voting-service/chart
+    version: ~0.1.0
+    condition: lfx-v2-voting-service.enabled
