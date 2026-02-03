@@ -5,6 +5,7 @@ apiVersion: v2
 name: lfx-platform
 description: LFX Platform v2 Helm chart
 type: application
+# This version should not be incremented, as it is dynamically replaced with the release version during the chart build job.
 version: 0.0.1
 icon: https://github.com/linuxfoundation/lfx-v2-helm/raw/main/img/lfx-logo-color.svg
 dependencies:
