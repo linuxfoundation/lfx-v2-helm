@@ -92,3 +92,7 @@ dependencies:
     repository: oci://ghcr.io/linuxfoundation/lfx-v2-voting-service/chart
     version: ~0.1.0
     condition: lfx-v2-voting-service.enabled
+  - name: lfx-v2-survey-service
+    repository: oci://ghcr.io/linuxfoundation/lfx-v2-survey-service/chart
+    version: ~0.1.0
+    condition: lfx-v2-survey-service.enabled

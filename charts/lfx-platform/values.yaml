@@ -628,6 +628,15 @@ lfx-v2-voting-service:
   annotations:
     reloader.stakater.com/auto: "true"
 
+lfx-v2-survey-service:
+  enabled: true
+  lfx:
+    domain: k8s.orb.local
+
+  # Enable reloader to restart pods when ConfigMap or Secrets change
+  annotations:
+    reloader.stakater.com/auto: "true"
+
 lfx-v2-meeting-service:
   enabled: true
   lfx:
