@@ -1,0 +1,161 @@
+
+# Copyright The Linux Foundation and each contributor to LFX.
+# SPDX-License-Identifier: MIT
+---
+# Global configuration that can be overridden per service
+global:
+  # Domain for routing
+  domain: ""
+
+# Common labels to apply to all resources
+commonLabels: {}
+
+# Common annotations to apply to all resources
+commonAnnotations: {}
+name: "" # Required
+
+# Image configuration
+image:
+  repository: ""  # Required
+  tag: ""         # Required
+  pullPolicy: IfNotPresent
+
+# Deployment configuration
+deployment:
+  replicaCount: 1
+
+  environment: {}
+
+  # Init containers configuration
+  initContainers: []
+  # Example:
+  # initContainers:
+  #   - name: init-myservice
+  #     image: busybox:1.28
+  #     command: ['sh', '-c', 'until nslookup myservice; do echo waiting for myservice; sleep 2; done;']
+
+  # Termination grace period in seconds (default: 30)
+  terminationGracePeriodSeconds: 30
+
+  # Resource limits and requests
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+  # Health check configuration
+  healthChecks:
+    enabled: true
+    livenessProbe:
+      httpGet:
+        path: /livez
+        port: web
+      failureThreshold: 3
+      periodSeconds: 15
+    readinessProbe:
+      httpGet:
+        path: /readyz
+        port: web
+      failureThreshold: 1
+      periodSeconds: 10
+    startupProbe:
+      httpGet:
+        path: /readyz
+        port: web
+      failureThreshold: 30
+      periodSeconds: 1
+
+  # Deployment-specific labels and annotations
+  annotations: {
+    reloader.stakater.com/auto: "true"
+  }
+  labels: {}
+
+# Service configuration
+service:
+  # Service-specific labels and annotations
+  annotations: {}
+  labels: {}
+
+# ServiceAccount configuration
+serviceAccount:
+  automountServiceAccountToken: true
+
+  # ServiceAccount-specific labels and annotations
+  annotations: {}
+  labels: {}
+
+
+# HTTP routing configuration using Gateway API
+httpRoute:
+  enabled: true
+  gateway:
+    name: lfx-platform-gateway
+    namespace: lfx
+
+  # Hostnames for the route (defaults to lfx-api.{global.domain})
+  hostnames: []
+  matches: []
+  filters: []
+
+  # httpRoute-specific labels and annotations
+  annotations: {}
+  labels: {}
+
+# Heimdall authentication middleware
+heimdall:
+  enabled: true
+  url: http://lfx-platform-heimdall.lfx.svc.cluster.local:4456
+  # Whether to create the middleware resources
+  createMiddleware: true
+
+  # Heimdall-specific labels and annotations
+  annotations: {}
+  labels: {}
+
+# Heimdall RuleSet for authentication rules
+ruleSet:
+  enabled: true
+  # JWT audience for the service
+  audience: ""
+  # Whether to use OIDC contextualizer
+  useOidcContextualizer: true
+  # Whether OpenFGA authorization is enabled
+  openfgaEnabled: true
+
+  rules: []
+
+  # RuleSet-specific labels and annotations
+  annotations: {}
+  labels: {}
+
+# NATS KeyValue buckets
+nats:
+  kvBuckets: []
+
+  # NATS-specific labels and annotations
+  annotations: {}
+  labels: {}
+
+# External Secrets Operator configuration
+externalSecretsOperator:
+  enabled: false # defaults to false for local installs
+
+  # SecretStore configuration
+  secretStore:
+    region: "us-west-2"  # AWS region override (defaults to global.awsRegion)
+
+    # SecretStore-specific labels and annotations
+    annotations: {}
+    labels: {}
+
+  # ExternalSecret configuration
+  externalSecret:
+    refreshInterval: "6h"
+
+    # ExternalSecret-specific labels and annotations
+    annotations: {}
+    labels: {}
