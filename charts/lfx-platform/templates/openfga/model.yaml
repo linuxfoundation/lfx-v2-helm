@@ -19,8 +19,8 @@ spec:
     - patch: Modifications of define
 */}}
     - version:
-        major: 7
-        minor: 1
+        major: 9
+        minor: 0
         patch: 0
       authorizationModel: |
         model
@@ -54,9 +54,9 @@ spec:
         type groupsio_service
           relations
             define project: [project]
-            define owner: owner from project
-            define writer: writer from project or owner
-            define auditor: auditor from project or writer
+            define owner: [user] or owner from project
+            define writer: [user] or writer from project or owner
+            define auditor: [user] or auditor from project or writer
             define viewer: [user:*] or auditor from project
 
         type groupsio_mailing_list
@@ -65,9 +65,9 @@ spec:
             define project: project from groupsio_service # Inherit project permissions
             define committee: [committee] # Inherit committee permissions
             define owner: owner from groupsio_service
-            define writer: writer from groupsio_service or writer from committee
-            define auditor: auditor from groupsio_service or auditor from committee
-            define viewer: viewer from groupsio_service or member from committee
+            define writer: [user] or writer from groupsio_service or writer from committee
+            define auditor: [user] or auditor from groupsio_service or auditor from committee
+            define viewer: [user:*] or viewer from groupsio_service or member from committee
             define member: [user]
 
         type meeting
@@ -289,4 +289,50 @@ spec:
             define past_meeting_for_host_view: [v1_past_meeting]
             # If the artifact_visibility is public, then every user should be a viewer
             define viewer: [user:*] or writer or auditor or invitee from past_meeting_for_participant_view or attendee from past_meeting_for_attendee_view or host from past_meeting_for_host_view
+
+        type vote
+          relations
+            define committee: [committee]
+            define project: [project]
+            define writer: writer from project or writer from committee
+            # auditor has access to participants, viewer does not
+            define auditor: writer or auditor from project or auditor from committee
+            define participant: [user]
+            define viewer: [user:*] or auditor or participant
+            define vote_for_participant_result_access: [vote] # set this relation to "self" to enable access
+            # results_viewer is not for viewing the actual related vote_response objects,
+            # but rather for an aggregate summary which can be made optionally public
+            define results_viewer: [user:*] or auditor or participant from vote_for_participant_result_access
+
+        type vote_response
+          relations
+            define vote: [vote]
+            # owner is the user who cast this response
+            define owner: [user]
+            # we don't need to create a "writer" relation that is defined as just "owner":
+            # we just use the "owner" relation in our access checks!
+            define auditor: owner or auditor from vote
+
+        type survey
+          relations
+            define committee: [committee]
+            define project: [project]
+            define writer: writer from project or writer from committee
+            # auditor has access to participants, viewer does not
+            define auditor: writer or auditor from project or auditor from committee
+            define participant: [user]
+            define viewer: [user:*] or auditor or participant
+            define survey_for_participant_result_access: [survey] # set this relation to "self" to enable access
+            # results_viewer is not for viewing the actual related survey_response objects,
+            # but rather for an aggregate summary which can be made optionally public
+            define results_viewer: [user:*] or auditor or participant from survey_for_participant_result_access
+
+        type survey_response
+          relations
+            define survey: [survey]
+            # owner is the user who cast this response
+            define owner: [user]
+            # we don't need to create a "writer" relation that is defined as just "owner":
+            # we just use the "owner" relation in our access checks!
+            define auditor: owner or auditor from survey
 {{- end }}

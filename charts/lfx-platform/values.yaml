@@ -197,7 +197,7 @@ heimdall:
     HEIMDALLCFG_TRACING_ENABLED: "false"
     HEIMDALLCFG_SECRETS__RELOAD__ENABLED: "true"
     OTEL_PROPAGATORS: jaeger
-    OTEL_TRACE_EXPORTER: otlp
+    OTEL_TRACES_EXPORTER: otlp
     OTEL_EXPORTER_OTLP_TRACES_PROTOCOL: grpc
     OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: "http://jaeger-collector.observability:4317"
     CLIENT_SECRET:
@@ -619,7 +619,34 @@ lfx-v2-committee-service:
   lfx:
     domain: k8s.orb.local
 
+lfx-v2-voting-service:
+  enabled: true
+  lfx:
+    domain: k8s.orb.local
+
+  # Enable reloader to restart pods when ConfigMap or Secrets change
+  annotations:
+    reloader.stakater.com/auto: "true"
+
+lfx-v2-survey-service:
+  enabled: true
+  lfx:
+    domain: k8s.orb.local
+
+  # Enable reloader to restart pods when ConfigMap or Secrets change
+  annotations:
+    reloader.stakater.com/auto: "true"
+
 lfx-v2-meeting-service:
+  enabled: true
+  lfx:
+    domain: k8s.orb.local
+
+  # Enable reloader to restart pods when ConfigMap or Secrets change
+  annotations:
+    reloader.stakater.com/auto: "true"
+
+lfx-v2-mailing-list-service:
   enabled: true
   lfx:
     domain: k8s.orb.local
