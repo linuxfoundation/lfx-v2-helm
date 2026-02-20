@@ -20,7 +20,7 @@ OpenFGA (<https://openfga.dev>) is a relationship-based access control (ReBAC) s
 
 This is contrasting with a role-based access control (RBAC) system, which stores and evaluates only *direct* role assignments against individual objects.
 
-For instance, in previous LFX APIs, RBAC provides "project roles" with different policies for how you can interacting with a project: managing committees, scheduling meetings, managing mailing lists, etc. However, it cannot "fan out" access to these project resources on a contextual level. It's the difference between saying, "project _meeting managers_ can access all past meeting recordings for _all_ meetings associated with the project", and saying, "you can access the meeting recording if you were _invited to the meeting_, or if you are currently a _member of the committee_ that held this meeting in the past, or if you are a _meeting manager_ on the project the meeting was held on". Being able to have an access control system that can model and evaluate rich self-service permissions avoids creating multiple "backdoor" systems that use privileged access to circumvent "native" RBAC, and then republish the data with bespoke, per-app access control rules.
+For instance, in previous LFX APIs, RBAC provides "project roles" with different policies for how you can interact with a project: managing committees, scheduling meetings, managing mailing lists, etc. However, it cannot "fan out" access to these project resources on a contextual level. It's the difference between saying, "project _meeting managers_ can access all past meeting recordings for _all_ meetings associated with the project", and saying, "you can access the meeting recording if you were _invited to the meeting_, or if you are currently a _member of the committee_ that held this meeting in the past, or if you are a _meeting manager_ on the project the meeting was held on". Being able to have an access control system that can model and evaluate rich self-service permissions avoids creating multiple "backdoor" systems that use privileged access to circumvent "native" RBAC, and then republish the data with bespoke, per-app access control rules.
 
 Not only does OpenFGA make our permissions more transparent and auditable: having direct, context-aware access to individual objects in LFX opens the door to supporting AI use-cases like MCP servers for managing committees, meetings, and more.
 
@@ -79,10 +79,13 @@ Next, we would define what relationships are required for each Pull Request API 
 ```plain
 # Any repo reader can create a PR.
 POST {"repo_id": {id}, ...} => /pullrequests: reader on repository:{id}
+
 # Any reader on the PR can create a comment on it.
 POST {"pullrequest_id": {id}, "body": ...} => /pr_comments: reader on pullrequest:{id}
+
 # Any writer on the PR can merge it.
 POST => /pullrequests/{id}/merge: writer on pullrequest:{id}
+
 # Closing the PR uses a special "closer" relation which allows the author to
 # close their own PR, even if they have no write access to the repo/PR. POST =>
 /pullrequests/{id}/close: closer on pullrequest:{id}
@@ -122,10 +125,6 @@ From these tuples, OpenFGA would dynamically compute relationships when checked:
 - `user:charlie` has `reader` (author → reader OR reader repo:lfx-platform → reader)
 - `user:dave` has only `reader` (reader repo:lfx-platform → reader)
 - `user:eve` does NOT have `closer` (has writer but not author)
-
-This demonstrates how OpenFGA's relationship-based model creates a flexible permission system where access is derived from the network of relationships between entities.
-
-Contrasted with a role-based access control system, which only supports storing and checking *direct* role assignments against objects. For instance, in LFX, "project roles"  ability to grant contextual access resources within that project to committee members, meeting participants, and such within a project.
 
 ## Entity Types and Access Patterns
 
