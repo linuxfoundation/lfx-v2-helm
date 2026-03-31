@@ -4,7 +4,7 @@ dependencies:
   version: 36.2.0
 - name: openfga
   repository: https://openfga.github.io/helm-charts
-  version: 0.2.60
+  version: 0.2.61
 - name: heimdall
   repository: oci://ghcr.io/dadrus/heimdall/chart
   version: 0.16.12
@@ -37,36 +37,36 @@ dependencies:
   version: v0.18.0
 - name: lfx-v2-query-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-query-service/chart
-  version: 0.4.12
+  version: 0.4.13
 - name: lfx-v2-project-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-project-service/chart
-  version: 0.5.7
+  version: 0.6.0
 - name: lfx-v2-fga-sync
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-fga-sync/chart
-  version: 0.2.14
+  version: 0.2.15
 - name: lfx-v2-access-check
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-access-check/chart
-  version: 0.2.9
+  version: 0.2.10
 - name: lfx-v2-indexer-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-indexer-service/chart
-  version: 0.4.17
+  version: 0.4.18
 - name: lfx-v2-committee-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-committee-service/chart
-  version: 0.2.23
+  version: 0.2.27
 - name: lfx-v2-meeting-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-meeting-service/chart
-  version: 0.7.0
+  version: 0.8.0
 - name: lfx-v2-mailing-list-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-mailing-list-service/chart
-  version: 0.4.3
+  version: 0.4.4
 - name: lfx-v2-auth-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-auth-service/chart
-  version: 0.4.2
+  version: 0.4.3
 - name: lfx-v2-voting-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-voting-service/chart
-  version: 0.2.4
+  version: 0.2.5
 - name: lfx-v2-survey-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-survey-service/chart
-  version: 0.2.4
-digest: sha256:694c53644a05eea38a229f85994043bab03d0934a4053d5aff6aa64ab0885d2b
-generated: "2026-03-26T14:28:06.981502-03:00"
+  version: 0.2.5
+digest: sha256:2a46780d3bbab2fd53b7fd716510aa1e03409e6f673bf5be2715b9d20e072cfa
+generated: "2026-03-31T14:01:31.332738031-07:00"
