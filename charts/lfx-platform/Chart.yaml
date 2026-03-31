@@ -63,7 +63,7 @@ dependencies:
     condition: lfx-v2-query-service.enabled
   - name: lfx-v2-project-service
     repository: oci://ghcr.io/linuxfoundation/lfx-v2-project-service/chart
-    version: ~0.5.7
+    version: ~0.6.0
     condition: lfx-v2-project-service.enabled
   - name: lfx-v2-fga-sync
     repository: oci://ghcr.io/linuxfoundation/lfx-v2-fga-sync/chart
@@ -83,7 +83,7 @@ dependencies:
     condition: lfx-v2-committee-service.enabled
   - name: lfx-v2-meeting-service
     repository: oci://ghcr.io/linuxfoundation/lfx-v2-meeting-service/chart
-    version: ~0.7.0
+    version: ~0.8.0
     condition: lfx-v2-meeting-service.enabled
   - name: lfx-v2-mailing-list-service
     repository: oci://ghcr.io/linuxfoundation/lfx-v2-mailing-list-service/chart
