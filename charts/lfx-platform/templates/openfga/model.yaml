@@ -419,10 +419,38 @@ spec:
             # we just use the "owner" relation in our access checks!
             define auditor: owner or auditor from survey
 
-        # @fgadoc:hide
-        # This type is used for access to membership apis, not to define someone as a project member
-        # eventually it needs to be expanded as we index objects
-        type member
+        # The b2b_org type represents a Salesforce Account (B2B company). The UID is
+        # an invertible UUID v8 encoded from the Salesforce Account SFID.
+        # global_org_admin is written to every b2b_org at creation time by the member
+        # service, providing writer (and transitively auditor) access to all org admins
+        # without requiring a hierarchical root object.
+        type b2b_org
           relations
-            define auditor: [user, team#member]
+            define global_org_admin: [team#member]
+            define owner: [user]
+            define writer: [user] or owner or global_org_admin
+            define auditor: [user, team#member] or writer
+
+        # The project_membership type represents a Salesforce Asset record: one active
+        # (or expired) membership term for a b2b_org within a project. Access is derived
+        # from the caller's relationship to the parent b2b_org or parent project.
+        # writer is intentionally scoped to b2b_org only: project-level writers (LF staff)
+        # can audit memberships but cannot create or modify them.
+        type project_membership
+          relations
+            define b2b_org: [b2b_org]
+            define project: [project]
+            define writer: writer from b2b_org
+            define auditor: auditor from b2b_org or auditor from project
+
+        # The key_contact type represents a Salesforce Project_Role__c record: a named
+        # contact role assigned to a b2b_org for a specific project membership. Write
+        # access is granted to b2b_org writers (owners and global org-admin team) and to
+        # project-level writers (LF staff managing contacts on behalf of members).
+        type key_contact
+          relations
+            define b2b_org: [b2b_org]
+            define project: [project]
+            define writer: writer from b2b_org or writer from project
+            define auditor: auditor from b2b_org or auditor from project
 {{- end }}
