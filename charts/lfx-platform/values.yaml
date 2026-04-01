@@ -30,6 +30,13 @@ lfx:
 
   whoami:
     enabled: true
+    resources:
+      requests:
+        cpu: "1m"
+        memory: "4Mi"
+      limits:
+        cpu: "10m"
+        memory: "8Mi"
 
   swagger_ui:
     enabled: true
@@ -157,6 +164,16 @@ openfga:
         tls:
           enabled: false
       sampleRatio: 1.0
+
+  # Migration init container resources
+  migrations:
+    resources:
+      requests:
+        cpu: "50m"
+        memory: "64Mi"
+      limits:
+        cpu: "200m"
+        memory: "128Mi"
 
   # Additional OpenFGA configuration
   replicaCount: 1
@@ -377,6 +394,16 @@ nats:
         limits:
           cpu: "1000m"
           memory: 2Gi
+  natsBox:
+    container:
+      merge:
+        resources:
+          requests:
+            cpu: "1m"
+            memory: "4Mi"
+          limits:
+            cpu: "10m"
+            memory: "16Mi"
 
 # OpenSearch configuration
 opensearch:
@@ -574,6 +601,13 @@ nack:
     nats:
       url: nats://lfx-platform-nats:4222
     additionalArgs: [--control-loop]
+  resources:
+    requests:
+      cpu: "5m"
+      memory: "20Mi"
+    limits:
+      cpu: "50m"
+      memory: "32Mi"
 
 external-secrets:
   enabled: false
@@ -588,6 +622,21 @@ trust-manager:
   crds:
     enabled: true
   namespace: cert-manager
+  resources:
+    requests:
+      cpu: "5m"
+      memory: "24Mi"
+    limits:
+      cpu: "50m"
+      memory: "64Mi"
+  defaultPackageImage:
+    resources:
+      requests:
+        cpu: "10m"
+        memory: "16Mi"
+      limits:
+        cpu: "50m"
+        memory: "32Mi"
 
 lfx-v2-fga-sync:
   replicaCount: 1

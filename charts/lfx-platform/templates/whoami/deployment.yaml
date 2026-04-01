@@ -26,4 +26,5 @@ spec:
           ports:
             - name: web
               containerPort: 80
+          resources: {{- toYaml .Values.lfx.whoami.resources | nindent 12 }}
 {{- end }}
