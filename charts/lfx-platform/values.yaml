@@ -396,14 +396,13 @@ nats:
           memory: 2Gi
   natsBox:
     container:
-      merge:
-        resources:
-          requests:
-            cpu: "1m"
-            memory: "4Mi"
-          limits:
-            cpu: "10m"
-            memory: "16Mi"
+      resources:
+        requests:
+          cpu: "1m"
+          memory: "4Mi"
+        limits:
+          cpu: "10m"
+          memory: "16Mi"
 
 # OpenSearch configuration
 opensearch:
