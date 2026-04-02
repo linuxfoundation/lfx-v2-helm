@@ -30,6 +30,13 @@ lfx:
 
   whoami:
     enabled: true
+    resources:
+      requests:
+        cpu: "1m"
+        memory: "4Mi"
+      limits:
+        cpu: "10m"
+        memory: "8Mi"
 
   swagger_ui:
     enabled: true
