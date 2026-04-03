@@ -54,9 +54,8 @@ spec:
             # @fgadoc:jtbd View project memberships & member companies
             # @fgadoc:jtbd View project membership key contacts
             define auditor: [user, team#member] or writer or auditor from parent
-            # @fgadoc:alias Project Meeting Coordinator
-            # @fgadoc:jtbd Create & manage project meetings & participants
-            define meeting_coordinator: [user]
+             # @fgadoc:alias Project Meeting Coordinator
+             define meeting_coordinator: [user]
             # @fgadoc:alias Viewer (limited read)
             # @fgadoc:jtbd View a project
             # @fgadoc:jtbd View project meeting count
