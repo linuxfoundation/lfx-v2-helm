@@ -23,6 +23,31 @@ the JTBD annotations need to be refreshed from real API usage.
 - Do not modify lines that are not `@fgadoc:jtbd` — `@fgadoc:alias` and
   `@fgadoc:hide` must be left exactly as they are.
 
+## Discipline rules — read before synthesising any JTBD
+
+These rules are non-negotiable. Violating them produces fabricated JTBDs
+that mislead users about what a role can actually do.
+
+**1. Strict group isolation.** Every JTBD must be grounded in a route that
+appears in that exact `object#relation` group in the extracted data. A route
+that belongs to a *different* relation — even on the same object type — does
+**not** count. Do not infer or borrow across groups.
+
+**2. Use the `description` field, not `summary` or the path pattern.**
+The OpenAPI `description` field is the source of truth for what an endpoint
+does. The `summary` is often a terse label and the path pattern can be
+misleading. If a route has no `description`, fall back to `summary`, and flag
+it for manual review.
+
+**3. No RuleSet checks → no JTBD.** If a relation has no routes in the
+extracted groups (i.e. it is not present in `/tmp/openfga_groups.json`), leave
+it with zero `@fgadoc:jtbd` lines. Do not invent plausible-sounding statements.
+
+**4. Do not generalise write verbs.** Only use `Create & manage` or
+`Update & delete` if *both* a creation route (POST) **and** an
+update/delete route (PUT/PATCH/DELETE) are present in that exact group.
+A single POST does not justify "manage"; a single PUT does not justify "create".
+
 ## Step 1 — List all RuleSets on the dev cluster
 
 ```bash
@@ -97,7 +122,9 @@ Use the GitHub code search tool or API to locate the file, then read its
 contents directly from the repo.
 
 For each `method + route` pair from step 2, match it against the
-OpenAPI `paths` object and extract the `summary` or `description` field.
+OpenAPI `paths` object and extract the `description` field. If no
+`description` is present, fall back to `summary`. Do not use the path
+pattern itself as a description source.
 
 ## Step 4 — Synthesise JTBD statements
 
