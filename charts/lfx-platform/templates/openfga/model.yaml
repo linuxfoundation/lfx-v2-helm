@@ -396,9 +396,9 @@ spec:
             # @fgadoc:hide
             define vote: [vote]
             # owner is the user who cast this response
-            # @fgadoc:alias Voter
-            # @fgadoc:jtbd View & manage your vote response
-            define owner: [user]
+             # @fgadoc:alias Voter
+             # @fgadoc:jtbd Update your vote response
+             define owner: [user]
             # we don't need to create a "writer" relation that is defined as just "owner":
             # we just use the "owner" relation in our access checks!
             # @fgadoc:hide
