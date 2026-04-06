@@ -21,8 +21,8 @@ role assignment.
 
 | | Project Writer | Project Auditor | Project Meeting Coordinator | Everyone |
 |---|---|---|---|---|
-| View project meeting count | ✅ | ✅ | | 🟡 |
 | View a project | ✅ | ✅ | | 🟡 |
+| View project meeting count | ✅ | ✅ | | 🟡 |
 | View project membership key contacts | ✅ | ✅ | | |
 | View project memberships & member companies | ✅ | ✅ | | |
 | View project membership tiers | ✅ | ✅ | | |
@@ -46,11 +46,11 @@ role assignment.
 |---|---|---|---|---|
 | View committee details, members, invites & resources | | ✅ | ✅ | 🟡 |
 | View committee settings | | ✅ | | |
-| Schedule a survey for a committee | ✅ | | | |
-| Manage committee links & folders | ✅ | | | |
-| Manage committee members, invites & applications | ✅ | | | |
 | Update committee settings | ✅ | | | |
+| Manage committee members, invites & applications | ✅ | | | |
+| Manage committee links & folders | ✅ | | | |
 | Update & delete a committee | ✅ | | | |
+| Schedule a survey for a committee | ✅ | | | |
 
 #### Permission Inheritance
 
@@ -79,8 +79,8 @@ role assignment.
 
 | | Mailing List Writer | Mailing List Auditor | Subscriber | Everyone |
 |---|---|---|---|---|
-| View & download mailing list artifacts | | | | 🟡 |
 | View a mailing list & its members | | | | 🟡 |
+| View & download mailing list artifacts | | | | 🟡 |
 | Add & remove mailing list members | ✅ | | | |
 | Update & delete a mailing list | ✅ | | | |
 
@@ -95,13 +95,13 @@ role assignment.
 
 | | Host | Participant | Everyone |
 |---|---|---|---|
-| Get meeting join link & ICS file | ✅ | ✅ | 🟡 |
-| Submit a meeting response | ✅ | ✅ | 🟡 |
 | View a meeting & its attachments | ✅ | ✅ | 🟡 |
+| Submit a meeting response | ✅ | ✅ | 🟡 |
+| Get meeting join link & ICS file | ✅ | ✅ | 🟡 |
+| View a meeting registrant | | | |
 | Manage meeting attachments | | | |
 | Manage meeting registrants & occurrences | | | |
 | Update & delete a meeting | | | |
-| View a meeting registrant | | | |
 
 ---
 
@@ -110,6 +110,8 @@ role assignment.
 | | Host | Invitee | Attendee | Everyone |
 |---|---|---|---|---|
 | View a past meeting & its attachments | | ✅ | ✅ | 🟡 |
+| View a past meeting summary | ✅ | ✅ | ✅ | |
+| Update a past meeting summary | | | | |
 | Manage past meeting participants & attachments | | | | |
 | Update & delete a past meeting | | | | |
 
@@ -119,8 +121,8 @@ role assignment.
 
 | | Participant | Everyone |
 |---|---|---|
-| View aggregated voting results | | 🟡 |
 | View a vote & its status | ✅ | 🟡 |
+| View aggregated voting results | | 🟡 |
 | Cast a vote response | ✅ | |
 | Extend, enable & resend a vote | | |
 | Update & delete a vote | | |
