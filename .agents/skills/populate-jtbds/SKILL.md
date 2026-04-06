@@ -22,6 +22,9 @@ the JTBD annotations need to be refreshed from real API usage.
   — it is **not** a `[user]` direct grant and must not generate a JTBD.
 - Do not modify lines that are not `@fgadoc:jtbd` — `@fgadoc:alias` and
   `@fgadoc:hide` must be left exactly as they are.
+- `@fgadoc:hide` objects and relations are **not** excluded from JTBD
+  processing. If a hidden type or relation has matching RuleSet routes,
+  synthesize and write JTBDs for it exactly as you would for a visible one.
 
 ## Discipline rules — read before synthesizing any JTBD
 
@@ -42,6 +45,9 @@ it for manual review.
 **3. No RuleSet checks → no JTBD.** If a relation has no routes in the
 extracted groups (i.e. it is not present in `/tmp/openfga_groups.json`), leave
 it with zero `@fgadoc:jtbd` lines. Do not invent plausible-sounding statements.
+A `@fgadoc:hide` annotation does **not** exempt an object or relation from this
+rule — hidden objects with RuleSet routes still get JTBDs; hidden objects
+without routes still get none.
 
 **4. Do not generalize write verbs.** Only use `Create & manage` or
 `Update & delete` if *both* a creation route (POST) **and** an

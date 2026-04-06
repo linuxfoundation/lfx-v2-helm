@@ -51,7 +51,7 @@ For each `type <name>` block, extract:
 | Field | How to find it |
 |---|---|
 | Raw type name | `type <name>` |
-| Display name | `@fgadoc:alias` in preceding annotation block; else raw name |
+| Display name | `@fgadoc:alias` in preceding annotation block; else raw name in Title Case with underscores replaced by spaces |
 | Hidden? | `@fgadoc:hide` in preceding annotation block |
 
 For each `define <relation>:` line, extract:
@@ -59,7 +59,7 @@ For each `define <relation>:` line, extract:
 | Field | How to find it |
 |---|---|
 | Raw relation name | `define <relation>:` |
-| Display name | `@fgadoc:alias` in preceding annotation block; else raw name |
+| Display name | `@fgadoc:alias` in preceding annotation block; else raw name in Title Case with underscores replaced by spaces |
 | Hidden? | `@fgadoc:hide` in preceding annotation block |
 | JTBD list | All `@fgadoc:jtbd` lines in preceding annotation block |
 | Define expression | Everything after `:` on the `define` line |
@@ -271,7 +271,19 @@ or `[user:*]` grants at all), write a short prose paragraph explaining how
 access is inherited, and omit the table and inheritance sub-section.
 
 **Table header row:** The first cell of the header row is **blank** (no
-"Job to Be Done" text). Columns follow in file order, with Everyone last.
+"Job to Be Done" text). Columns follow the ordering rule below, with
+Everyone always last.
+
+**Column ordering rule:** Within the named-role columns, apply this sort:
+
+1. **owner** (if present) — leftmost
+2. **writer** (if present)
+3. **auditor** (if present)
+4. Any remaining columns whose raw relation name does **not** match
+   `member`, `participant`, or `subscriber` — in file order among themselves
+5. **member**, **participant**, **subscriber** (whichever are present) —
+   rightmost among named-role columns, in file order among themselves
+6. **Everyone** — always the absolute rightmost column
 
 **Default intro** (use only if file is new or has no existing intro after
 the `<!-- generated-intro ... -->` block):
@@ -299,7 +311,7 @@ After writing, re-read `PERMISSIONS.md` and confirm:
 - Permission Inheritance bullets only appear for named-role relations (has `[user]`, not hidden) with direct cross-type `<rel> from <field>` terms in their own define — no peer-chain traversal.
 - JTBD rows within each table appear in reverse file order (most general action first).
 - ALL JTBDs from ALL relations of a type appear as rows (including viewer/public JTBDs).
-- Named-role columns appear in file order (left to right matches top to bottom in the model).
+- Named-role columns follow the ordering rule: owner → writer → auditor → other (file order) → member/participant/subscriber (file order) → Everyone rightmost.
 - The Everyone column is always rightmost.
 - Writer columns show ✅ for auditor JTBDs (because auditor includes writer, so writers have auditor access).
 - Auditor columns do NOT show ✅ for writer-only JTBDs (auditors are not writers).
