@@ -17,120 +17,116 @@ role assignment.
 
 ### Project
 
-| Job to Be Done                                      | Project Manager | Project Auditor (full read) | Project Meeting Coordinator |
-|-----------------------------------------------------|-----------------|-----------------------------|-----------------------------|
-| View project membership key contacts                |                 | ✅                           |                             |
-| View project memberships & member companies         |                 | ✅                           |                             |
-| View project membership tiers                       |                 | ✅                           |                             |
-| View project settings                               |                 | ✅                           |                             |
-| Create a vote                                       | ✅               | ✅                           |                             |
-| Manage project membership key contacts              | ✅               | ✅                           |                             |
-| Create project committees, meetings & mailing lists | ✅               | ✅                           |                             |
-| Update project settings                             | ✅               | ✅                           |                             |
-| Create & update a project                           | ✅               | ✅                           |                             |
+| | Project Writer | Project Auditor | Project Meeting Coordinator | Everyone |
+|---|---|---|---|---|
+| View project meeting count | ✅ | ✅ | | 🟡 |
+| View a project | ✅ | ✅ | | 🟡 |
+| View project membership key contacts | ✅ | ✅ | | |
+| View project memberships & member companies | ✅ | ✅ | | |
+| View project membership tiers | ✅ | ✅ | | |
+| View project settings | ✅ | ✅ | | |
+| Create a vote | ✅ | | | |
+| Manage project membership key contacts | ✅ | | | |
+| Create project committees, meetings & mailing lists | ✅ | | | |
+| Update project settings | ✅ | | | |
+| Create & update a project | ✅ | | | |
 
 #### Permission Inheritance
 
-- **Project Manager**: inherited from parent Project
-- **Project Auditor (full read)**: inherited from parent Project
-- **Viewer (limited read)**: inherited from parent Project; all authenticated and anonymous users inherit Viewer (limited read) access when this Project is configured as public
+- **Project Writer**: inherited from parent Project
+- **Project Auditor**: inherited from parent Project
 
 ---
 
 ### Committee
 
-| Job to Be Done                                   | Committee Member | Committee Manager | Committee Auditor |
-|--------------------------------------------------|------------------|-------------------|-------------------|
-| View committee settings                          |                  |                   | ✅                 |
-| Schedule a survey for a committee                |                  | ✅                 |                   |
-| Manage committee links & folders                 |                  | ✅                 |                   |
-| Manage committee members, invites & applications |                  | ✅                 |                   |
-| Update & delete a committee                      |                  | ✅                 |                   |
+| | Committee Member | Committee Writer | Committee Auditor | Everyone |
+|---|---|---|---|---|
+| View committee details, members, invites & resources | ✅ | | ✅ | 🟡 |
+| View committee settings | | | ✅ | |
+| Schedule a survey for a committee | | ✅ | | |
+| Manage committee links & folders | | ✅ | | |
+| Manage committee members, invites & applications | | ✅ | | |
+| Update committee settings | | ✅ | | |
+| Update & delete a committee | | ✅ | | |
 
 #### Permission Inheritance
 
-- **Committee Manager**: inherited from Project Manager
-- **Committee Auditor**: inherited from Project Auditor (full read), Project Meeting Coordinator
-- **Viewer**: inherited from Project Auditor (full read); all authenticated and anonymous users inherit Viewer access when this Committee is configured as public
+- **Committee Writer**: inherited from Project Writer
+- **Committee Auditor**: inherited from Project Auditor, Project Meeting Coordinator
 
 ---
 
 ### Groups.io Service
 
-| Job to Be Done                      | Groups.io Service Owner | Groups.io Service Manager | Groups.io Service Auditor |
-|-------------------------------------|-------------------------|---------------------------|---------------------------|
-| Create project mailing lists        |                         | ✅                         | ✅                         |
-| Update & delete a Groups.io service |                         | ✅                         | ✅                         |
+| | Groups.io Service Owner | Groups.io Service Writer | Groups.io Service Auditor | Everyone |
+|---|---|---|---|---|
+| View a Groups.io service | | | | 🟡 |
+| Create project mailing lists | ✅ | ✅ | | |
+| Update & delete a Groups.io service | ✅ | ✅ | | |
 
 #### Permission Inheritance
 
-- **Groups.io Service Owner**: inherited from Project Owner
-- **Groups.io Service Manager**: inherited from Project Manager
-- **Groups.io Service Auditor**: inherited from Project Auditor (full read)
-- **Viewer**: inherited from Project Auditor (full read); all authenticated and anonymous users inherit Viewer access when this Groups.io Service is configured as public
+- **Groups.io Service Owner**: inherited from Project owner
+- **Groups.io Service Writer**: inherited from Project Writer
+- **Groups.io Service Auditor**: inherited from Project Auditor
 
 ---
 
 ### Mailing List
 
-| Job to Be Done                            | Mailing List Manager | Mailing List Auditor | Subscriber |
-|-------------------------------------------|----------------------|----------------------|------------|
-| Add, update & remove mailing list members | ✅                    |                      |            |
-| Update & delete a mailing list            | ✅                    |                      |            |
+| | Mailing List Writer | Mailing List Auditor | Subscriber | Everyone |
+|---|---|---|---|---|
+| View & download mailing list artifacts | | | | 🟡 |
+| View a mailing list & its members | | | | 🟡 |
+| Add & remove mailing list members | ✅ | | | |
+| Update & delete a mailing list | ✅ | | | |
 
 #### Permission Inheritance
 
-- **Mailing List Manager**: inherited from Groups.io Service Manager, Committee Manager
+- **Mailing List Writer**: inherited from Groups.io Service Writer, Committee Writer
 - **Mailing List Auditor**: inherited from Groups.io Service Auditor, Committee Auditor
-- **Viewer**: inherited from Groups.io Service Viewer, Committee Member; all authenticated and anonymous users inherit Viewer access when this Mailing List is configured as public
 
 ---
 
-### Scheduled Meeting
+### Scheduled Meeting (Individual, or recurring)
 
-| Job to Be Done | Organizer | Host | Participant |
-|---|---|---|---|
+| | Organizer | Host | Participant | Everyone |
+|---|---|---|---|---|
 
 #### Permission Inheritance
 
-- **Organizer**: inherited from Project Meeting Coordinator, Committee Manager, Project Manager
+- **Organizer**: inherited from Project Meeting Coordinator, Committee Writer, Project Writer
 
 ---
 
 ### Vote
 
-| Job to Be Done       | Participant |
-|----------------------|-------------|
-| Cast a vote response | ✅           |
-
-#### Permission Inheritance
-
-- **Viewer**: all authenticated and anonymous users inherit Viewer access when this Vote is configured as public
-- **Results Viewer**: all authenticated and anonymous users inherit Results Viewer access when this Vote is configured as public
+| | Participant | Everyone |
+|---|---|---|
+| View aggregated voting results | | 🟡 |
+| View a vote & its status | ✅ | 🟡 |
+| Cast a vote response | ✅ | |
 
 ---
 
 ### Vote Response
 
-| Job to Be Done            | Voter |
-|---------------------------|-------|
-| Update your vote response | ✅     |
+| | Voter |
+|---|---|
+| Update your vote response | ✅ |
 
 ---
 
 ### Survey
 
-| Job to Be Done | Participant |
-|---|---|
-
-#### Permission Inheritance
-
-- **Viewer**: all authenticated and anonymous users inherit Viewer access when this Survey is configured as public
-- **Results Viewer**: all authenticated and anonymous users inherit Results Viewer access when this Survey is configured as public
+| | Participant | Everyone |
+|---|---|---|
+| View a survey | ✅ | 🟡 |
 
 ---
 
 ### Survey Response
 
-| Job to Be Done | Respondent |
+| | Respondent |
 |---|---|

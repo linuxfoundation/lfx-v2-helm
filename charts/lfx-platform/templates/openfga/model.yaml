@@ -48,7 +48,7 @@ spec:
             # @fgadoc:jtbd Manage project membership key contacts
             # @fgadoc:jtbd Create a vote
             define writer: [user] or owner or writer from parent
-            # @fgadoc:alias Project Auditor (full read)
+            # @fgadoc:alias Project Auditor
             # @fgadoc:jtbd View project settings
             # @fgadoc:jtbd View project membership tiers
             # @fgadoc:jtbd View project memberships & member companies

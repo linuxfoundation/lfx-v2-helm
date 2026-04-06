@@ -15,8 +15,7 @@ human-readable `PERMISSIONS.md` at the repo root.
   block** — Helm expressions (`{{- if ... }}`, `{{- end }}`, etc.) must
   not be parsed or evaluated.
 - `[user:*]` means "every user including anonymous". It produces an
-  **Everyone** column in the table — see Step 2 — and a Permission
-  Inheritance bullet — see Step 3.
+  **Everyone** column in the table — see Step 2.
 - Non-`@fgadoc` comments may appear between an `@fgadoc` annotation block
   and the `type`/`define` line it annotates (e.g. descriptive prose already
   in the file). Collect all consecutive `# @fgadoc:*` lines before a
@@ -195,44 +194,42 @@ the Everyone column entirely. The Everyone column is ALWAYS the rightmost.
 
 ## Step 3 — Build Permission Inheritance sections
 
-For each **visible** type, for each **visible** relation (including hidden
-relations whose JTBDs must still be mentioned if they have `[user:*]`),
-list only **cross-type** sources:
+For each **visible** type, for each **named-role relation** (has `[user]`,
+not hidden), emit a bullet only when the relation's own define expression
+contains one or more **direct** `<rel> from <field>` terms where `<field>`
+resolves to a **different** type (i.e. a field whose type annotation is not
+the current type).
 
-- `<rel> from <field>` in the define expression, where `<field>` is a
-  relation that links to a different type (e.g. `writer from project`
-  pulls the `writer` relation from the parent `project` object).
-- Parent-of-same-type inheritance (`<rel> from parent`) is cross-type
-  when the parent field holds the same type — mention it explicitly.
+Rules:
 
-**Do not mention** same-type `or <peer>` inclusions — these are already
-visible from the ✅ columns in the table.
+- Only examine the define expression of the relation itself — do **not**
+  follow `or <peer>` chains to discover cross-type sources that belong to
+  a peer relation. Each relation's bullet describes only what is written
+  directly in that relation's define.
+- Parent-of-same-type (`<rel> from parent`) counts as cross-type when
+  `parent` holds the current type (i.e. it is a recursive parent link) —
+  mention it as "inherited from parent \<Type Display Name\>".
+- **Do not** emit a bullet for `[user:*]` public-access — this is already
+  communicated by the Everyone column in the table.
+- **Do not mention** same-type `or <peer>` inclusions — these are already
+  visible from the ✅ columns in the table.
+- Omit a bullet entirely if the relation has no direct cross-type sources.
+- Omit the entire `#### Permission Inheritance` sub-section if no bullets
+  are generated for any relation in that type.
 
 **Do not include verbatim OpenFGA syntax** in the output. No backtick
 expressions like `` `writer from project` `` or `` `or organizer` `` should
 appear anywhere in `PERMISSIONS.md`. Describe inheritance in plain English
-only (e.g. "inherited from Project Manager", "inherited from parent Project").
+only (e.g. "inherited from Project Writer", "inherited from parent Project").
 
-Additionally, for any relation whose define expression contains `[user:*]`,
-add a bullet describing the conditional public access. Use this format:
-
-```
-- **<rel display name>**: all authenticated and anonymous users inherit <Rel Display Name> access when this <Type Display Name> is configured as public
-```
-
-Omit a bullet entirely if there are no cross-type sources and no `[user:*]`
-for that relation. Omit the entire `#### Permission Inheritance` sub-section
-if no bullets are generated for any relation in that type.
-
-Format for cross-type sources:
+Format:
 
 ```
 - **<rel display name>**: inherited from <Source Type Display Name> <Relation Display Name>
 ```
 
-When multiple cross-type sources exist for one relation, list them on a
-single bullet separated by commas. If a relation has both cross-type sources
-and a `[user:*]` grant, emit two separate bullets.
+When multiple direct cross-type sources exist for one relation, list them on
+a single bullet separated by commas.
 
 ## Step 4 — Write PERMISSIONS.md
 
@@ -298,7 +295,8 @@ After writing, re-read `PERMISSIONS.md` and confirm:
 - Every visible type with at least one visible column or Everyone column has a table.
 - No `[user:*]`-only relation appears as a named-role column.
 - Every type with at least one `[user:*]` relation has an Everyone column.
-- Every relation with `[user:*]` in its define has a public-access bullet in Permission Inheritance.
+- Every relation with `[user:*]` in its define does NOT get a public-access bullet (the Everyone column covers this).
+- Permission Inheritance bullets only appear for named-role relations (has `[user]`, not hidden) with direct cross-type `<rel> from <field>` terms in their own define — no peer-chain traversal.
 - JTBD rows within each table appear in reverse file order (most general action first).
 - ALL JTBDs from ALL relations of a type appear as rows (including viewer/public JTBDs).
 - Named-role columns appear in file order (left to right matches top to bottom in the model).
