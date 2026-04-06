@@ -13,13 +13,18 @@ This document describes the permissions model for the LFX Self Service
 Platform. Each section below represents an object type that supports direct
 role assignment.
 
-**Legend:** ✅ access is granted to this role · 🟡 access depends on per-item attributes/settings
+## Legend
 
-## Objects supporting role assignment
+- "**Role Name**" column headings are assignable roles for this object type (may also be inherited; see lists below tables)
+- "**_Italicized Role Name_**" headings are implicit or inherited roles (_not_ directly assignable on this object type)
+- ✅ access is granted to this role to all objects of this type
+- 🟡 access is conditional based on per-object settings
+
+## Object types
 
 ### Project
 
-| | Project Writer | Project Auditor | Project Meeting Coordinator | Everyone |
+| | Project Writer | Project Auditor | Project Meeting Coordinator | *Everyone* |
 |---|---|---|---|---|
 | View a project | ✅ | ✅ | | 🟡 |
 | View project meeting count | ✅ | ✅ | | 🟡 |
@@ -42,7 +47,7 @@ role assignment.
 
 ### Committee
 
-| | Committee Writer | Committee Auditor | Committee Member | Everyone |
+| | Committee Writer | Committee Auditor | Committee Member | *Everyone* |
 |---|---|---|---|---|
 | View committee details, members, invites & resources | | ✅ | ✅ | 🟡 |
 | View committee settings | | ✅ | | |
@@ -61,7 +66,7 @@ role assignment.
 
 ### Groups.io Service
 
-| | Groups.io Service Owner | Groups.io Service Writer | Groups.io Service Auditor | Everyone |
+| | Groups.io Service Owner | Groups.io Service Writer | Groups.io Service Auditor | *Everyone* |
 |---|---|---|---|---|
 | View a Groups.io service | | | | 🟡 |
 | Create project mailing lists | ✅ | ✅ | | |
@@ -77,7 +82,7 @@ role assignment.
 
 ### Mailing List
 
-| | Mailing List Writer | Mailing List Auditor | Subscriber | Everyone |
+| | Mailing List Writer | Mailing List Auditor | Subscriber | *Everyone* |
 |---|---|---|---|---|
 | View a mailing list & its members | | | | 🟡 |
 | View & download mailing list artifacts | | | | 🟡 |
@@ -93,59 +98,59 @@ role assignment.
 
 ### Scheduled Meeting
 
-| | Host | Participant | Everyone |
-|---|---|---|---|
-| View a meeting & its attachments | ✅ | ✅ | 🟡 |
-| Submit a meeting response | ✅ | ✅ | 🟡 |
-| Get meeting join link & ICS file | ✅ | ✅ | 🟡 |
-| View a meeting registrant | | | |
-| Manage meeting attachments | | | |
-| Manage meeting registrants & occurrences | | | |
-| Update & delete a meeting | | | |
+| | *Auditor* | *Organizer* | Host | Participant | *Everyone* |
+|---|---|---|---|---|---|
+| View a meeting & its attachments | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| Submit a meeting response | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| Get meeting join link & ICS file | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View a meeting registrant | ✅ | ✅ | | | |
+| Manage meeting attachments | | ✅ | | | |
+| Manage meeting registrants & occurrences | | ✅ | | | |
+| Update & delete a meeting | | ✅ | | | |
 
 ---
 
 ### Past Meeting
 
-| | Host | Invitee | Attendee | Everyone |
-|---|---|---|---|---|
-| View a past meeting & its attachments | | ✅ | ✅ | 🟡 |
-| View a past meeting summary | ✅ | ✅ | ✅ | |
-| Update a past meeting summary | | | | |
-| Manage past meeting participants & attachments | | | | |
-| Update & delete a past meeting | | | | |
+| | *Auditor* | *Organizer* | Host | Invitee | Attendee | *Everyone* |
+|---|---|---|---|---|---|---|
+| View a past meeting & its attachments | ✅ | ✅ | | ✅ | ✅ | 🟡 |
+| View a past meeting summary | | ✅ | ✅ | ✅ | ✅ | |
+| Update a past meeting summary | | ✅ | | | | |
+| Manage past meeting participants & attachments | | ✅ | | | | |
+| Update & delete a past meeting | | ✅ | | | | |
 
 ---
 
 ### Vote
 
-| | Participant | Everyone |
-|---|---|---|
-| View a vote & its status | ✅ | 🟡 |
-| View aggregated voting results | | 🟡 |
-| Cast a vote response | ✅ | |
-| Extend, enable & resend a vote | | |
-| Update & delete a vote | | |
+| | *Writer* | *Auditor* | Participant | *Everyone* |
+|---|---|---|---|---|
+| View a vote & its status | ✅ | ✅ | ✅ | 🟡 |
+| View aggregated voting results | ✅ | ✅ | | 🟡 |
+| Cast a vote response | | | ✅ | |
+| Extend, enable & resend a vote | ✅ | | | |
+| Update & delete a vote | ✅ | | | |
 
 ---
 
 ### Vote Response
 
-| | Voter |
-|---|---|
-| View a vote response | ✅ |
-| Update your vote response | ✅ |
+| | *Auditor* | Voter |
+|---|---|---|
+| View a vote response | ✅ | ✅ |
+| Update your vote response | | ✅ |
 
 ---
 
 ### Survey
 
-| | Participant | Everyone |
-|---|---|---|
-| View a survey | ✅ | 🟡 |
-| Preview survey send recipients | | |
-| Manage survey recipients & responses | | |
-| Update & delete a survey | | |
+| | *Writer* | *Auditor* | Participant | *Everyone* |
+|---|---|---|---|---|
+| View a survey | ✅ | ✅ | ✅ | 🟡 |
+| Preview survey send recipients | ✅ | ✅ | | |
+| Manage survey recipients & responses | ✅ | | | |
+| Update & delete a survey | ✅ | | | |
 
 ---
 

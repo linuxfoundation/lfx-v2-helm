@@ -25,8 +25,8 @@ human-readable `PERMISSIONS.md` at the repo root.
   — i.e. `<rel> from <field>` references where `<field>` resolves to a
   different type. Same-type `or <peer>` inclusions are intentionally omitted
   because they are already implicit in the ✅ / 🟡 columns of the table.
-- The intro block before `## Objects supporting role assignment` must be
-  preserved exactly if `PERMISSIONS.md` already exists and has content there.
+- The intro block before `## Object types` must be preserved exactly if
+  `PERMISSIONS.md` already exists and has content there.
 - The `<!-- generated-intro -->` comment block at the top must be preserved
   exactly if `PERMISSIONS.md` already exists.
 
@@ -72,20 +72,30 @@ For each `define <relation>:` line, extract:
 | Define expression | Everything after `:` on the `define` line |
 | Direct user grant? | `[user]` appears literally (not `[user:*]`) in define expression |
 | Public wildcard? | `[user:*]` appears in the define expression |
+| Indirect-only? | Does NOT have `[user]` or `[user:*]`, AND has at least one `<rel> from <field>` term where `<field>` resolves to a different type |
 
 ## Step 2 — Build the JTBD × relation matrix
 
 ### 2a — Determine visible columns
 
-For each **visible** type (not hidden), determine **visible named-role
-columns** — relations where `[user]` appears literally (not `[user:*]`) in
-the define expression **and** the relation is not hidden.
+For each **visible** type (not hidden), determine two sets of visible columns:
+
+**Direct-grant columns** — relations where `[user]` appears literally (not
+`[user:*]`) in the define expression **and** the relation is not hidden.
+
+**Indirect-only columns** — relations that are indirect-only (no `[user]` or
+`[user:*]`, has at least one cross-type `<rel> from <field>` term) **and**
+are not hidden **and** would have at least one ✅ cell (i.e. their reachable
+JTBD pool is non-empty — see Step 2c for how to compute this). These columns
+represent roles that can only be assigned by granting access on a foreign
+object, not directly on this object. Their header text is **italicized** in
+the Markdown table (wrap the display name in `*...*`).
 
 Additionally, if **any** relation in the type has `[user:*]` in its define
-expression (even a hidden relation), include an **Everyone** column as the
-**rightmost** column. The Everyone column is special: it uses the 🟡 marker
-instead of ✅, and it collects JTBDs from **all relations** that contain
-`[user:*]`.
+expression (even a hidden relation), include an ***Everyone*** column as the
+**rightmost** column. The Everyone column header is always italicized (`*Everyone*`).
+It is special: it uses the 🟡 marker instead of ✅, and it collects JTBDs
+from **all relations** that contain `[user:*]`.
 
 ### 2b — Determine JTBD rows
 
@@ -144,14 +154,15 @@ In other words, A ⊆ B — A is the more privileged role. A writer who is
 included in auditor (`auditor: ... or writer`) automatically has auditor
 access too, because writers are a subset of auditors.
 
-**Consequence for columns:** A column represents a role a user is directly
-assigned to. The column should show ✅ for every action that role can
-perform — including actions inherited *upward* from any relation that
-includes this role.
+**Consequence for columns:** A column represents a role. For direct-grant
+columns, a user is directly assigned to the role. For indirect-only columns,
+a user reaches the role via a foreign object. In both cases, the column
+should show ✅ for every action that role can perform — including actions
+inherited *upward* from any relation that includes this role.
 
 For each (JTBD, column) pair:
 
-**For a named-role column** (has `[user]`):
+**For a direct-grant column** (has `[user]`) **or an indirect-only column**:
 
 Build the **upward reachability set** for the column's relation: starting
 from that relation, find every other relation in the same type whose define
@@ -209,7 +220,7 @@ Everyone column: yes (`viewer` has `[user:*]`).
 
 Result table (JTBD rows ordered by semantic priority — base object first, then settings, then attributes, then child resource creation):
 
-| | Project Writer | Project Auditor (full read) | Project Meeting Coordinator | Everyone |
+| | Project Writer | Project Auditor (full read) | Project Meeting Coordinator | *Everyone* |
 |---|---|---|---|---|
 | View a project | ✅ | ✅ | | 🟡 |
 | View project meeting count | ✅ | ✅ | | 🟡 |
@@ -240,11 +251,15 @@ the Everyone column entirely. The Everyone column is ALWAYS the rightmost.
 
 ## Step 3 — Build Permission Inheritance sections
 
-For each **visible** type, for each **named-role relation** (has `[user]`,
+For each **visible** type, for each **direct-grant relation** (has `[user]`,
 not hidden), emit a bullet only when the relation's own define expression
 contains one or more **direct** `<rel> from <field>` terms where `<field>`
 resolves to a **different** type (i.e. a field whose type annotation is not
 the current type).
+
+**Do not emit bullets for indirect-only columns.** Their column headers
+already name the foreign-type role (e.g. *Writer*, *Auditor*), so the
+inheritance is self-evident from the table itself.
 
 Rules:
 
@@ -295,11 +310,11 @@ Run .agents/skills/render-permissions/SKILL.md to regenerate after any model cha
 
 <intro — preserved if existing, else default below>
 
-## Objects supporting role assignment
+## Object types
 
 ### <Type display name>
 
-| | <col1> | <col2> | ... | Everyone |
+| | <col1> | <col2> | ... | *Everyone* |
 |---|---|---|---|---|
 | <jtbd> | ✅ | | ✅ | 🟡 |
 
@@ -320,16 +335,20 @@ access is inherited, and omit the table and inheritance sub-section.
 "Job to Be Done" text). Columns follow the ordering rule below, with
 Everyone always last.
 
-**Column ordering rule:** Within the named-role columns, apply this sort:
+**Column ordering rule:** Apply this sort across all columns:
 
-1. **owner** (if present) — leftmost
-2. **writer** (if present)
-3. **auditor** (if present)
-4. Any remaining columns whose raw relation name does **not** match
-   `member`, `participant`, or `subscriber` — in file order among themselves
-5. **member**, **participant**, **subscriber** (whichever are present) —
-   rightmost among named-role columns, in file order among themselves
-6. **Everyone** — always the absolute rightmost column
+1. **Indirect-only columns** (italicized) — leftmost of all, in file order
+   among themselves
+2. **owner** (if present, direct-grant)
+3. **writer** (if present, direct-grant)
+4. **auditor** (if present, direct-grant)
+5. Any remaining direct-grant columns whose raw relation name does **not**
+   match `member`, `participant`, or `subscriber` — in file order among
+   themselves
+6. **member**, **participant**, **subscriber** (whichever are present,
+   direct-grant) — rightmost among direct-grant columns, in file order
+   among themselves
+7. **Everyone** — always the absolute rightmost column
 
 **Default intro** (use only if file is new or has no existing intro after
 the `<!-- generated-intro ... -->` block):
@@ -338,12 +357,19 @@ the `<!-- generated-intro ... -->` block):
 This document describes the permissions model for the LFX Self Service
 Platform. Each section below represents an object type that supports direct
 role assignment.
+
+## Legend
+
+- "**Role Name**" column headings are assignable roles for this object type (may also be inherited; see lists below tables)
+- "**_Italicized Role Name_**" headings are implicit or inherited roles (_not_ directly assignable on this object type)
+- ✅ access is granted to this role to all objects of this type
+- 🟡 access is conditional based on per-object settings
 ```
 
 **Preserving the intro:** The `<!-- generated-intro ... -->` comment block and
 the H1 heading are always re-written. Everything between the H1 and the
-`## Objects supporting role assignment` heading is the intro and must be
-preserved if it already exists.
+`## Object types` heading is the intro and must be preserved if it already
+exists.
 
 ## Step 5 — Verify
 
@@ -353,23 +379,28 @@ After writing, re-read `PERMISSIONS.md` and confirm:
 - Collapsed types (those with `@fgadoc:collapse`) have no `###` section of their own; their JTBDs appear in their target type's section.
 - Collapsed JTBDs are interleaved with the target type's own JTBDs (not appended as a separate block).
 - Every visible type with at least one visible column or Everyone column has a table.
-- No `[user:*]`-only relation appears as a named-role column.
-- Every type with at least one `[user:*]` relation has an Everyone column.
+- No `[user:*]`-only relation appears as a direct-grant or indirect-only column.
+- Every type with at least one `[user:*]` relation has an *Everyone* column (italicized header).
 - Every relation with `[user:*]` in its define does NOT get a public-access bullet (the Everyone column covers this).
-- Permission Inheritance bullets only appear for named-role relations (has `[user]`, not hidden) with direct cross-type `<rel> from <field>` terms in their own define — no peer-chain traversal.
+- Indirect-only columns appear leftmost, before all direct-grant columns, in file order among themselves.
+- Indirect-only column headers are italicized (e.g. `*Writer*`, `*Auditor*`).
+- Indirect-only columns with zero ✅ cells are omitted entirely.
+- No Permission Inheritance bullets are emitted for indirect-only columns.
+- Permission Inheritance bullets only appear for direct-grant relations (has `[user]`, not hidden) with direct cross-type `<rel> from <field>` terms in their own define — no peer-chain traversal.
 - JTBD rows within each table follow the semantic ordering rule: base object first, settings next, attributes in Read → Update → Delete order, child resource creation last.
 - ALL JTBDs from ALL relations of a type appear as rows (including viewer/public JTBDs).
-- Named-role columns follow the ordering rule: owner → writer → auditor → other (file order) → member/participant/subscriber (file order) → Everyone rightmost.
-- The Everyone column is always rightmost.
+- Column ordering rule applied: indirect-only (file order) → owner → writer → auditor → other direct-grant (file order) → member/participant/subscriber (file order) → *Everyone* rightmost.
+- The *Everyone* column header is italicized.
+- The *Everyone* column is always rightmost.
 - Writer columns show ✅ for auditor JTBDs (because auditor includes writer, so writers have auditor access).
 - Auditor columns do NOT show ✅ for writer-only JTBDs (auditors are not writers).
-- The Everyone column shows 🟡 only for JTBDs from the `[user:*]` relation's own upward reachability set (not from privileged roles that the [user:*] relation happens to include downward).
+- The *Everyone* column shows 🟡 only for JTBDs from the `[user:*]` relation's own upward reachability set (not from privileged roles that the [user:*] relation happens to include downward).
 - The table header first cell is blank (no "Job to Be Done" text).
 - No same-type peer relations appear in Permission Inheritance bullets.
 - No verbatim OpenFGA syntax (backtick expressions like `` `writer from project` ``) appears anywhere in the file.
 - The `<!-- generated-intro ... -->` block is present at the top.
 - The H1 `# LFX Self Service Platform Permissions` is present.
-- The `## Objects supporting role assignment` heading is used (not `## Entities`).
+- The `## Object types` heading is used (not `## Objects supporting role assignment` or `## Entities`).
 - The intro block is unchanged (if it existed before).
 
 Report: types rendered, total columns (excluding Everyone), total JTBD rows.
