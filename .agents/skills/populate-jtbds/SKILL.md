@@ -7,7 +7,7 @@ compatibility: Requires kubectl configured against the LFX v2 platform developme
 
 Populate `@fgadoc:jtbd` annotations in
 `charts/lfx-platform/templates/openfga/model.yaml` by reading live API
-authorization rules from the dev cluster and synthesising them into
+authorization rules from the dev cluster and synthesizing them into
 short, action-oriented Job-to-Be-Done (JTBD) statements.
 
 Run this skill whenever the OpenFGA model gains new types or relations and
@@ -23,7 +23,7 @@ the JTBD annotations need to be refreshed from real API usage.
 - Do not modify lines that are not `@fgadoc:jtbd` — `@fgadoc:alias` and
   `@fgadoc:hide` must be left exactly as they are.
 
-## Discipline rules — read before synthesising any JTBD
+## Discipline rules — read before synthesizing any JTBD
 
 These rules are non-negotiable. Violating them produces fabricated JTBDs
 that mislead users about what a role can actually do.
@@ -43,7 +43,7 @@ it for manual review.
 extracted groups (i.e. it is not present in `/tmp/openfga_groups.json`), leave
 it with zero `@fgadoc:jtbd` lines. Do not invent plausible-sounding statements.
 
-**4. Do not generalise write verbs.** Only use `Create & manage` or
+**4. Do not generalize write verbs.** Only use `Create & manage` or
 `Update & delete` if *both* a creation route (POST) **and** an
 update/delete route (PUT/PATCH/DELETE) are present in that exact group.
 A single POST does not justify "manage"; a single PUT does not justify "create".
@@ -126,11 +126,11 @@ OpenAPI `paths` object and extract the `description` field. If no
 `description` is present, fall back to `summary`. Do not use the path
 pattern itself as a description source.
 
-## Step 4 — Synthesise JTBD statements
+## Step 4 — Synthesize JTBD statements
 
 For each `<object>#<relation>` group you now have a set of API operation
 descriptions. Read `references/jtbd-examples.txt` for style guidance, then
-synthesise each group into one or more short, action-oriented JTBD statements.
+synthesize each group into one or more short, action-oriented JTBD statements.
 
 **JTBD style rules:**
 - Start with an imperative verb: *View*, *Create*, *Manage*, *Update*,
