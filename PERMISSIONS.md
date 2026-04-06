@@ -98,27 +98,37 @@ role assignment.
 
 ### Scheduled Meeting
 
-| | *Auditor* | *Organizer* | Host | Participant | *Everyone* |
+| | *Organizer* | *Auditor* | Host | Participant | *Everyone* |
 |---|---|---|---|---|---|
 | View a meeting & its attachments | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | Submit a meeting response | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | Get meeting join link & ICS file | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | View a meeting registrant | ✅ | ✅ | | | |
-| Manage meeting attachments | | ✅ | | | |
-| Manage meeting registrants & occurrences | | ✅ | | | |
-| Update & delete a meeting | | ✅ | | | |
+| Manage meeting attachments | ✅ | | | | |
+| Manage meeting registrants & occurrences | ✅ | | | | |
+| Update & delete a meeting | ✅ | | | | |
+
+#### Permission Inheritance
+
+- ***Organizer***: inherited from Project Meeting Coordinator, Committee Writer, Project Writer
+- ***Auditor***: inherited from Project Auditor
 
 ---
 
 ### Past Meeting
 
-| | *Auditor* | *Organizer* | Host | Invitee | Attendee | *Everyone* |
+| | *Organizer* | *Auditor* | Host | Invitee | Attendee | *Everyone* |
 |---|---|---|---|---|---|---|
 | View a past meeting & its attachments | ✅ | ✅ | | ✅ | ✅ | 🟡 |
-| View a past meeting summary | | ✅ | ✅ | ✅ | ✅ | |
-| Update a past meeting summary | | ✅ | | | | |
-| Manage past meeting participants & attachments | | ✅ | | | | |
-| Update & delete a past meeting | | ✅ | | | | |
+| View a past meeting summary | ✅ | | ✅ | ✅ | ✅ | |
+| Update a past meeting summary | ✅ | | | | | |
+| Manage past meeting participants & attachments | ✅ | | | | | |
+| Update & delete a past meeting | ✅ | | | | | |
+
+#### Permission Inheritance
+
+- ***Organizer***: inherited from Project Meeting Coordinator, Project Writer, Scheduled Meeting Organizer
+- ***Auditor***: inherited from Project Auditor, Scheduled Meeting Auditor
 
 ---
 
@@ -132,6 +142,11 @@ role assignment.
 | Extend, enable & resend a vote | ✅ | | | |
 | Update & delete a vote | ✅ | | | |
 
+#### Permission Inheritance
+
+- ***Writer***: inherited from Project Writer, Committee Writer
+- ***Auditor***: inherited from Project Auditor, Committee Auditor
+
 ---
 
 ### Vote Response
@@ -140,6 +155,10 @@ role assignment.
 |---|---|---|
 | View a vote response | ✅ | ✅ |
 | Update your vote response | | ✅ |
+
+#### Permission Inheritance
+
+- ***Auditor***: inherited from Vote Auditor
 
 ---
 

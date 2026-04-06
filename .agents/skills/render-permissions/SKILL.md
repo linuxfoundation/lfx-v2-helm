@@ -252,14 +252,25 @@ the Everyone column entirely. The Everyone column is ALWAYS the rightmost.
 ## Step 3 — Build Permission Inheritance sections
 
 For each **visible** type, for each **direct-grant relation** (has `[user]`,
-not hidden), emit a bullet only when the relation's own define expression
-contains one or more **direct** `<rel> from <field>` terms where `<field>`
-resolves to a **different** type (i.e. a field whose type annotation is not
-the current type).
+not hidden) **and each indirect-only column**, emit a bullet only when the
+relation's own define expression contains one or more **direct**
+`<rel> from <field>` terms where `<field>` resolves to a **different** type
+(i.e. a field whose type annotation is not the current type).
 
-**Do not emit bullets for indirect-only columns.** Their column headers
-already name the foreign-type role (e.g. *Writer*, *Auditor*), so the
-inheritance is self-evident from the table itself.
+Indirect-only columns always have at least one cross-type source by
+definition, so they will always produce a bullet. Their bullet uses the same
+format as direct-grant bullets — italicize the relation display name to match
+the italicized column header:
+
+```
+- ***<rel display name>***: inherited from <Source Type Display Name> <Relation Display Name>
+```
+
+Direct-grant bullet format (unchanged):
+
+```
+- **<rel display name>**: inherited from <Source Type Display Name> <Relation Display Name>
+```
 
 Rules:
 
@@ -282,12 +293,6 @@ Rules:
 expressions like `` `writer from project` `` or `` `or organizer` `` should
 appear anywhere in `PERMISSIONS.md`. Describe inheritance in plain English
 only (e.g. "inherited from Project Writer", "inherited from parent Project").
-
-Format:
-
-```
-- **<rel display name>**: inherited from <Source Type Display Name> <Relation Display Name>
-```
 
 When multiple direct cross-type sources exist for one relation, list them on
 a single bullet separated by commas.
@@ -337,8 +342,9 @@ Everyone always last.
 
 **Column ordering rule:** Apply this sort across all columns:
 
-1. **Indirect-only columns** (italicized) — leftmost of all, in file order
-   among themselves
+1. **Indirect-only columns** (italicized) — leftmost of all, ordered by
+   descending privilege: **owner** → **writer** → **organizer** → **auditor**
+   → any remaining (file order among themselves)
 2. **owner** (if present, direct-grant)
 3. **writer** (if present, direct-grant)
 4. **auditor** (if present, direct-grant)
@@ -385,11 +391,11 @@ After writing, re-read `PERMISSIONS.md` and confirm:
 - Indirect-only columns appear leftmost, before all direct-grant columns, in file order among themselves.
 - Indirect-only column headers are italicized (e.g. `*Writer*`, `*Auditor*`).
 - Indirect-only columns with zero ✅ cells are omitted entirely.
-- No Permission Inheritance bullets are emitted for indirect-only columns.
-- Permission Inheritance bullets only appear for direct-grant relations (has `[user]`, not hidden) with direct cross-type `<rel> from <field>` terms in their own define — no peer-chain traversal.
+- Permission Inheritance bullets appear for both direct-grant relations (has `[user]`, not hidden) and indirect-only columns, when they have direct cross-type `<rel> from <field>` terms in their own define — no peer-chain traversal.
+- Indirect-only bullets use bold-italic name (e.g. `- ***Auditor***: inherited from ...`); direct-grant bullets use bold name (e.g. `- **Writer**: inherited from ...`).
 - JTBD rows within each table follow the semantic ordering rule: base object first, settings next, attributes in Read → Update → Delete order, child resource creation last.
 - ALL JTBDs from ALL relations of a type appear as rows (including viewer/public JTBDs).
-- Column ordering rule applied: indirect-only (file order) → owner → writer → auditor → other direct-grant (file order) → member/participant/subscriber (file order) → *Everyone* rightmost.
+- Column ordering rule applied: indirect-only (owner → writer → organizer → auditor → other file order) → owner → writer → auditor → other direct-grant (file order) → member/participant/subscriber (file order) → *Everyone* rightmost.
 - The *Everyone* column header is italicized.
 - The *Everyone* column is always rightmost.
 - Writer columns show ✅ for auditor JTBDs (because auditor includes writer, so writers have auditor access).
