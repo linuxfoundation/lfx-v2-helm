@@ -83,12 +83,33 @@ instead of ✅, and it collects JTBDs from **all relations** that contain
 ### 2b — Determine JTBD rows
 
 **Include ALL `@fgadoc:jtbd` statements** across ALL relations of the type,
-deduplicated, in **reverse file order** (bottom-to-top). This places the most
-general/broadly-held actions at the top and the most specific/privileged
-actions at the bottom.
+deduplicated. Do **not** filter out JTBDs whose relation has no visible
+column — they still appear as rows (they may have a 🟡 in the Everyone
+column).
 
-Do **not** filter out JTBDs whose relation has no visible column — they still
-appear as rows (they may have a 🟡 in the Everyone column).
+**Row ordering:** Sort JTBD rows using the following priority rules, applied
+in order:
+
+1. **Base object first.** JTBDs that describe viewing, reading, or accessing
+   the object itself (the type; may be phrased as "details", "definition",
+   or just the type name) come first. If viewing the base object is bundled
+   with other operations in a single JTBD (e.g. "View a meeting & its
+   attachments"), it still sorts first — especially when it is the JTBD that
+   carries the 🟡 Everyone marker.
+
+2. **Settings next.** JTBDs that refer to "settings" of the object come
+   immediately after the base-object group.
+
+3. **Attributes in Read → Update → Delete order.** For each logical group of
+   related attributes or sub-resources (e.g. members, invites, links), sort
+   Read operations before Update/Create before Delete. Group related
+   attributes together so that Read/Update/Delete for the same thing are
+   adjacent.
+
+4. **Child resource creation last.** JTBDs that create child resources of
+   another type come last. If creating a child of the **same** type is
+   allowed, list that first among the child-creation group. Otherwise order
+   child-creation JTBDs by the order their target types appear in model.yaml.
 
 ### 2c — Compute cell values
 
