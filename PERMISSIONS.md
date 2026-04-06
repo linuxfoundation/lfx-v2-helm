@@ -28,15 +28,15 @@ role assignment.
 |---|---|---|---|---|
 | View a project | ✅ | ✅ | | 🟡 |
 | View project meeting count | ✅ | ✅ | | 🟡 |
-| View project membership key contacts | ✅ | ✅ | | |
-| View project memberships & member companies | ✅ | ✅ | | |
-| View project membership tiers | ✅ | ✅ | | |
 | View project settings | ✅ | ✅ | | |
-| Create a vote | ✅ | | | |
+| View project membership tiers | ✅ | ✅ | | |
+| View project memberships & member companies | ✅ | ✅ | | |
+| View project membership key contacts | ✅ | ✅ | | |
 | Manage project membership key contacts | ✅ | | | |
-| Create project committees, meetings & mailing lists | ✅ | | | |
 | Update project settings | ✅ | | | |
 | Create & update a project | ✅ | | | |
+| Create a vote | ✅ | | | |
+| Create project committees, meetings & mailing lists | ✅ | | | |
 
 #### Permission Inheritance
 
@@ -66,15 +66,14 @@ role assignment.
 
 ### Groups.io Service
 
-| | Groups.io Service Owner | Groups.io Service Writer | Groups.io Service Auditor | *Everyone* |
-|---|---|---|---|---|
-| View a Groups.io service | | | | 🟡 |
-| Create project mailing lists | ✅ | ✅ | | |
-| Update & delete a Groups.io service | ✅ | ✅ | | |
+| | Groups.io Service Writer | Groups.io Service Auditor | *Everyone* |
+|---|---|---|---|
+| View a Groups.io service | | | 🟡 |
+| Update & delete a Groups.io service | ✅ | | |
+| Create project mailing lists | ✅ | | |
 
 #### Permission Inheritance
 
-- **Groups.io Service Owner**: inherited from Project owner
 - **Groups.io Service Writer**: inherited from Project Writer
 - **Groups.io Service Auditor**: inherited from Project Auditor
 
@@ -120,7 +119,7 @@ role assignment.
 | | *Organizer* | *Auditor* | Host | Invitee | Attendee | *Everyone* |
 |---|---|---|---|---|---|---|
 | View a past meeting & its attachments | ✅ | ✅ | | ✅ | ✅ | 🟡 |
-| View a past meeting summary | ✅ | | ✅ | ✅ | ✅ | |
+| View a past meeting summary | | | ✅ | ✅ | ✅ | 🟡 |
 | Update a past meeting summary | ✅ | | | | | |
 | Manage past meeting participants & attachments | ✅ | | | | | |
 | Update & delete a past meeting | ✅ | | | | | |
@@ -171,9 +170,9 @@ role assignment.
 | Manage survey recipients & responses | ✅ | | | |
 | Update & delete a survey | ✅ | | | |
 
+#### Permission Inheritance
+
+- ***Writer***: inherited from Project Writer, Committee Writer
+- ***Auditor***: inherited from Project Auditor, Committee Auditor
+
 ---
-
-### Survey Response
-
-| | Respondent |
-|---|---|
