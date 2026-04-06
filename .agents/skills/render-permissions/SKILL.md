@@ -36,9 +36,10 @@ Annotations are YAML-style comments placed immediately before the entity
 they describe:
 
 ```
-# @fgadoc:alias  Display Name   — human-readable name for a type or relation
-# @fgadoc:hide                  — suppress type (whole section) or relation (column)
-# @fgadoc:jtbd   Statement      — one JTBD; multiple lines allowed per relation
+# @fgadoc:alias    Display Name   — human-readable name for a type or relation
+# @fgadoc:hide                    — suppress type (whole section) or relation (column)
+# @fgadoc:jtbd     Statement      — one JTBD; multiple lines allowed per relation
+# @fgadoc:collapse <target_type>  — collapse this type's JTBDs into <target_type>'s section
 ```
 
 ## Step 1 — Parse model.yaml
@@ -53,6 +54,12 @@ For each `type <name>` block, extract:
 | Raw type name | `type <name>` |
 | Display name | `@fgadoc:alias` in preceding annotation block; else raw name in Title Case with underscores replaced by spaces |
 | Hidden? | `@fgadoc:hide` in preceding annotation block |
+| Collapse target | `@fgadoc:collapse <target_type>` in preceding annotation block (raw type name of the target) |
+
+A type with `@fgadoc:collapse <target_type>` is treated as **collapsed**: it
+is hidden (no `###` section is generated for it) and its JTBDs are folded
+into the `<target_type>` section. See Step 2b for how collapsed JTBDs are
+incorporated.
 
 For each `define <relation>:` line, extract:
 
@@ -86,6 +93,24 @@ instead of ✅, and it collects JTBDs from **all relations** that contain
 deduplicated. Do **not** filter out JTBDs whose relation has no visible
 column — they still appear as rows (they may have a 🟡 in the Everyone
 column).
+
+**Collapsed types:** For each type C whose `@fgadoc:collapse` names this
+type as the target, include C's JTBDs in this type's JTBD pool as well.
+To determine ✅ placement for a collapsed JTBD:
+
+1. For each relation `R_c` on C that carries the JTBD, inspect R_c's define
+   expression for a `<rel> from <field>` term where `<field>` resolves to
+   this (target) type.
+2. The `<rel>` identified in step 1 is the corresponding relation on the
+   target type. Build its **full upward reachability set** on the target
+   type (same algorithm as Step 2c) to determine which columns get ✅.
+3. If R_c's define has no such term (no `<rel> from <field>` pointing to
+   this type), the collapsed JTBD still appears as a row but no column
+   gets ✅ for it.
+
+Collapsed JTBDs are **interleaved** with the target type's own JTBDs using
+the same row-ordering rules below — they are not appended as a separate
+group.
 
 **Row ordering:** Sort JTBD rows using the following priority rules, applied
 in order:
@@ -182,7 +207,7 @@ Everyone column: yes (`viewer` has `[user:*]`).
 - Everyone (`viewer` has `[user:*]`): viewer's upward set = {} (nothing includes viewer).
   Everyone JTBDs = viewer's own only = {View a project, View project meeting count}.
 
-Result table (JTBD rows in reverse file order — most general first):
+Result table (JTBD rows ordered by semantic priority — base object first, then settings, then attributes, then child resource creation):
 
 | | Project Writer | Project Auditor (full read) | Project Meeting Coordinator | Everyone |
 |---|---|---|---|---|
@@ -324,13 +349,15 @@ preserved if it already exists.
 
 After writing, re-read `PERMISSIONS.md` and confirm:
 
-- Count of `###` headings matches the number of non-hidden types.
+- Count of `###` headings matches the number of non-hidden, non-collapsed types.
+- Collapsed types (those with `@fgadoc:collapse`) have no `###` section of their own; their JTBDs appear in their target type's section.
+- Collapsed JTBDs are interleaved with the target type's own JTBDs (not appended as a separate block).
 - Every visible type with at least one visible column or Everyone column has a table.
 - No `[user:*]`-only relation appears as a named-role column.
 - Every type with at least one `[user:*]` relation has an Everyone column.
 - Every relation with `[user:*]` in its define does NOT get a public-access bullet (the Everyone column covers this).
 - Permission Inheritance bullets only appear for named-role relations (has `[user]`, not hidden) with direct cross-type `<rel> from <field>` terms in their own define — no peer-chain traversal.
-- JTBD rows within each table appear in reverse file order (most general action first).
+- JTBD rows within each table follow the semantic ordering rule: base object first, settings next, attributes in Read → Update → Delete order, child resource creation last.
 - ALL JTBDs from ALL relations of a type appear as rows (including viewer/public JTBDs).
 - Named-role columns follow the ordering rule: owner → writer → auditor → other (file order) → member/participant/subscriber (file order) → Everyone rightmost.
 - The Everyone column is always rightmost.
