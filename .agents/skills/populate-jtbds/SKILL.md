@@ -48,24 +48,36 @@ it with zero `@fgadoc:jtbd` lines. Do not invent plausible-sounding statements.
 update/delete route (PUT/PATCH/DELETE) are present in that exact group.
 A single POST does not justify "manage"; a single PUT does not justify "create".
 
-## Step 1 — List all RuleSets on the dev cluster
+## Step 1 — Fetch RuleSets AND read model.yaml in parallel
+
+Issue both commands simultaneously:
 
 ```bash
+# Fetch all RuleSets in one call — do not call kubectl multiple times.
 kubectl get rulesets --all-namespaces -o json > /tmp/rulesets.json
 ```
 
-## Step 2 — Extract OpenFGA checks
+Also read `charts/lfx-platform/templates/openfga/model.yaml` at the same time
+so you have the current JTBD state before any writes.
 
-Parse `/tmp/rulesets.json`. For each rule whose `authorizer` contains an
-`openfga_check` entry, collect:
+## Step 2 — Extract OpenFGA checks AND OpenAPI paths in one pass
 
-- `ruleset` — `metadata.name` of the RuleSet (best approximation of the owning repo/service name)
+Parse `/tmp/rulesets.json` **once** with a single Python script that produces
+two output files:
+
+- `/tmp/openfga_groups.json` — routes grouped by `<object>#<relation>`
+- `/tmp/openapi_paths.json` — `{ "<ruleset-name>": "<openapi3.yaml path>" }`
+
+For each rule, collect:
+
+- `ruleset` — `metadata.name` of the RuleSet
 - `method` — HTTP method (GET, POST, PATCH, DELETE, …)
-- `route` — URL path pattern (e.g. `/committees`)
-- `object` — OpenFGA object type (e.g. `project`)
-- `relation` — OpenFGA relation required (e.g. `writer`)
+- `route` — URL path pattern (excluding openapi3.yaml routes)
+- `object` — OpenFGA object type (strip `:...` variable suffix)
+- `relation` — OpenFGA relation required
 
-Group the results by `<object>#<relation>` (e.g. `project#writer`).
+Also record any route whose path ends in `openapi3.yaml` into the openapi
+paths map at the same time.
 
 Typical RuleSet shape (abbreviated):
 
@@ -93,44 +105,44 @@ Typical RuleSet shape (abbreviated):
 }
 ```
 
-## Step 3 — Fetch OpenAPI specs for each service
+Note: the `object` value may be a Heimdall template like
+`{{- .Request.Body.committee_uid -}}` — strip everything after the `:` to get
+the object type.
 
-For each RuleSet from step 2, scan its rules for a route whose path ends in
-`openapi3.yaml`. This path is the canonical OpenAPI spec endpoint for that
-service — served publicly at `https://lfx-api.dev.v2.cluster.linuxfound.info/`.
+## Step 3 — Fetch ALL OpenAPI specs in parallel
 
-**Attempt 1 — live endpoint:**
+Issue **all** live-endpoint fetches as a single parallel batch — do not fetch
+them one at a time. For each entry in `/tmp/openapi_paths.json`:
 
 ```
 GET https://lfx-api.dev.v2.cluster.linuxfound.info<openapi3.yaml path>
 ```
 
-Example: if the RuleSet contains `/_committees/openapi3.yaml`, fetch
-`https://lfx-api.dev.v2.cluster.linuxfound.info/_committees/openapi3.yaml`.
+**GitHub fallback (for any that return non-200):**
 
-**Attempt 2 — GitHub fallback (if the live fetch fails or returns non-200):**
-
-Search the `linuxfoundation` GitHub organization for `openapi3.yaml` in any
-repo matching `lfx-v2-*`, using `metadata.name` of the RuleSet as the best
-approximation of the repo name:
+Search the `linuxfoundation` GitHub organization for `openapi3.yaml` using the
+RuleSet `metadata.name` as the repo name hint:
 
 ```
 filename:openapi3.yaml repo:linuxfoundation/<ruleset-metadata-name>
 ```
 
-Use the GitHub code search tool or API to locate the file, then read its
-contents directly from the repo.
+Use GitHub code search to locate and read the file. If multiple services fail,
+batch those GitHub lookups in parallel too.
 
-For each `method + route` pair from step 2, match it against the
-OpenAPI `paths` object and extract the `description` field. If no
-`description` is present, fall back to `summary`. Do not use the path
-pattern itself as a description source.
+The specs are large — delegate description extraction to the Task tool with
+the `explore` agent to avoid consuming context. Ask it to return a compact
+`METHOD /path: description` list for the routes in your groups.
+
+For each `method + route` pair from step 2, extract the `description` field.
+Fall back to `summary` only if no `description` is present.
 
 ## Step 4 — Synthesize JTBD statements
 
 For each `<object>#<relation>` group you now have a set of API operation
-descriptions. Read `references/jtbd-examples.txt` for style guidance, then
-synthesize each group into one or more short, action-oriented JTBD statements.
+descriptions. The existing `@fgadoc:jtbd` lines already in `model.yaml` are
+the canonical style reference — match their grammar, verb choices, and
+phrasing when writing new statements.
 
 **JTBD style rules:**
 - Start with an imperative verb: *View*, *Create*, *Manage*, *Update*,

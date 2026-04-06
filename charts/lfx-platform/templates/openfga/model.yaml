@@ -111,7 +111,7 @@ spec:
             define owner: owner from groupsio_service
             # @fgadoc:alias Mailing List Manager
             # @fgadoc:jtbd Update & delete a mailing list
-            # @fgadoc:jtbd Add, update & remove mailing list members
+            # @fgadoc:jtbd Add & remove mailing list members
             define writer: [user] or writer from groupsio_service or writer from committee
             # @fgadoc:alias Mailing List Auditor
             define auditor: [user] or auditor from groupsio_service or auditor from committee
