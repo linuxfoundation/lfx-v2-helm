@@ -1,3 +1,5 @@
+# Copyright The Linux Foundation and each contributor to LFX.
+# SPDX-License-Identifier: MIT
 Create a subproject (subject to review)
 Update project category, description, branding, social handles, and basic metadata
 Manage project artifacts (files & links)
