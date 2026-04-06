@@ -34,7 +34,6 @@ spec:
           relations
             define member: [user]
 
-        # @fgadoc:alias Project
         type project
           relations
             # @fgadoc:hide
@@ -61,7 +60,6 @@ spec:
             # @fgadoc:jtbd View project meeting count
             define viewer: [user:*] or auditor or auditor from parent
 
-        # @fgadoc:alias Committee
         type committee
           relations
             # @fgadoc:alias Committee Member
@@ -123,6 +121,8 @@ spec:
             # @fgadoc:alias Subscriber
             define member: [user]
 
+        # // Hide this from PERMISSIONS.md until we fold v1_meeting into meeting.
+        # @fgadoc:hide
         # @fgadoc:alias Scheduled Meeting (Individual, or recurring)
         type meeting
           relations
@@ -135,14 +135,12 @@ spec:
             define auditor: organizer or auditor from project
             # The organizer relation identifies a user who can manage this one meeting.
             # That means they can update the meeting details, invite/uninvite participants, etc.
-            # @fgadoc:alias Organizer
             define organizer: [user] or meeting_coordinator from project or writer from committee or writer from project
             # The host relation identifies a user who is a host of this meeting.
             # This is different than the organizer relation because an organizer isn't necessarily
             # the user who is hosting the meeting, nor is the host necessarily the one who is
             # organizing the meeting. For example, a host may need to retrieve the Zoom host key
             # but shouldn't be able to update the meeting details.
-            # @fgadoc:alias Host
             define host: [user] or organizer
             # The participant relation identifies a user who is a participant in this meeting.
             # This can either mean they are invited to the meeting or they attended the meeting
@@ -151,7 +149,6 @@ spec:
             # because the backend service needs to only include members from the committee
             # based on the voting status filters of that meeting. That is managed by the backend
             # services and therefore can't be a relationship in the authorization model.
-            # @fgadoc:alias Participant
             define participant: [user] or host
             # The viewer relation identifies a user who can view this meeting.
             # If the meeting is public, then any user can view it; but if it is private, then
@@ -168,6 +165,7 @@ spec:
             define participant: participant from meeting
             define viewer: [user:*] or participant or writer or auditor
 
+        # // Hide this from PERMISSIONS.md until we fold v1_meeting into meeting.
         # @fgadoc:hide
         type past_meeting
           relations
@@ -366,7 +364,6 @@ spec:
             # If the artifact_visibility is public, then every user should be a viewer
             define viewer: [user:*] or writer or auditor or invitee from past_meeting_for_participant_view or attendee from past_meeting_for_attendee_view or host from past_meeting_for_host_view
 
-        # @fgadoc:alias Vote
         type vote
           relations
             # @fgadoc:hide
@@ -378,10 +375,8 @@ spec:
             # auditor has access to participants, viewer does not
             # @fgadoc:hide
             define auditor: writer or auditor from project or auditor from committee
-            # @fgadoc:alias Participant
             # @fgadoc:jtbd Cast a vote response
             define participant: [user]
-            # @fgadoc:alias Viewer
             # @fgadoc:jtbd View a vote & its status
             define viewer: [user:*] or auditor or participant
             # @fgadoc:hide
@@ -392,7 +387,6 @@ spec:
             # @fgadoc:jtbd View aggregated voting results
             define results_viewer: [user:*] or auditor or participant from vote_for_participant_result_access
 
-        # @fgadoc:alias Vote Response
         type vote_response
           relations
             # @fgadoc:hide
@@ -406,7 +400,6 @@ spec:
             # @fgadoc:hide
             define auditor: owner or auditor from vote
 
-        # @fgadoc:alias Survey
         type survey
           relations
             # @fgadoc:hide
@@ -418,7 +411,6 @@ spec:
             # auditor has access to participants, viewer does not
             # @fgadoc:hide
             define auditor: writer or auditor from project or auditor from committee
-            # @fgadoc:alias Participant
             define participant: [user]
             # @fgadoc:alias Survey Viewer
             # @fgadoc:jtbd View a survey
@@ -430,7 +422,6 @@ spec:
             # @fgadoc:alias Survey Results Viewer
             define results_viewer: [user:*] or auditor or participant from survey_for_participant_result_access
 
-        # @fgadoc:alias Survey Response
         type survey_response
           relations
             # @fgadoc:hide

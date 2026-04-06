@@ -13,23 +13,25 @@ This document describes the permissions model for the LFX Self Service
 Platform. Each section below represents an object type that supports direct
 role assignment.
 
+**Legend:** ✅ access is granted to this role · 🟡 access depends on per-item attributes/settings
+
 ## Objects supporting role assignment
 
 ### Project
 
 | | Project Writer | Project Auditor | Project Meeting Coordinator | Everyone |
 |---|---|---|---|---|
-| View project meeting count | ✅ | ✅ | | 🟡 |
 | View a project | ✅ | ✅ | | 🟡 |
-| View project membership key contacts | ✅ | ✅ | | |
-| View project memberships & member companies | ✅ | ✅ | | |
-| View project membership tiers | ✅ | ✅ | | |
+| View project meeting count | ✅ | ✅ | | 🟡 |
+| Create & update a project | ✅ | | | |
 | View project settings | ✅ | ✅ | | |
-| Create a vote | ✅ | | | |
+| Update project settings | ✅ | | | |
+| View project membership tiers | ✅ | ✅ | | |
+| View project memberships & member companies | ✅ | ✅ | | |
+| View project membership key contacts | ✅ | ✅ | | |
 | Manage project membership key contacts | ✅ | | | |
 | Create project committees, meetings & mailing lists | ✅ | | | |
-| Update project settings | ✅ | | | |
-| Create & update a project | ✅ | | | |
+| Create a vote | ✅ | | | |
 
 #### Permission Inheritance
 
@@ -43,12 +45,12 @@ role assignment.
 | | Committee Member | Committee Writer | Committee Auditor | Everyone |
 |---|---|---|---|---|
 | View committee details, members, invites & resources | ✅ | | ✅ | 🟡 |
-| View committee settings | | | ✅ | |
-| Schedule a survey for a committee | | ✅ | | |
-| Manage committee links & folders | | ✅ | | |
-| Manage committee members, invites & applications | | ✅ | | |
-| Update committee settings | | ✅ | | |
 | Update & delete a committee | | ✅ | | |
+| View committee settings | | | ✅ | |
+| Update committee settings | | ✅ | | |
+| Manage committee members, invites & applications | | ✅ | | |
+| Manage committee links & folders | | ✅ | | |
+| Schedule a survey for a committee | | ✅ | | |
 
 #### Permission Inheritance
 
@@ -62,8 +64,8 @@ role assignment.
 | | Groups.io Service Owner | Groups.io Service Writer | Groups.io Service Auditor | Everyone |
 |---|---|---|---|---|
 | View a Groups.io service | | | | 🟡 |
-| Create project mailing lists | ✅ | ✅ | | |
 | Update & delete a Groups.io service | ✅ | ✅ | | |
+| Create project mailing lists | ✅ | ✅ | | |
 
 #### Permission Inheritance
 
@@ -77,10 +79,10 @@ role assignment.
 
 | | Mailing List Writer | Mailing List Auditor | Subscriber | Everyone |
 |---|---|---|---|---|
-| View & download mailing list artifacts | | | | 🟡 |
 | View a mailing list & its members | | | | 🟡 |
-| Add & remove mailing list members | ✅ | | | |
 | Update & delete a mailing list | ✅ | | | |
+| Add & remove mailing list members | ✅ | | | |
+| View & download mailing list artifacts | | | | 🟡 |
 
 #### Permission Inheritance
 
@@ -89,24 +91,13 @@ role assignment.
 
 ---
 
-### Scheduled Meeting (Individual, or recurring)
-
-| | Organizer | Host | Participant | Everyone |
-|---|---|---|---|---|
-
-#### Permission Inheritance
-
-- **Organizer**: inherited from Project Meeting Coordinator, Committee Writer, Project Writer
-
----
-
 ### Vote
 
 | | Participant | Everyone |
 |---|---|---|
-| View aggregated voting results | | 🟡 |
 | View a vote & its status | ✅ | 🟡 |
 | Cast a vote response | ✅ | |
+| View aggregated voting results | | 🟡 |
 
 ---
 
