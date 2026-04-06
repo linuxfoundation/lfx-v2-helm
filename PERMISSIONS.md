@@ -24,7 +24,7 @@ role assignment.
 
 ### Project
 
-| | Project Writer | Project Auditor | Project Meeting Coordinator | *Everyone* |
+| | Writer | Auditor | Meeting Coordinator | *Everyone* |
 |---|---|---|---|---|
 | View a project | ✅ | ✅ | | 🟡 |
 | View project meeting count | ✅ | ✅ | | 🟡 |
@@ -40,14 +40,14 @@ role assignment.
 
 #### Permission Inheritance
 
-- **Project Writer**: inherited from parent Project
-- **Project Auditor**: inherited from parent Project
+- **Writer**: inherited from parent Project
+- **Auditor**: inherited from parent Project
 
 ---
 
 ### Committee
 
-| | Committee Writer | Committee Auditor | Committee Member | *Everyone* |
+| | Writer | Auditor | Member | *Everyone* |
 |---|---|---|---|---|
 | View committee details, members, invites & resources | | ✅ | ✅ | 🟡 |
 | View committee settings | | ✅ | | |
@@ -59,14 +59,14 @@ role assignment.
 
 #### Permission Inheritance
 
-- **Committee Writer**: inherited from Project Writer
-- **Committee Auditor**: inherited from Project Auditor, Project Meeting Coordinator
+- **Writer**: inherited from Project Writer
+- **Auditor**: inherited from Project Auditor, Project Meeting Coordinator
 
 ---
 
 ### Groups.io Service
 
-| | Groups.io Service Writer | Groups.io Service Auditor | *Everyone* |
+| | Writer | Auditor | *Everyone* |
 |---|---|---|---|
 | View a Groups.io service | | | 🟡 |
 | Update & delete a Groups.io service | ✅ | | |
@@ -74,14 +74,14 @@ role assignment.
 
 #### Permission Inheritance
 
-- **Groups.io Service Writer**: inherited from Project Writer
-- **Groups.io Service Auditor**: inherited from Project Auditor
+- **Writer**: inherited from Project Writer
+- **Auditor**: inherited from Project Auditor
 
 ---
 
 ### Mailing List
 
-| | Mailing List Writer | Mailing List Auditor | Subscriber | *Everyone* |
+| | Writer | Auditor | Subscriber | *Everyone* |
 |---|---|---|---|---|
 | View a mailing list & its members | | | | 🟡 |
 | View & download mailing list artifacts | | | | 🟡 |
@@ -90,8 +90,8 @@ role assignment.
 
 #### Permission Inheritance
 
-- **Mailing List Writer**: inherited from Groups.io Service Writer, Committee Writer
-- **Mailing List Auditor**: inherited from Groups.io Service Auditor, Committee Auditor
+- **Writer**: inherited from Groups.io Service Writer, Committee Writer
+- **Auditor**: inherited from Groups.io Service Auditor, Committee Auditor
 
 ---
 
