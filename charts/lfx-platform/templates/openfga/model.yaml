@@ -41,7 +41,7 @@ spec:
             define parent: [project]
             # @fgadoc:hide
             define owner: [team#member] or owner from parent
-            # @fgadoc:alias Project Manager
+            # @fgadoc:alias Project Writer
             # @fgadoc:jtbd Create & update a project
             # @fgadoc:jtbd Update project settings
             # @fgadoc:jtbd Create project committees, meetings & mailing lists
@@ -54,9 +54,9 @@ spec:
             # @fgadoc:jtbd View project memberships & member companies
             # @fgadoc:jtbd View project membership key contacts
             define auditor: [user, team#member] or writer or auditor from parent
-             # @fgadoc:alias Project Meeting Coordinator
-             define meeting_coordinator: [user]
-            # @fgadoc:alias Viewer (limited read)
+            # @fgadoc:alias Project Meeting Coordinator
+            define meeting_coordinator: [user]
+            # @fgadoc:alias Project Viewer (limited read)
             # @fgadoc:jtbd View a project
             # @fgadoc:jtbd View project meeting count
             define viewer: [user:*] or auditor or auditor from parent
@@ -68,8 +68,9 @@ spec:
             define member: [user]
             # @fgadoc:hide
             define project: [project]
-            # @fgadoc:alias Committee Manager
+            # @fgadoc:alias Committee Writer
             # @fgadoc:jtbd Update & delete a committee
+            # @fgadoc:jtbd Update committee settings
             # @fgadoc:jtbd Manage committee members, invites & applications
             # @fgadoc:jtbd Manage committee links & folders
             # @fgadoc:jtbd Schedule a survey for a committee
@@ -77,7 +78,7 @@ spec:
             # @fgadoc:alias Committee Auditor
             # @fgadoc:jtbd View committee settings
             define auditor: [user, team#member] or auditor from project or meeting_coordinator from project
-            # @fgadoc:alias Viewer
+            # @fgadoc:alias Committee Viewer
             # @fgadoc:jtbd View committee details, members, invites & resources
             define viewer: [user:*] or member or auditor or auditor from project
 
@@ -88,13 +89,13 @@ spec:
             define project: [project]
             # @fgadoc:alias Groups.io Service Owner
             define owner: [user] or owner from project
-            # @fgadoc:alias Groups.io Service Manager
+            # @fgadoc:alias Groups.io Service Writer
             # @fgadoc:jtbd Update & delete a Groups.io service
             # @fgadoc:jtbd Create project mailing lists
             define writer: [user] or writer from project or owner
             # @fgadoc:alias Groups.io Service Auditor
             define auditor: [user] or auditor from project or writer
-            # @fgadoc:alias Viewer
+            # @fgadoc:alias Groups.io Service Viewer
             # @fgadoc:jtbd View a Groups.io service
             define viewer: [user:*] or auditor from project
 
@@ -109,14 +110,15 @@ spec:
             define committee: [committee] # Inherit committee permissions
             # @fgadoc:hide
             define owner: owner from groupsio_service
-            # @fgadoc:alias Mailing List Manager
+            # @fgadoc:alias Mailing List Writer
             # @fgadoc:jtbd Update & delete a mailing list
             # @fgadoc:jtbd Add & remove mailing list members
             define writer: [user] or writer from groupsio_service or writer from committee
             # @fgadoc:alias Mailing List Auditor
             define auditor: [user] or auditor from groupsio_service or auditor from committee
-            # @fgadoc:alias Viewer
+            # @fgadoc:alias Mailing List Viewer
             # @fgadoc:jtbd View a mailing list & its members
+            # @fgadoc:jtbd View & download mailing list artifacts
             define viewer: [user:*] or viewer from groupsio_service or member from committee
             # @fgadoc:alias Subscriber
             define member: [user]
@@ -396,9 +398,9 @@ spec:
             # @fgadoc:hide
             define vote: [vote]
             # owner is the user who cast this response
-             # @fgadoc:alias Voter
-             # @fgadoc:jtbd Update your vote response
-             define owner: [user]
+            # @fgadoc:alias Voter
+            # @fgadoc:jtbd Update your vote response
+            define owner: [user]
             # we don't need to create a "writer" relation that is defined as just "owner":
             # we just use the "owner" relation in our access checks!
             # @fgadoc:hide
@@ -418,14 +420,14 @@ spec:
             define auditor: writer or auditor from project or auditor from committee
             # @fgadoc:alias Participant
             define participant: [user]
-            # @fgadoc:alias Viewer
+            # @fgadoc:alias Survey Viewer
             # @fgadoc:jtbd View a survey
             define viewer: [user:*] or auditor or participant
             # @fgadoc:hide
             define survey_for_participant_result_access: [survey] # set this relation to "self" to enable access
             # results_viewer is not for viewing the actual related survey_response objects,
             # but rather for an aggregate summary which can be made optionally public
-            # @fgadoc:alias Results Viewer
+            # @fgadoc:alias Survey Results Viewer
             define results_viewer: [user:*] or auditor or participant from survey_for_participant_result_access
 
         # @fgadoc:alias Survey Response

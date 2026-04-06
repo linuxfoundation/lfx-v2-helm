@@ -190,7 +190,25 @@ For each confirmed `<object>#<relation>` group:
 
 Leave unchanged any `define` lines not covered by a RuleSet rule.
 
-## Step 7 — Verify
+## Step 7 — Fix indentation
+
+After writing JTBDs, scan every `# @fgadoc:` comment and `define` line in the
+file for indentation consistency within each `type` block. All relation-level
+lines must use the same indent (12 spaces inside the `authorizationModel`
+literal block). Any line with a different number of leading spaces — whether
+introduced by this run or pre-existing — must be corrected to match its
+siblings.
+
+Use ripgrep to detect outliers:
+
+```bash
+rg -n "^ *# @fgadoc:|^ *define " model.yaml \
+  | rg -v "^[0-9]+:            [^ ]|^[0-9]+:        [^ ]"
+```
+
+No output means all lines are correctly aligned.
+
+## Step 8 — Verify
 
 Re-read `model.yaml` and confirm:
 
