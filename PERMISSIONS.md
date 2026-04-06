@@ -1,16 +1,19 @@
 <!-- Copyright The Linux Foundation and each contributor to LFX. -->
 <!-- SPDX-License-Identifier: MIT -->
+<!-- generated-intro
+This file is generated automatically from
+charts/lfx-platform/templates/openfga/model.yaml
+by the render-permissions agent skill. Do not edit the sections below by hand.
+Run .agents/skills/render-permissions/SKILL.md to regenerate after any model change.
+-->
 
-This document describes the permissions model for the LFX platform.
-It is generated automatically from
-`charts/lfx-platform/templates/openfga/model.yaml` by the
-`render-permissions` agent skill — do not edit the **Entities** section by
-hand.
+# LFX Self Service Platform Permissions
 
-Run `.agents/skills/render-permissions/SKILL.md` to regenerate after any
-model change.
+This document describes the permissions model for the LFX Self Service
+Platform. Each section below represents an object type that supports direct
+role assignment.
 
-## Entities
+## Objects supporting role assignment
 
 ### Project
 

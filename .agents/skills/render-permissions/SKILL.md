@@ -14,8 +14,9 @@ human-readable `PERMISSIONS.md` at the repo root.
   scalar under `authorizationModel: |`. **Ignore everything outside that
   block** — Helm expressions (`{{- if ... }}`, `{{- end }}`, etc.) must
   not be parsed or evaluated.
-- `[user:*]` means "every user including anonymous". It produces a
-  Permission Inheritance bullet — see Step 3.
+- `[user:*]` means "every user including anonymous". It produces an
+  **Everyone** column in the table — see Step 2 — and a Permission
+  Inheritance bullet — see Step 3.
 - Non-`@fgadoc` comments may appear between an `@fgadoc` annotation block
   and the `type`/`define` line it annotates (e.g. descriptive prose already
   in the file). Collect all consecutive `# @fgadoc:*` lines before a
@@ -24,9 +25,11 @@ human-readable `PERMISSIONS.md` at the repo root.
 - The `#### Permission Inheritance` section lists only **cross-type** sources
   — i.e. `<rel> from <field>` references where `<field>` resolves to a
   different type. Same-type `or <peer>` inclusions are intentionally omitted
-  because they are already implicit in the ✅ columns of the table.
-- The intro block before `## Entities` must be preserved exactly if
-  `PERMISSIONS.md` already exists and has content there.
+  because they are already implicit in the ✅ / 🟡 columns of the table.
+- The intro block before `## Objects supporting role assignment` must be
+  preserved exactly if `PERMISSIONS.md` already exists and has content there.
+- The `<!-- generated-intro -->` comment block at the top must be preserved
+  exactly if `PERMISSIONS.md` already exists.
 
 ## Parsing `@fgadoc` annotations
 
@@ -66,19 +69,61 @@ For each `define <relation>:` line, extract:
 
 ## Step 2 — Build the JTBD × relation matrix
 
-For each **visible** type (not hidden):
+### 2a — Determine visible columns
 
-1. **Visible columns** — relations where `[user]` appears in the define
-   expression and the relation is not hidden.
-2. **JTBD rows** — all `@fgadoc:jtbd` statements across all relations of
-   the type, deduplicated, in **reverse file order** (bottom-to-top).
-   Include only JTBDs that belong to at least one visible column. This
-   places the most general/broadly-held actions at the top and the most
-   specific/privileged actions at the bottom.
-3. **Cell value** — for each (JTBD, column) pair, mark ✅ if the JTBD
-   appears in that column's own JTBD list **or** in the JTBD list of any
-   relation transitively included via same-type `or <rel>` chains in the
-   define expression.
+For each **visible** type (not hidden), determine **visible named-role
+columns** — relations where `[user]` appears literally (not `[user:*]`) in
+the define expression **and** the relation is not hidden.
+
+Additionally, if **any** relation in the type has `[user:*]` in its define
+expression (even a hidden relation), include an **Everyone** column as the
+**rightmost** column. The Everyone column is special: it uses the 🟡 marker
+instead of ✅, and it collects JTBDs from **all relations** that contain
+`[user:*]`.
+
+### 2b — Determine JTBD rows
+
+**Include ALL `@fgadoc:jtbd` statements** across ALL relations of the type,
+deduplicated, in **reverse file order** (bottom-to-top). This places the most
+general/broadly-held actions at the top and the most specific/privileged
+actions at the bottom.
+
+Do **not** filter out JTBDs whose relation has no visible column — they still
+appear as rows (they may have a 🟡 in the Everyone column).
+
+### 2c — Compute cell values
+
+**OpenFGA semantics primer:** When relation B's define says `or A` (B
+includes A), it means *anyone who has relation A also satisfies relation B*.
+In other words, A ⊆ B — A is the more privileged role. A writer who is
+included in auditor (`auditor: ... or writer`) automatically has auditor
+access too, because writers are a subset of auditors.
+
+**Consequence for columns:** A column represents a role a user is directly
+assigned to. The column should show ✅ for every action that role can
+perform — including actions inherited *upward* from any relation that
+includes this role.
+
+For each (JTBD, column) pair:
+
+**For a named-role column** (has `[user]`):
+
+Build the **upward reachability set** for the column's relation: starting
+from that relation, find every other relation in the same type whose define
+expression contains `or <this-relation>` (directly or transitively). Collect
+the JTBD lists from the starting relation itself **and** every relation in
+the upward reachability set. If any of those JTBD lists contains the target
+JTBD, mark ✅.
+
+Do **not** traverse downward (i.e., do not add JTBDs from relations listed
+via `or <peer>` inside this column's own define — those are relations this
+role subsumes, not roles that subsume this role).
+
+**For the Everyone column** (`[user:*]`):
+
+For each relation R whose define contains `[user:*]`, build R's own upward
+reachability set using the same rule. Mark 🟡 if the JTBD appears in the
+JTBD list of R itself **or** any relation in R's upward reachability set.
 
 **Worked example — `project` type:**
 
@@ -86,29 +131,73 @@ Relations and their defines (simplified):
 
 ```
 writer:           [user] or owner or writer from parent
+                  JTBDs: Create a vote, Manage key contacts, Create committees/meetings/lists,
+                         Update project settings, Create & update a project
+
 auditor:          [user, team#member] or writer or auditor from parent
+                  JTBDs: View project settings, View membership tiers,
+                         View memberships & member companies, View membership key contacts
+
 meeting_coordinator: [user]
-viewer:           [user:*] or auditor or auditor from parent   ← [user:*] only, NOT a column
+                  JTBDs: (none)
+
+viewer:           [user:*] or auditor or auditor from parent
+                  JTBDs: View a project, View project meeting count
 ```
 
-Visible columns: `writer` (alias Manager), `auditor` (alias Staff),
-`meeting_coordinator` (alias Meeting Coordinator).
+Named-role columns: `writer`, `auditor`, `meeting_coordinator`.
+Everyone column: yes (`viewer` has `[user:*]`).
 
-`auditor` includes `writer` via `or writer` → Staff inherits all Manager JTBDs.
-`viewer` is excluded (only `[user:*]`, not `[user]`).
+**Upward reachability:**
 
-Result (rows in reverse file order — most general first):
+- `writer`: which relations say `or writer`? → `auditor` does. Which say `or auditor`? → `viewer` does (but viewer is not a named-role column). So writer's upward set = {auditor, viewer}.
+  Writer column JTBDs = writer's own ∪ auditor's own ∪ viewer's own = all JTBDs.
 
-| Job to Be Done | Manager | Staff | Meeting Coordinator |
-|---|---|---|---|
-| View project legal entity settings & charter | | ✅ | |
-| Create & manage project meetings & participants | ✅ | ✅ | ✅ |
-| Update project metadata | ✅ | ✅ | |
+- `auditor`: which relations say `or auditor`? → `viewer` does. Auditor's upward set = {viewer}.
+  Auditor column JTBDs = auditor's own ∪ viewer's own = auditor JTBDs + viewer JTBDs.
+
+- `meeting_coordinator`: nothing includes meeting_coordinator. Upward set = {}.
+  Meeting coordinator column JTBDs = (none) → all cells empty.
+
+- Everyone (`viewer` has `[user:*]`): viewer's upward set = {} (nothing includes viewer).
+  Everyone JTBDs = viewer's own only = {View a project, View project meeting count}.
+
+Result table (JTBD rows in reverse file order — most general first):
+
+| | Project Writer | Project Auditor (full read) | Project Meeting Coordinator | Everyone |
+|---|---|---|---|---|
+| View a project | ✅ | ✅ | | 🟡 |
+| View project meeting count | ✅ | ✅ | | 🟡 |
+| View project membership key contacts | ✅ | ✅ | | |
+| View project memberships & member companies | ✅ | ✅ | | |
+| View project membership tiers | ✅ | ✅ | | |
+| View project settings | ✅ | ✅ | | |
+| Create a vote | ✅ | | | |
+| Manage project membership key contacts | ✅ | | | |
+| Create project committees, meetings & mailing lists | ✅ | | | |
+| Update project settings | ✅ | | | |
+| Create & update a project | ✅ | | | |
+
+Note: "View a project" and "View project meeting count" appear even though
+they come from `viewer` which has no `[user]` grant — all JTBDs are always
+shown as rows.
+
+Note: write JTBDs ("Create a vote" etc.) do NOT appear in the Everyone
+column because `viewer` does not include `writer` — the chain is
+`viewer → auditor → writer` only when you are a privileged user, not when
+you are anonymous. The upward reachability for viewer stops at viewer
+itself (nothing includes viewer).
+
+### 2d — Omit the Everyone column only when no type-level relation has `[user:*]`
+
+If no relation in the type has `[user:*]` in its define expression, omit
+the Everyone column entirely. The Everyone column is ALWAYS the rightmost.
 
 ## Step 3 — Build Permission Inheritance sections
 
-For each **visible** type, for each **visible** relation, list only
-**cross-type** sources:
+For each **visible** type, for each **visible** relation (including hidden
+relations whose JTBDs must still be mentioned if they have `[user:*]`),
+list only **cross-type** sources:
 
 - `<rel> from <field>` in the define expression, where `<field>` is a
   relation that links to a different type (e.g. `writer from project`
@@ -125,7 +214,7 @@ appear anywhere in `PERMISSIONS.md`. Describe inheritance in plain English
 only (e.g. "inherited from Project Manager", "inherited from parent Project").
 
 Additionally, for any relation whose define expression contains `[user:*]`,
-add a bullet using this format:
+add a bullet describing the conditional public access. Use this format:
 
 ```
 - **<rel display name>**: all authenticated and anonymous users inherit <Rel Display Name> access when this <Type Display Name> is configured as public
@@ -152,16 +241,24 @@ File structure:
 ```markdown
 <!-- Copyright The Linux Foundation and each contributor to LFX. -->
 <!-- SPDX-License-Identifier: MIT -->
+<!-- generated-intro
+This file is generated automatically from
+charts/lfx-platform/templates/openfga/model.yaml
+by the render-permissions agent skill. Do not edit the sections below by hand.
+Run .agents/skills/render-permissions/SKILL.md to regenerate after any model change.
+-->
+
+# LFX Self Service Platform Permissions
 
 <intro — preserved if existing, else default below>
 
-## Entities
+## Objects supporting role assignment
 
 ### <Type display name>
 
-| Job to Be Done | <col1> | <col2> | ... |
-|---|---|---|---|
-| <jtbd> | ✅ | | ✅ |
+| | <col1> | <col2> | ... | Everyone |
+|---|---|---|---|---|
+| <jtbd> | ✅ | | ✅ | 🟡 |
 
 #### Permission Inheritance
 
@@ -172,35 +269,49 @@ File structure:
 
 Use `---` as a visual divider between type sections.
 
-For types with no visible columns (no direct `[user]` grants), write a
-short prose paragraph explaining how access is inherited, and omit the
-table and inheritance sub-section.
+For types with no visible columns and no Everyone column (no direct `[user]`
+or `[user:*]` grants at all), write a short prose paragraph explaining how
+access is inherited, and omit the table and inheritance sub-section.
 
-**Default intro** (use only if file is new or has no existing intro):
+**Table header row:** The first cell of the header row is **blank** (no
+"Job to Be Done" text). Columns follow in file order, with Everyone last.
+
+**Default intro** (use only if file is new or has no existing intro after
+the `<!-- generated-intro ... -->` block):
 
 ```markdown
-This document describes the permissions model for the LFX platform.
-It is generated automatically from
-`charts/lfx-platform/templates/openfga/model.yaml` by the
-`render-permissions` agent skill — do not edit the **Entities** section by
-hand.
-
-Run `.agents/skills/render-permissions/SKILL.md` to regenerate after any
-model change.
+This document describes the permissions model for the LFX Self Service
+Platform. Each section below represents an object type that supports direct
+role assignment.
 ```
+
+**Preserving the intro:** The `<!-- generated-intro ... -->` comment block and
+the H1 heading are always re-written. Everything between the H1 and the
+`## Objects supporting role assignment` heading is the intro and must be
+preserved if it already exists.
 
 ## Step 5 — Verify
 
 After writing, re-read `PERMISSIONS.md` and confirm:
 
 - Count of `###` headings matches the number of non-hidden types.
-- Every visible type with at least one visible column has a table.
-- No `[user:*]`-only relation appears as a column.
+- Every visible type with at least one visible column or Everyone column has a table.
+- No `[user:*]`-only relation appears as a named-role column.
+- Every type with at least one `[user:*]` relation has an Everyone column.
 - Every relation with `[user:*]` in its define has a public-access bullet in Permission Inheritance.
 - JTBD rows within each table appear in reverse file order (most general action first).
-- Columns within each table appear in file order (left to right matches top to bottom in the model).
+- ALL JTBDs from ALL relations of a type appear as rows (including viewer/public JTBDs).
+- Named-role columns appear in file order (left to right matches top to bottom in the model).
+- The Everyone column is always rightmost.
+- Writer columns show ✅ for auditor JTBDs (because auditor includes writer, so writers have auditor access).
+- Auditor columns do NOT show ✅ for writer-only JTBDs (auditors are not writers).
+- The Everyone column shows 🟡 only for JTBDs from the `[user:*]` relation's own upward reachability set (not from privileged roles that the [user:*] relation happens to include downward).
+- The table header first cell is blank (no "Job to Be Done" text).
 - No same-type peer relations appear in Permission Inheritance bullets.
 - No verbatim OpenFGA syntax (backtick expressions like `` `writer from project` ``) appears anywhere in the file.
+- The `<!-- generated-intro ... -->` block is present at the top.
+- The H1 `# LFX Self Service Platform Permissions` is present.
+- The `## Objects supporting role assignment` heading is used (not `## Entities`).
 - The intro block is unchanged (if it existed before).
 
-Report: types rendered, total columns, total JTBD rows.
+Report: types rendered, total columns (excluding Everyone), total JTBD rows.
