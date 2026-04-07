@@ -44,7 +44,10 @@
     "traefik",
     "webauthn",
     "websecure",
-    "stakater"
+    "stakater",
+    "fgadoc",
+    "jtbd",
+    "jtbds"
   ],
   "flagWords": [
     "abort",

@@ -17,6 +17,10 @@ spec:
     - major: Modifications, deletions, or additions of type
     - minor: Additions or deletions of relations
     - patch: Modifications of define
+
+  Do NOT add @fgadoc:jtbd lines manually. These are updated by the
+  `populate-jtbds` skill by analyzing live RuleSets and API docs.
+  @fgadoc:hide, @fgadoc:alias, @fgadoc:collapse tags are managed manually.
 */}}
     - version:
         major: 10
@@ -26,50 +30,90 @@ spec:
         model
           schema 1.1
 
+        # @fgadoc:hide
         type user
 
+        # @fgadoc:hide
         type team
           relations
+            # @fgadoc:jtbd Manage survey email exclusions
+            # @fgadoc:jtbd Validate survey email templates
             define member: [user]
 
         type project
           relations
             define parent: [project]
+            # Hiding `owner` relation AND "delete a project" JTBD because we
+            # are not yet documenting "global group/team permissions" in the
+            # output.
+            # @fgadoc:hide
+            # @fgadoc:jtbd Delete a project
             define owner: [team#member] or owner from parent
+            # @fgadoc:jtbd Create & update a project
+            # @fgadoc:jtbd Update project settings
+            # @fgadoc:jtbd Create project committees, meetings & mailing lists
+            # @fgadoc:jtbd Manage project membership key contacts
+            # @fgadoc:jtbd Create a vote
             define writer: [user] or owner or writer from parent
+            # @fgadoc:jtbd View project settings
+            # @fgadoc:jtbd View project membership tiers
+            # @fgadoc:jtbd View project memberships & member companies
+            # @fgadoc:jtbd View project membership key contacts
             define auditor: [user, team#member] or writer or auditor from parent
-            # The meeting_coordinator relation identifies a user who can manage any meeting
-            # for a given project.
             define meeting_coordinator: [user]
+            # @fgadoc:jtbd View a project
+            # @fgadoc:jtbd View project meeting count
             define viewer: [user:*] or auditor or auditor from parent
 
         type committee
           relations
             define member: [user]
             define project: [project]
+            # @fgadoc:jtbd Update & delete a committee
+            # @fgadoc:jtbd Update committee settings
+            # @fgadoc:jtbd Manage committee members, invites & applications
+            # @fgadoc:jtbd Manage committee links & folders
+            # @fgadoc:jtbd Schedule a survey for a committee
             define writer: [user] or writer from project
+            # @fgadoc:jtbd View committee settings
             define auditor: [user, team#member] or auditor from project or meeting_coordinator from project
+            # @fgadoc:jtbd View committee details, members, invites & resources
             define viewer: [user:*] or member or auditor or auditor from project
 
+        # @fgadoc:alias Groups.io Service
         type groupsio_service
           relations
             define project: [project]
+            # Hiding `owner` because it has no JTBDs, and project `owner` relation is also hidden.
+            # @fgadoc:hide
             define owner: [user] or owner from project
+            # @fgadoc:jtbd Update & delete a Groups.io service
+            # @fgadoc:jtbd Create project mailing lists
             define writer: [user] or writer from project or owner
             define auditor: [user] or auditor from project or writer
+            # @fgadoc:jtbd View a Groups.io service
             define viewer: [user:*] or auditor from project
 
+        # @fgadoc:alias Mailing List
         type groupsio_mailing_list
           relations
             define groupsio_service: [groupsio_service]  # Parent relationship
             define project: project from groupsio_service # Inherit project permissions
             define committee: [committee] # Inherit committee permissions
             define owner: owner from groupsio_service
+            # @fgadoc:jtbd Update & delete a mailing list
+            # @fgadoc:jtbd Add & remove mailing list members
             define writer: [user] or writer from groupsio_service or writer from committee
             define auditor: [user] or auditor from groupsio_service or auditor from committee
+            # @fgadoc:jtbd View a mailing list & its members
+            # @fgadoc:jtbd View & download mailing list artifacts
             define viewer: [user:*] or viewer from groupsio_service or member from committee
+            # @fgadoc:alias Subscriber
             define member: [user]
 
+        # // Hide this from PERMISSIONS.md until we fold v1_meeting into meeting.
+        # @fgadoc:hide
+        # @fgadoc:alias Scheduled Meeting
         type meeting
           relations
             define project: [project]
@@ -98,7 +142,7 @@ spec:
             # only certain privileged users can view it.
             define viewer: [user:*] or participant or organizer or auditor
 
-        # The meeting_attachment type identifies an attachment of a meeting.
+        # @fgadoc:hide
         type meeting_attachment
           relations
             define meeting: [meeting]
@@ -107,6 +151,8 @@ spec:
             define participant: participant from meeting
             define viewer: [user:*] or participant or writer or auditor
 
+        # // Hide this from PERMISSIONS.md until we fold v1_meeting into meeting.
+        # @fgadoc:hide
         type past_meeting
           relations
             define project: [project]
@@ -131,6 +177,8 @@ spec:
             # only certain privileged users can view it.
             define viewer: [user:*] or attendee or invitee or organizer or auditor
 
+        # // Hide this from PERMISSIONS.md until we fold v1_meeting into meeting.
+        # @fgadoc:hide
         # The past_meeting_attachment type identifies an attachment of a past meeting.
         type past_meeting_attachment
           relations
@@ -140,6 +188,8 @@ spec:
             define participant: host from past_meeting or invitee from past_meeting or attendee from past_meeting
             define viewer: [user:*] or participant or writer or auditor
 
+        # // Hide this from PERMISSIONS.md until we fold v1_meeting into meeting.
+        # @fgadoc:hide
         # The past_meeting_recording type identifies a recording of a past meeting.
         # Access to a recording is limited to one of the following groups:
         # - Only meeting hosts
@@ -161,6 +211,8 @@ spec:
             # If the artifact_visibility is public, then every user should be a viewer
             define viewer: [user, user:*] or writer or auditor or invitee from past_meeting_for_participant_view or attendee from past_meeting_for_attendee_view or host from past_meeting_for_host_view
 
+        # // Hide this from PERMISSIONS.md until we fold v1_meeting into meeting.
+        # @fgadoc:hide
         # The past_meeting_transcript type identifies a transcript of a past meeting.
         # Access to a transcript is limited to one of the following groups:
         # - Only meeting hosts
@@ -182,6 +234,8 @@ spec:
             # If the artifact_visibility is public, then every user should be a viewer
             define viewer: [user, user:*] or writer or auditor or invitee from past_meeting_for_participant_view or attendee from past_meeting_for_attendee_view or host from past_meeting_for_host_view
 
+        # // Hide this from PERMISSIONS.md until we fold v1_meeting into meeting.
+        # @fgadoc:hide
         # The past_meeting_summary type identifies a summary of a past meeting.
         # Access to a summary is limited to one of the following groups:
         # - Only meeting hosts
@@ -213,18 +267,27 @@ spec:
         #
         # *All relations are as described in `meeting`, unless otherwise
         # noted.*
+        # @fgadoc:alias Scheduled Meeting
         type v1_meeting
           relations
             define project: [project]
             define committee: [committee]
+            # @fgadoc:jtbd View a meeting registrant
             define auditor: organizer or auditor from project
             # No explicit [user] relation for organizer in v1.
+            # @fgadoc:jtbd Update & delete a meeting
+            # @fgadoc:jtbd Manage meeting registrants & occurrences
+            # @fgadoc:jtbd Manage meeting attachments
             define organizer: meeting_coordinator from project or writer from committee or writer from project
             define host: [user] or organizer
             define participant: [user] or host
+            # @fgadoc:jtbd View a meeting & its attachments
+            # @fgadoc:jtbd Submit a meeting response
+            # @fgadoc:jtbd Get meeting join link & ICS file
             define viewer: [user:*] or participant or organizer or auditor
 
         # *All relations are as described in `past_meeting`, unless otherwise noted.*
+        # @fgadoc:alias Past Meeting
         type v1_past_meeting
           relations
             define project: [project]
@@ -232,14 +295,18 @@ spec:
             define meeting: [v1_meeting]
             define auditor: organizer or auditor from project or auditor from meeting
             # No explicit [user] relation for organizer in v1.
+            # @fgadoc:jtbd Update & delete a past meeting
+            # @fgadoc:jtbd Manage past meeting participants & attachments
             define organizer: meeting_coordinator from project or writer from project or organizer from meeting
             define host: [user] or organizer
             define invitee: [user]
             define attendee: [user]
+            # @fgadoc:jtbd View a past meeting & its attachments
             define viewer: [user:*] or attendee or invitee or organizer or auditor
 
         # *All relations are as described in `past_meeting_recording`, unless
         # otherwise noted.*
+        # @fgadoc:collapse v1_past_meeting
         type v1_past_meeting_recording
           relations
             define past_meeting: [v1_past_meeting]
@@ -258,6 +325,7 @@ spec:
 
         # *All relations are as described in `past_meeting_transcript`, unless
         # otherwise noted.*
+        # @fgadoc:collapse v1_past_meeting
         type v1_past_meeting_transcript
           relations
             define past_meeting: [v1_past_meeting]
@@ -274,9 +342,11 @@ spec:
             # If the artifact_visibility is public, then every user should be a viewer
             define viewer: [user:*] or writer or auditor or invitee from past_meeting_for_participant_view or attendee from past_meeting_for_attendee_view or host from past_meeting_for_host_view
 
+        # @fgadoc:collapse v1_past_meeting
         type v1_past_meeting_summary
           relations
             define past_meeting: [v1_past_meeting]
+            # @fgadoc:jtbd Update a past meeting summary
             define writer: organizer from past_meeting
             define auditor: auditor from past_meeting
             define host: host from past_meeting
@@ -288,54 +358,70 @@ spec:
             define past_meeting_for_attendee_view: [v1_past_meeting]
             define past_meeting_for_host_view: [v1_past_meeting]
             # If the artifact_visibility is public, then every user should be a viewer
+            # @fgadoc:jtbd View a past meeting summary
             define viewer: [user:*] or writer or auditor or invitee from past_meeting_for_participant_view or attendee from past_meeting_for_attendee_view or host from past_meeting_for_host_view
 
         type vote
           relations
             define committee: [committee]
             define project: [project]
+            # @fgadoc:jtbd Update & delete a vote
+            # @fgadoc:jtbd Extend, enable & resend a vote
             define writer: writer from project or writer from committee
             # auditor has access to participants, viewer does not
             define auditor: writer or auditor from project or auditor from committee
+            # @fgadoc:jtbd Cast a vote response
             define participant: [user]
+            # @fgadoc:jtbd View a vote & its status
             define viewer: [user:*] or auditor or participant
             define vote_for_participant_result_access: [vote] # set this relation to "self" to enable access
             # results_viewer is not for viewing the actual related vote_response objects,
             # but rather for an aggregate summary which can be made optionally public
+            # @fgadoc:jtbd View aggregated voting results
             define results_viewer: [user:*] or auditor or participant from vote_for_participant_result_access
 
         type vote_response
           relations
             define vote: [vote]
             # owner is the user who cast this response
+            # @fgadoc:alias Voter
+            # @fgadoc:jtbd Update your vote response
             define owner: [user]
             # we don't need to create a "writer" relation that is defined as just "owner":
             # we just use the "owner" relation in our access checks!
+            # @fgadoc:jtbd View a vote response
             define auditor: owner or auditor from vote
 
         type survey
           relations
             define committee: [committee]
             define project: [project]
+            # @fgadoc:jtbd Update & delete a survey
+            # @fgadoc:jtbd Manage survey recipients & responses
             define writer: writer from project or writer from committee
             # auditor has access to participants, viewer does not
+            # @fgadoc:jtbd Preview survey send recipients
             define auditor: writer or auditor from project or auditor from committee
             define participant: [user]
+            # @fgadoc:jtbd View a survey
             define viewer: [user:*] or auditor or participant
             define survey_for_participant_result_access: [survey] # set this relation to "self" to enable access
             # results_viewer is not for viewing the actual related survey_response objects,
             # but rather for an aggregate summary which can be made optionally public
             define results_viewer: [user:*] or auditor or participant from survey_for_participant_result_access
 
+        # @fgadoc:hide
         type survey_response
           relations
             define survey: [survey]
             # owner is the user who cast this response
+            # @fgadoc:alias Respondent
             define owner: [user]
             # we don't need to create a "writer" relation that is defined as just "owner":
             # we just use the "owner" relation in our access checks!
             define auditor: owner or auditor from survey
 
+        # @fgadoc:hide
         # This type is used for access to membership apis, not to define someone as a project member
         # eventually it needs to be expanded as we index objects
         type member
