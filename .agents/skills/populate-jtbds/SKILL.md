@@ -30,8 +30,7 @@ the JTBD annotations need to be refreshed from real API usage.
   These types will have zero RuleSet entries and cannot be populated by this
   skill — that is expected, not a bug. Known Query Service-only types:
   `v1_past_meeting_recording`, `v1_past_meeting_transcript`. Do not flag
-  them as needing manual review. See LFXV2-1430 for extending this skill
-  to cover the Query Service.
+  them as needing manual review.
 
 ## Discipline rules — read before synthesizing any JTBD
 
