@@ -119,8 +119,8 @@ role assignment.
 | | *Organizer* | *Auditor* | Host | Invitee | Attendee | *Everyone* |
 |---|---|---|---|---|---|---|
 | View a past meeting & its attachments | ✅ | ✅ | | ✅ | ✅ | 🟡 |
-| View a past meeting summary | | | ✅ | ✅ | ✅ | 🟡 |
-| Update a past meeting summary | ✅ | | | | | |
+| View a past meeting summary | ✅ | ✅ | 🟡 | 🟡 | 🟡 | 🟡 |
+| Update a past meeting summary | ✅ | ✅ | | | | |
 | Manage past meeting participants & attachments | ✅ | | | | | |
 | Update & delete a past meeting | ✅ | | | | | |
 
