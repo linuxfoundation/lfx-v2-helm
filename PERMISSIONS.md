@@ -18,7 +18,7 @@ role assignment.
 - "**Role Name**" column headings are assignable roles for this object type (may also be inherited; see lists below tables)
 - "**_Italicized Role Name_**" headings are implicit or inherited roles (_not_ directly assignable on this object type)
 - ✅ access is granted to this role to all objects of this type
-- 🟡 access is conditional based on per-object settings
+- 🟡 access is conditional on per-object settings
 
 ## Object types
 

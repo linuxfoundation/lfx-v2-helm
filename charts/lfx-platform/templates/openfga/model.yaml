@@ -84,7 +84,7 @@ spec:
         type groupsio_service
           relations
             define project: [project]
-            # Hiding `owner` because it has no JTBDs, and project owners is hidden.
+            # Hiding `owner` because it has no JTBDs, and project `owner` relation is also hidden.
             # @fgadoc:hide
             define owner: [user] or owner from project
             # @fgadoc:jtbd Update & delete a Groups.io service

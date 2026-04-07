@@ -214,7 +214,7 @@ siblings.
 Use ripgrep to detect outliers:
 
 ```bash
-rg -n "^ *# @fgadoc:|^ *define " model.yaml \
+rg -n "^ *# @fgadoc:|^ *define " charts/lfx-platform/templates/openfga/model.yaml \
   | rg -v "^[0-9]+:            [^ ]|^[0-9]+:        [^ ]"
 ```
 
