@@ -108,15 +108,66 @@ column).
 type as the target, include C's JTBDs in this type's JTBD pool as well.
 To determine ✅ placement for a collapsed JTBD:
 
-1. For each relation `R_c` on C that carries the JTBD, inspect R_c's define
-   expression for a `<rel> from <field>` term where `<field>` resolves to
-   this (target) type.
-2. The `<rel>` identified in step 1 is the corresponding relation on the
-   target type. Build its **full upward reachability set** on the target
-   type (same algorithm as Step 2c) to determine which columns get ✅.
-3. If R_c's define has no such term (no `<rel> from <field>` pointing to
-   this type), the collapsed JTBD still appears as a row but no column
-   gets ✅ for it.
+1. For each relation `R_c` on C that carries the JTBD, build the full set
+   of **contributing relations on C**: start with R_c itself, then for
+   every `or <peer>` in R_c's define, add that peer — and recurse into
+   each peer's define for further `or <peer>` terms (downward inclusion
+   expansion within type C only; do NOT expand `or <peer>` on the target
+   type here).
+
+2. For each contributing relation on C, collect every `<rel> from <field>`
+   term in that relation's define where `<field>` resolves to the target
+   type. "Resolves to the target type" means the field's declared type
+   (from the `define <field>: [<type>]` line on C) is the target type.
+   This includes fields whose type is `[<target_type>]` directly (e.g.
+   `define past_meeting: [v1_past_meeting]`) **and** fields typed as
+   `[<target_type>]` via a different name (e.g.
+   `define past_meeting_for_participant_view: [v1_past_meeting]` — this
+   also resolves to the target type `v1_past_meeting`).
+
+3. Each `<rel>` identified in step 2 names a relation on the target type.
+   Build its **full upward reachability set** on the target type (same
+   algorithm as Step 2c) to determine which columns get ✅.
+
+4. If no contributing relation on C has any `<rel> from <field>` term
+   pointing to the target type (after the full expansion in steps 1–2),
+   the collapsed JTBD still appears as a row but no column gets ✅ for it.
+
+**Example** (`v1_past_meeting_summary` collapsed into `v1_past_meeting`):
+
+`viewer` on `v1_past_meeting_summary` carries the JTBD "View a past
+meeting summary". Its define is:
+```
+[user:*] or writer or auditor
+  or invitee from past_meeting_for_participant_view
+  or attendee from past_meeting_for_attendee_view
+  or host from past_meeting_for_host_view
+```
+Step 1 expands downward `or` peers of `viewer` on the collapsed type:
+- `writer` (define: `organizer from past_meeting`) → cross-type source:
+  `organizer` from `past_meeting` field (which is typed `[v1_past_meeting]`)
+- `auditor` (define: `auditor from past_meeting`) → cross-type source:
+  `auditor` from `past_meeting`
+
+Direct `<rel> from <field>` on `viewer` itself:
+- `invitee from past_meeting_for_participant_view` — `past_meeting_for_participant_view`
+  is typed `[v1_past_meeting]` → cross-type source: `invitee`
+- `attendee from past_meeting_for_attendee_view` → `attendee`
+- `host from past_meeting_for_host_view` → `host`
+
+Step 3: build upward reachability on `v1_past_meeting` for each:
+- `organizer` → upward set includes `auditor` (organizer is in auditor),
+  `viewer` (not a column). Writer and Auditor indirect-only columns ✅.
+- `auditor` → upward set = {} within named columns. Auditor column ✅.
+- `invitee`, `attendee` → upward set: `viewer` only (not a column). ✅ for
+  Invitee / Attendee direct-grant columns.
+- `host` → upward set: `viewer` (not a column). ✅ for Host direct-grant
+  column.
+
+Result: "View a past meeting summary" row shows ✅ for *Organizer*, *Auditor*,
+Host, Invitee, Attendee — and 🟡 for Everyone (because `[user:*]` is in the
+viewer define of the collapsed type, which is in the Everyone column logic;
+see Everyone column handling below).
 
 Collapsed JTBDs are **interleaved** with the target type's own JTBDs using
 the same row-ordering rules below — they are not appended as a separate
@@ -180,6 +231,15 @@ role subsumes, not roles that subsume this role).
 For each relation R whose define contains `[user:*]`, build R's own upward
 reachability set using the same rule. Mark 🟡 if the JTBD appears in the
 JTBD list of R itself **or** any relation in R's upward reachability set.
+
+**Everyone column for collapsed JTBDs:** If a collapsed type C has a
+relation R_c whose define contains `[user:*]`, and R_c carries (or its
+upward reachability set carries) the collapsed JTBD, mark 🟡 for that JTBD
+in the target type's Everyone column. The target type's Everyone column
+must already exist (i.e. the target type itself has at least one relation
+with `[user:*]`); if it does not, the 🟡 is still shown — the Everyone
+column is added even if it would otherwise be absent on the target type,
+because the collapsed type contributes a `[user:*]` relation.
 
 **Worked example — `project` type:**
 
@@ -246,8 +306,9 @@ itself (nothing includes viewer).
 
 ### 2d — Omit the Everyone column only when no type-level relation has `[user:*]`
 
-If no relation in the type has `[user:*]` in its define expression, omit
-the Everyone column entirely. The Everyone column is ALWAYS the rightmost.
+If no relation in the type **or any type that collapses into it** has
+`[user:*]` in its define expression, omit the Everyone column entirely.
+The Everyone column is ALWAYS the rightmost.
 
 ## Step 3 — Build Permission Inheritance sections
 
@@ -384,6 +445,7 @@ After writing, re-read `PERMISSIONS.md` and confirm:
 - Count of `###` headings matches the number of non-hidden, non-collapsed types.
 - Collapsed types (those with `@fgadoc:collapse`) have no `###` section of their own; their JTBDs appear in their target type's section.
 - Collapsed JTBDs are interleaved with the target type's own JTBDs (not appended as a separate block).
+- For each collapsed JTBD, ✅ placement uses the full expansion algorithm (Step 2b): downward `or` peer expansion on the collapsed type, then cross-type `<rel> from <field>` resolution (including fields typed as the target type under a different name), then upward reachability on the target type.
 - Every visible type with at least one visible column or Everyone column has a table.
 - No `[user:*]`-only relation appears as a direct-grant or indirect-only column.
 - Every type with at least one `[user:*]` relation has an *Everyone* column (italicized header).

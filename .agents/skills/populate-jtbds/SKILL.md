@@ -25,6 +25,13 @@ the JTBD annotations need to be refreshed from real API usage.
 - `@fgadoc:hide` objects and relations are **not** excluded from JTBD
   processing. If a hidden type or relation has matching RuleSet routes,
   synthesize and write JTBDs for it exactly as you would for a visible one.
+- Some object types are served exclusively by the **Query Service**, which
+  uses relation annotations on indexed items rather than Heimdall RuleSets.
+  These types will have zero RuleSet entries and cannot be populated by this
+  skill — that is expected, not a bug. Known Query Service-only types:
+  `v1_past_meeting_recording`, `v1_past_meeting_transcript`. Do not flag
+  them as needing manual review. See LFXV2-1430 for extending this skill
+  to cover the Query Service.
 
 ## Discipline rules — read before synthesizing any JTBD
 
