@@ -71,7 +71,7 @@ dependencies:
     condition: lfx-v2-fga-sync.enabled
   - name: lfx-v2-access-check
     repository: oci://ghcr.io/linuxfoundation/lfx-v2-access-check/chart
-    version: ~0.2.9
+    version: ~0.2.11
     condition: lfx-v2-access-check.enabled
   - name: lfx-v2-indexer-service
     repository: oci://ghcr.io/linuxfoundation/lfx-v2-indexer-service/chart
