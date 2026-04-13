@@ -177,3 +177,41 @@ role assignment.
 - ***Auditor***: inherited from Project Auditor, Committee Auditor
 
 ---
+
+### B2B Organization
+
+Access to a B2B Organization object is controlled via three directly-assignable
+roles: **Owner**, **Writer**, and **Auditor**. No job-to-be-done actions are
+documented for this type yet; this section will be expanded as API coverage
+grows.
+
+#### Permission Inheritance
+
+- **Writer**: also granted to Owner; inherited from global org-admin team
+- **Auditor**: also granted to Writer
+
+---
+
+### Project Membership
+
+Access to a Project Membership object is fully inherited — there are no
+directly-assignable roles on this type. Write access is scoped to B2B
+Organization writers; read access is additionally available to Project auditors.
+
+#### Permission Inheritance
+
+- ***Writer***: inherited from B2B Organization Writer
+- ***Auditor***: inherited from B2B Organization Auditor, Project Auditor
+
+---
+
+### Key Contact
+
+Access to a Key Contact object is fully inherited — there are no
+directly-assignable roles on this type. Both write and read access are
+available to either the parent B2B Organization or the parent Project.
+
+#### Permission Inheritance
+
+- ***Writer***: inherited from B2B Organization Writer, Project Writer
+- ***Auditor***: inherited from B2B Organization Auditor, Project Auditor
