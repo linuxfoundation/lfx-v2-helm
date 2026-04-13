@@ -82,17 +82,17 @@ Parse `/tmp/rulesets.json` **once** with a single Python script that produces
 two output files:
 
 - `/tmp/openfga_groups.json` — routes grouped by `<object>#<relation>`
-- `/tmp/openapi_paths.json` — `{ "<ruleset-name>": "<openapi3.yaml path>" }`
+- `/tmp/openapi_paths.json` — `{ "<ruleset-name>": "<openapi3.json path>" }`
 
 For each rule, collect:
 
 - `ruleset` — `metadata.name` of the RuleSet
 - `method` — HTTP method (GET, POST, PATCH, DELETE, …)
-- `route` — URL path pattern (excluding openapi3.yaml routes)
+- `route` — URL path pattern (excluding openapi3.json routes)
 - `object` — OpenFGA object type (strip `:...` variable suffix)
 - `relation` — OpenFGA relation required
 
-Also record any route whose path ends in `openapi3.yaml` into the openapi
+Also record any route whose path ends in `openapi3.json` into the openapi
 paths map at the same time.
 
 Typical RuleSet shape (abbreviated):
@@ -188,16 +188,16 @@ Issue **all** live-endpoint fetches as a single parallel batch — do not fetch
 them one at a time. For each entry in `/tmp/openapi_paths.json`:
 
 ```
-GET https://lfx-api.dev.v2.cluster.linuxfound.info<openapi3.yaml path>
+GET https://lfx-api.dev.v2.cluster.linuxfound.info<openapi3.json path>
 ```
 
 **GitHub fallback (for any that return non-200):**
 
-Search the `linuxfoundation` GitHub organization for `openapi3.yaml` using the
+Search the `linuxfoundation` GitHub organization for `openapi3.json` using the
 RuleSet `metadata.name` as the repo name hint:
 
 ```
-filename:openapi3.yaml repo:linuxfoundation/<ruleset-metadata-name>
+filename:openapi3.json repo:linuxfoundation/<ruleset-metadata-name>
 ```
 
 Use GitHub code search to locate and read the file. If multiple services fail,
