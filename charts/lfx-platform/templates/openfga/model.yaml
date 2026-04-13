@@ -24,7 +24,7 @@ spec:
 */}}
     - version:
         major: 10
-        minor: 0
+        minor: 1
         patch: 0
       authorizationModel: |
         model
@@ -51,7 +51,7 @@ spec:
             define owner: [team#member] or owner from parent
             # @fgadoc:jtbd Create & update a project
             # @fgadoc:jtbd Update project settings
-            # @fgadoc:jtbd Create project committees, meetings & mailing lists
+            # @fgadoc:jtbd Create project committees & mailing lists
             # @fgadoc:jtbd Manage project membership key contacts
             # @fgadoc:jtbd Create a vote
             define writer: [user] or owner or writer from parent
@@ -61,9 +61,11 @@ spec:
             # @fgadoc:jtbd View project membership key contacts
             define auditor: [user, team#member] or writer or auditor from parent
             define meeting_coordinator: [user]
+            # @fgadoc:jtbd Create project meetings
+            define meetings_creator: writer or meeting_coordinator
             # @fgadoc:jtbd View a project
             # @fgadoc:jtbd View project meeting count
-            define viewer: [user:*] or auditor or auditor from parent
+            define viewer: [user:*] or auditor or meeting_coordinator
 
         type committee
           relations
@@ -76,23 +78,20 @@ spec:
             # @fgadoc:jtbd Schedule a survey for a committee
             define writer: [user] or writer from project
             # @fgadoc:jtbd View committee settings
-            define auditor: [user, team#member] or auditor from project or meeting_coordinator from project
+            define auditor: [user, team#member] or writer or auditor from project or meeting_coordinator from project
             # @fgadoc:jtbd View committee details, members, invites & resources
-            define viewer: [user:*] or member or auditor or auditor from project
+            define viewer: [user:*] or member or auditor
 
         # @fgadoc:alias Groups.io Service
         type groupsio_service
           relations
             define project: [project]
-            # Hiding `owner` because it has no JTBDs, and project `owner` relation is also hidden.
-            # @fgadoc:hide
-            define owner: [user] or owner from project
             # @fgadoc:jtbd Update & delete a Groups.io service
             # @fgadoc:jtbd Create project mailing lists
-            define writer: [user] or writer from project or owner
+            define writer: [user] or writer from project
             define auditor: [user] or auditor from project or writer
             # @fgadoc:jtbd View a Groups.io service
-            define viewer: [user:*] or auditor from project
+            define viewer: [user:*] or auditor
 
         # @fgadoc:alias Mailing List
         type groupsio_mailing_list
@@ -100,14 +99,13 @@ spec:
             define groupsio_service: [groupsio_service]  # Parent relationship
             define project: project from groupsio_service # Inherit project permissions
             define committee: [committee] # Inherit committee permissions
-            define owner: owner from groupsio_service
             # @fgadoc:jtbd Update & delete a mailing list
             # @fgadoc:jtbd Add & remove mailing list members
             define writer: [user] or writer from groupsio_service or writer from committee
             define auditor: [user] or auditor from groupsio_service or auditor from committee
             # @fgadoc:jtbd View a mailing list & its members
             # @fgadoc:jtbd View & download mailing list artifacts
-            define viewer: [user:*] or viewer from groupsio_service or member from committee
+            define viewer: [user:*] or writer or auditor or member
             # @fgadoc:alias Subscriber
             define member: [user]
 
@@ -175,7 +173,7 @@ spec:
             # The viewer relation identifies a user who can view this past meeting.
             # If the past meeting is public, then any user can view it; but if it is private, then
             # only certain privileged users can view it.
-            define viewer: [user:*] or attendee or invitee or organizer or auditor
+            define viewer: [user:*] or attendee or invitee or host or organizer or auditor
 
         # // Hide this from PERMISSIONS.md until we fold v1_meeting into meeting.
         # @fgadoc:hide
@@ -302,7 +300,7 @@ spec:
             define invitee: [user]
             define attendee: [user]
             # @fgadoc:jtbd View a past meeting & its attachments
-            define viewer: [user:*] or attendee or invitee or organizer or auditor
+            define viewer: [user:*] or attendee or invitee or host or organizer or auditor
 
         # *All relations are as described in `past_meeting_recording`, unless
         # otherwise noted.*
