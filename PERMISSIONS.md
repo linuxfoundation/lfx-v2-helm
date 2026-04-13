@@ -26,8 +26,8 @@ role assignment.
 
 | | Writer | Auditor | Meeting Coordinator | *Everyone* |
 |---|---|---|---|---|
-| View a project | ✅ | ✅ | | 🟡 |
-| View project meeting count | ✅ | ✅ | | 🟡 |
+| View a project | ✅ | ✅ | ✅ | 🟡 |
+| View project meeting count | ✅ | ✅ | ✅ | 🟡 |
 | View project settings | ✅ | ✅ | | |
 | View project membership tiers | ✅ | ✅ | | |
 | View project memberships & member companies | ✅ | ✅ | | |
@@ -36,7 +36,8 @@ role assignment.
 | Update project settings | ✅ | | | |
 | Create & update a project | ✅ | | | |
 | Create a vote | ✅ | | | |
-| Create project committees, meetings & mailing lists | ✅ | | | |
+| Create project committees & mailing lists | ✅ | | | |
+| Create project meetings | ✅ | | ✅ | |
 
 #### Permission Inheritance
 
@@ -49,8 +50,8 @@ role assignment.
 
 | | Writer | Auditor | Member | *Everyone* |
 |---|---|---|---|---|
-| View committee details, members, invites & resources | | ✅ | ✅ | 🟡 |
-| View committee settings | | ✅ | | |
+| View committee details, members, invites & resources | ✅ | ✅ | ✅ | 🟡 |
+| View committee settings | ✅ | ✅ | | |
 | Update committee settings | ✅ | | | |
 | Manage committee members, invites & applications | ✅ | | | |
 | Manage committee links & folders | ✅ | | | |
@@ -68,7 +69,7 @@ role assignment.
 
 | | Writer | Auditor | *Everyone* |
 |---|---|---|---|
-| View a Groups.io service | | | 🟡 |
+| View a Groups.io service | ✅ | ✅ | 🟡 |
 | Update & delete a Groups.io service | ✅ | | |
 | Create project mailing lists | ✅ | | |
 
@@ -83,8 +84,8 @@ role assignment.
 
 | | Writer | Auditor | Subscriber | *Everyone* |
 |---|---|---|---|---|
-| View a mailing list & its members | | | | 🟡 |
-| View & download mailing list artifacts | | | | 🟡 |
+| View a mailing list & its members | ✅ | ✅ | ✅ | 🟡 |
+| View & download mailing list artifacts | ✅ | ✅ | ✅ | 🟡 |
 | Add & remove mailing list members | ✅ | | | |
 | Update & delete a mailing list | ✅ | | | |
 
@@ -118,7 +119,7 @@ role assignment.
 
 | | *Organizer* | *Auditor* | Host | Invitee | Attendee | *Everyone* |
 |---|---|---|---|---|---|---|
-| View a past meeting & its attachments | ✅ | ✅ | | ✅ | ✅ | 🟡 |
+| View a past meeting & its attachments | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | View a past meeting summary | ✅ | ✅ | 🟡 | 🟡 | 🟡 | 🟡 |
 | Update a past meeting summary | ✅ | ✅ | | | | |
 | Manage past meeting participants & attachments | ✅ | | | | | |
