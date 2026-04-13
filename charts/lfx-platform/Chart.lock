@@ -19,7 +19,7 @@ dependencies:
   version: 0.25.2
 - name: authelia
   repository: https://charts.authelia.com
-  version: 0.10.50
+  version: 0.10.57
 - name: nack
   repository: https://nats-io.github.io/k8s/helm/charts/
   version: 0.29.2
@@ -37,36 +37,36 @@ dependencies:
   version: v0.18.0
 - name: lfx-v2-query-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-query-service/chart
-  version: 0.4.14
+  version: 0.4.15
 - name: lfx-v2-project-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-project-service/chart
-  version: 0.6.1
+  version: 0.6.2
 - name: lfx-v2-fga-sync
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-fga-sync/chart
-  version: 0.2.15
+  version: 0.2.16
 - name: lfx-v2-access-check
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-access-check/chart
   version: 0.2.11
 - name: lfx-v2-indexer-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-indexer-service/chart
-  version: 0.4.18
+  version: 0.4.19
 - name: lfx-v2-committee-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-committee-service/chart
-  version: 0.2.30
+  version: 0.2.31
 - name: lfx-v2-meeting-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-meeting-service/chart
   version: 0.8.0
 - name: lfx-v2-mailing-list-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-mailing-list-service/chart
-  version: 0.4.7
+  version: 0.4.9
 - name: lfx-v2-auth-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-auth-service/chart
-  version: 0.4.4
+  version: 0.4.5
 - name: lfx-v2-voting-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-voting-service/chart
-  version: 0.2.5
+  version: 0.2.6
 - name: lfx-v2-survey-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-survey-service/chart
-  version: 0.2.5
-digest: sha256:c195d6afea514f3c0191a0a59b732fc410fa7312e2d955e02ef6f79e0bde2618
-generated: "2026-04-10T15:13:10.108489-04:00"
+  version: 0.2.6
+digest: sha256:16e89335021ec2e0a239f1b7c805dc6397043f59ba4e66b4467758592aabebfe
+generated: "2026-04-13T15:34:59.724857-04:00"
