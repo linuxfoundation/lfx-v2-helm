@@ -33,8 +33,10 @@ the JTBD annotations need to be refreshed from real API usage.
   `v1_past_meeting`). These relations will have zero RuleSet entries; their
   JTBDs are synthesized from indexer contracts in Step 2b.
 - An indexed object type may not appear in `model.yaml` at all (e.g.,
-  `v1_meeting_registrant`). Step 2b writes JTBDs onto the `access_check_object`
-  type's relation in `model.yaml`, **not** onto the indexed type itself.
+  `v1_meeting_registrant`). Step 2b writes JTBDs onto the **delegate type**'s
+  relation in `model.yaml` — that is, the `access_check_object` value with any
+  `:<id>` suffix stripped (e.g. `v1_past_meeting:{meeting_and_occurrence_id}` →
+  `v1_past_meeting`) — **not** onto the indexed type itself.
 
 ## Discipline rules — read before synthesizing any JTBD
 
@@ -133,7 +135,7 @@ by the Query Service rather than Heimdall.
 
 **Search for all contracts:**
 
-```
+```text
 filename:indexer-contract.md org:linuxfoundation
 ```
 
@@ -146,8 +148,8 @@ batch (use the `repo` and `path` from each search result).
 - `access_check_object` — from the `Access Control (IndexingConfig)` table row
 - `access_check_relation` — from the same table
 
-Strip the `:{...}` suffix from `access_check_object` to get the **delegate
-type** (e.g., `v1_past_meeting:{meeting_and_occurrence_id}` →
+Strip everything after the first `:` from `access_check_object` to get the
+**delegate type** (e.g., `v1_past_meeting:{meeting_and_occurrence_id}` →
 `v1_past_meeting`).
 
 A resource type contributes a Query Service entry when its `access_check_object`
@@ -160,11 +162,11 @@ Write `/tmp/query_service_groups.json` in this shape:
 {
   "v1_past_meeting#viewer": [
     {
-      "indexed_type": "v1_past_meeting_recording",
+      "object_type": "v1_past_meeting_recording",
       "human_label": "past meeting recordings"
     },
     {
-      "indexed_type": "v1_past_meeting_transcript",
+      "object_type": "v1_past_meeting_transcript",
       "human_label": "past meeting transcripts"
     }
   ]
@@ -187,7 +189,7 @@ a query-service entry for read will receive JTBDs from both sources.
 Issue **all** live-endpoint fetches as a single parallel batch — do not fetch
 them one at a time. For each entry in `/tmp/openapi_paths.json`:
 
-```
+```text
 GET https://lfx-api.dev.v2.cluster.linuxfound.info<openapi3.json path>
 ```
 
@@ -196,7 +198,7 @@ GET https://lfx-api.dev.v2.cluster.linuxfound.info<openapi3.json path>
 Search the `linuxfoundation` GitHub organization for `openapi3.json` using the
 RuleSet `metadata.name` as the repo name hint:
 
-```
+```text
 filename:openapi3.json repo:linuxfoundation/<ruleset-metadata-name>
 ```
 
@@ -225,7 +227,7 @@ descriptions as before.
 entry, scoped to viewing that child resource. For example, an entry with
 `human_label: "past meeting recordings"` on `v1_past_meeting#viewer` produces:
 
-```
+```text
 View past meeting recordings
 ```
 
