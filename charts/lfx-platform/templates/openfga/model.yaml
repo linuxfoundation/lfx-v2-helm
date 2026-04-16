@@ -79,14 +79,14 @@ spec:
             define writer: [user] or writer from project
             # @fgadoc:jtbd View committee settings
             define auditor: [user, team#member] or writer or auditor from project or meeting_coordinator from project
-            # @fgadoc:jtbd View committee details (name, description, type), invites & resources
+            # @fgadoc:jtbd View committee details, members, invites & resources
             define viewer: [user:*] or member or auditor
-            # set this relation to "self" to enable member access to the roster and emails
+            # set this relation to "self" to enable member access to the roster
             define committee_for_member_roster_access: [committee]
-            # @fgadoc:jtbd View committee member names & roles
+            # set this relation to "self" to enable member access to email addresses
+            define committee_for_member_email_access: [committee]
             define roster_viewer: [user:*] or auditor or member from committee_for_member_roster_access
-            # @fgadoc:jtbd View committee member email addresses
-            define email_viewer: auditor or member from committee_for_member_roster_access
+            define email_viewer: auditor or member from committee_for_member_email_access
 
         # @fgadoc:alias Groups.io Service
         type groupsio_service
