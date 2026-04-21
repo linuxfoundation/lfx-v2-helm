@@ -381,14 +381,15 @@ spec:
         type vote_response
           relations
             define vote: [vote]
+            define project: [project]
             # owner is the user who cast this response
             # @fgadoc:alias Voter
             # @fgadoc:jtbd Update your vote response
             define owner: [user]
-            # we don't need to create a "writer" relation that is defined as just "owner":
-            # we just use the "owner" relation in our access checks!
+            define writer: [user] or owner
             # @fgadoc:jtbd View a vote response
             define auditor: owner or auditor from vote
+            define viewer: [user, user:*] or auditor
 
         type survey
           relations
