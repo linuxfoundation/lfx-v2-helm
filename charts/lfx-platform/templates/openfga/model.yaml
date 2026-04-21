@@ -59,9 +59,12 @@ spec:
             # @fgadoc:jtbd View project membership tiers
             # @fgadoc:jtbd View project memberships & member companies
             # @fgadoc:jtbd View project membership key contacts
+            # @fgadoc:jtbd Search B2B organizations
+            # @fgadoc:jtbd View B2B organization memberships
             define auditor: [user, team#member] or writer or auditor from parent
             define meeting_coordinator: [user]
             # @fgadoc:jtbd Create project meetings
+            # @fgadoc:jtbd Create past meetings
             define meetings_creator: writer or meeting_coordinator
             # @fgadoc:jtbd View a project
             # @fgadoc:jtbd View project meeting count
@@ -74,12 +77,18 @@ spec:
             # @fgadoc:jtbd Update & delete a committee
             # @fgadoc:jtbd Update committee settings
             # @fgadoc:jtbd Manage committee members, invites & applications
-            # @fgadoc:jtbd Manage committee links & folders
+            # @fgadoc:jtbd Manage committee links, folders & documents
             # @fgadoc:jtbd Schedule a survey for a committee
             define writer: [user] or writer from project
             # @fgadoc:jtbd View committee settings
             define auditor: [user, team#member] or writer or auditor from project or meeting_coordinator from project
-            # @fgadoc:jtbd View committee details, members, invites & resources
+            # @fgadoc:jtbd View committee details
+            # @fgadoc:jtbd Download committee documents
+            # @fgadoc:jtbd View committee members
+            # @fgadoc:jtbd View committee invites
+            # @fgadoc:jtbd View committee applications
+            # @fgadoc:jtbd View committee links
+            # @fgadoc:jtbd View committee link folders
             define viewer: [user:*] or member or auditor
 
         # @fgadoc:alias Groups.io Service
@@ -103,8 +112,9 @@ spec:
             # @fgadoc:jtbd Add & remove mailing list members
             define writer: [user] or writer from groupsio_service or writer from committee
             define auditor: [user] or auditor from groupsio_service or auditor from committee
-            # @fgadoc:jtbd View a mailing list & its members
+            # @fgadoc:jtbd View a mailing list
             # @fgadoc:jtbd View & download mailing list artifacts
+            # @fgadoc:jtbd View mailing list members
             define viewer: [user:*] or writer or auditor or member
             # @fgadoc:alias Subscriber
             define member: [user]
@@ -279,9 +289,12 @@ spec:
             define organizer: meeting_coordinator from project or writer from committee or writer from project
             define host: [user] or organizer
             define participant: [user] or host
-            # @fgadoc:jtbd View a meeting & its attachments
+            # @fgadoc:jtbd View a meeting
             # @fgadoc:jtbd Submit a meeting response
             # @fgadoc:jtbd Get meeting join link & ICS file
+            # @fgadoc:jtbd View meeting registrants
+            # @fgadoc:jtbd View meeting RSVPs
+            # @fgadoc:jtbd View meeting attachments
             define viewer: [user:*] or participant or organizer or auditor
 
         # *All relations are as described in `past_meeting`, unless otherwise noted.*
@@ -299,7 +312,12 @@ spec:
             define host: [user] or organizer
             define invitee: [user]
             define attendee: [user]
-            # @fgadoc:jtbd View a past meeting & its attachments
+            # @fgadoc:jtbd View a past meeting
+            # @fgadoc:jtbd View past meeting participants
+            # @fgadoc:jtbd View past meeting recordings
+            # @fgadoc:jtbd View past meeting transcripts
+            # @fgadoc:jtbd View past meeting summaries
+            # @fgadoc:jtbd View past meeting attachments
             define viewer: [user:*] or attendee or invitee or host or organizer or auditor
 
         # *All relations are as described in `past_meeting_recording`, unless
@@ -371,6 +389,7 @@ spec:
             # @fgadoc:jtbd Cast a vote response
             define participant: [user]
             # @fgadoc:jtbd View a vote & its status
+            # @fgadoc:jtbd View vote responses
             define viewer: [user:*] or auditor or participant
             define vote_for_participant_result_access: [vote] # set this relation to "self" to enable access
             # results_viewer is not for viewing the actual related vote_response objects,
@@ -402,6 +421,7 @@ spec:
             define auditor: writer or auditor from project or auditor from committee
             define participant: [user]
             # @fgadoc:jtbd View a survey
+            # @fgadoc:jtbd View survey responses
             define viewer: [user:*] or auditor or participant
             define survey_for_participant_result_access: [survey] # set this relation to "self" to enable access
             # results_viewer is not for viewing the actual related survey_response objects,
