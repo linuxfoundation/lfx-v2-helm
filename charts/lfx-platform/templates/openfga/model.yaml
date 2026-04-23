@@ -59,10 +59,15 @@ spec:
             # @fgadoc:jtbd View project membership tiers
             # @fgadoc:jtbd View project memberships & member companies
             # @fgadoc:jtbd View project membership key contacts
-            define auditor: [user, team#member] or writer or auditor from parent
+            define auditor: [user, team#member] or executive_director or writer or auditor from parent
+            # The meeting_coordinator relation identifies a user who can manage any meeting
+            # for a given project.
             define meeting_coordinator: [user]
             # @fgadoc:jtbd Create project meetings
             define meetings_creator: writer or meeting_coordinator
+            # executive_director identifies a user with the executive director role for a project,
+            # as assigned by the project-service. executive_directors are auditors of the project.
+            define executive_director: [user]
             # @fgadoc:jtbd View a project
             # @fgadoc:jtbd View project meeting count
             define viewer: [user:*] or auditor or meeting_coordinator
