@@ -23,8 +23,8 @@ spec:
   @fgadoc:hide, @fgadoc:alias, @fgadoc:collapse tags are managed manually.
 */}}
     - version:
-        major: 10
-        minor: 2
+        major: 11
+        minor: 1
         patch: 0
       authorizationModel: |
         model
@@ -306,6 +306,28 @@ spec:
             define attendee: [user]
             # @fgadoc:jtbd View a past meeting & its attachments
             define viewer: [user:*] or attendee or invitee or host or organizer or auditor
+            # Per-artifact conditional access — recording
+            # "participant" access level means invitee+attendee (both can view).
+            # Self-referential flag tuple: write relation(object=v1_past_meeting:<id>, user=v1_past_meeting:<id>)
+            # on the appropriate relation(s) to grant that role access to the recording.
+            define past_meeting_for_participant_recording_view: [v1_past_meeting]
+            define past_meeting_for_attendee_recording_view: [v1_past_meeting]
+            define past_meeting_for_host_recording_view: [v1_past_meeting]
+            define recording_viewer: [user:*] or organizer or auditor or invitee from past_meeting_for_participant_recording_view or attendee from past_meeting_for_attendee_recording_view or host from past_meeting_for_host_recording_view
+            # Per-artifact conditional access — transcript
+            # Self-referential flag tuple: write relation(object=v1_past_meeting:<id>, user=v1_past_meeting:<id>)
+            # on the appropriate relation(s) to grant that role access to the transcript.
+            define past_meeting_for_participant_transcript_view: [v1_past_meeting]
+            define past_meeting_for_attendee_transcript_view: [v1_past_meeting]
+            define past_meeting_for_host_transcript_view: [v1_past_meeting]
+            define transcript_viewer: [user:*] or organizer or auditor or invitee from past_meeting_for_participant_transcript_view or attendee from past_meeting_for_attendee_transcript_view or host from past_meeting_for_host_transcript_view
+            # Per-artifact conditional access — AI summary
+            # Self-referential flag tuple: write relation(object=v1_past_meeting:<id>, user=v1_past_meeting:<id>)
+            # on the appropriate relation(s) to grant that role access to the AI summary.
+            define past_meeting_for_participant_summary_view: [v1_past_meeting]
+            define past_meeting_for_attendee_summary_view: [v1_past_meeting]
+            define past_meeting_for_host_summary_view: [v1_past_meeting]
+            define ai_summary_viewer: [user:*] or organizer or auditor or invitee from past_meeting_for_participant_summary_view or attendee from past_meeting_for_attendee_summary_view or host from past_meeting_for_host_summary_view
 
         # *All relations are as described in `past_meeting_recording`, unless
         # otherwise noted.*
