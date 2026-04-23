@@ -329,6 +329,63 @@ spec:
             define past_meeting_for_host_summary_view: [v1_past_meeting]
             define ai_summary_viewer: [user:*] or organizer or auditor or invitee from past_meeting_for_participant_summary_view or attendee from past_meeting_for_attendee_summary_view or host from past_meeting_for_host_summary_view
 
+        # *All relations are as described in `past_meeting_recording`, unless
+        # otherwise noted.*
+        # @fgadoc:collapse v1_past_meeting
+        type v1_past_meeting_recording
+          relations
+            define past_meeting: [v1_past_meeting]
+            define writer: organizer from past_meeting
+            define auditor: auditor from past_meeting
+            define host: host from past_meeting
+            define participant: invitee from past_meeting or attendee from past_meeting
+            # The following "participant access by related meeting" relations are conditional
+            # because they depend on the past meeting artifact_visibility setting. Auditors
+            # and writers do however by default have access to view the recording.
+            define past_meeting_for_participant_view: [v1_past_meeting]
+            define past_meeting_for_attendee_view: [v1_past_meeting]
+            define past_meeting_for_host_view: [v1_past_meeting]
+            # If the artifact_visibility is public, then every user should be a viewer
+            define viewer: [user:*] or writer or auditor or invitee from past_meeting_for_participant_view or attendee from past_meeting_for_attendee_view or host from past_meeting_for_host_view
+
+        # *All relations are as described in `past_meeting_transcript`, unless
+        # otherwise noted.*
+        # @fgadoc:collapse v1_past_meeting
+        type v1_past_meeting_transcript
+          relations
+            define past_meeting: [v1_past_meeting]
+            define writer: organizer from past_meeting
+            define auditor: auditor from past_meeting
+            define host: host from past_meeting
+            define participant: invitee from past_meeting or attendee from past_meeting
+            # The following "participant access by related meeting" relations are conditional
+            # because they depend on the past meeting artifact_visibility setting. Auditors
+            # and writers do however by default have access to view the transcript.
+            define past_meeting_for_participant_view: [v1_past_meeting]
+            define past_meeting_for_attendee_view: [v1_past_meeting]
+            define past_meeting_for_host_view: [v1_past_meeting]
+            # If the artifact_visibility is public, then every user should be a viewer
+            define viewer: [user:*] or writer or auditor or invitee from past_meeting_for_participant_view or attendee from past_meeting_for_attendee_view or host from past_meeting_for_host_view
+
+        # @fgadoc:collapse v1_past_meeting
+        type v1_past_meeting_summary
+          relations
+            define past_meeting: [v1_past_meeting]
+            # @fgadoc:jtbd Update a past meeting summary
+            define writer: organizer from past_meeting
+            define auditor: auditor from past_meeting
+            define host: host from past_meeting
+            define participant: invitee from past_meeting or attendee from past_meeting
+            # The following "participant access by related meeting" relations are conditional
+            # because they depend on the past meeting artifact_visibility setting. Auditors
+            # and writers do however by default have access to view the summary.
+            define past_meeting_for_participant_view: [v1_past_meeting]
+            define past_meeting_for_attendee_view: [v1_past_meeting]
+            define past_meeting_for_host_view: [v1_past_meeting]
+            # If the artifact_visibility is public, then every user should be a viewer
+            # @fgadoc:jtbd View a past meeting summary
+            define viewer: [user:*] or writer or auditor or invitee from past_meeting_for_participant_view or attendee from past_meeting_for_attendee_view or host from past_meeting_for_host_view
+
         type vote
           relations
             define committee: [committee]
