@@ -23,8 +23,8 @@ spec:
   @fgadoc:hide, @fgadoc:alias, @fgadoc:collapse tags are managed manually.
 */}}
     - version:
-        major: 11
-        minor: 1
+        major: 12
+        minor: 0
         patch: 0
       authorizationModel: |
         model
@@ -114,162 +114,13 @@ spec:
             # @fgadoc:alias Subscriber
             define member: [user]
 
-        # // Hide this from PERMISSIONS.md until we fold v1_meeting into meeting.
-        # @fgadoc:hide
-        # @fgadoc:alias Scheduled Meeting
-        type meeting
-          relations
-            define project: [project]
-            define committee: [committee]
-            # The auditor relation identifies a user who can audit this meeting.
-            define auditor: organizer or auditor from project
-            # The organizer relation identifies a user who can manage this one meeting.
-            # That means they can update the meeting details, invite/uninvite participants, etc.
-            define organizer: [user] or meeting_coordinator from project or writer from committee or writer from project
-            # The host relation identifies a user who is a host of this meeting.
-            # This is different than the organizer relation because an organizer isn't necessarily
-            # the user who is hosting the meeting, nor is the host necessarily the one who is
-            # organizing the meeting. For example, a host may need to retrieve the Zoom host key
-            # but shouldn't be able to update the meeting details.
-            define host: [user] or organizer
-            # The participant relation identifies a user who is a participant in this meeting.
-            # This can either mean they are invited to the meeting or they attended the meeting
-            # without being invited. In either case, they are a participant of that meeting.
-            # Note that committee members are not automatically participants of meetings,
-            # because the backend service needs to only include members from the committee
-            # based on the voting status filters of that meeting. That is managed by the backend
-            # services and therefore can't be a relationship in the authorization model.
-            define participant: [user] or host
-            # The viewer relation identifies a user who can view this meeting.
-            # If the meeting is public, then any user can view it; but if it is private, then
-            # only certain privileged users can view it.
-            define viewer: [user:*] or participant or organizer or auditor
-
-        # @fgadoc:hide
-        type meeting_attachment
-          relations
-            define meeting: [meeting]
-            define writer: organizer from meeting
-            define auditor: writer or auditor from meeting
-            define participant: participant from meeting
-            define viewer: [user:*] or participant or writer or auditor
-
-        # // Hide this from PERMISSIONS.md until we fold v1_meeting into meeting.
-        # @fgadoc:hide
-        type past_meeting
-          relations
-            define project: [project]
-            define committee: [committee]
-            # The meeting relation identifies the meeting that this past meeting was created from.
-            # Note: it is possible that the meeting no longer exists, so having permissions on the
-            # meeting become obsolete if the meeting is deleted.
-            define meeting: [meeting]
-            # The auditor relation identifies a user who can audit this meeting.
-            define auditor: organizer or auditor from project or auditor from meeting
-            # The organizer relation identifies a user who can manage this one past meeting.
-            # That means they can update the past meeting details, update the participants, etc.
-            define organizer: [user] or meeting_coordinator from project or writer from project or organizer from meeting
-            # The host relation identifies a user who was a host of this past meeting.
-            define host: [user] or organizer
-            # The invitee relation identifies a participant who was invited to this past meeting.
-            define invitee: [user]
-            # The attendee relation identifies a participant who attended this past meeting.
-            define attendee: [user]
-            # The viewer relation identifies a user who can view this past meeting.
-            # If the past meeting is public, then any user can view it; but if it is private, then
-            # only certain privileged users can view it.
-            define viewer: [user:*] or attendee or invitee or host or organizer or auditor
-
-        # // Hide this from PERMISSIONS.md until we fold v1_meeting into meeting.
-        # @fgadoc:hide
-        # The past_meeting_attachment type identifies an attachment of a past meeting.
-        type past_meeting_attachment
-          relations
-            define past_meeting: [past_meeting]
-            define writer: organizer from past_meeting
-            define auditor: writer or auditor from past_meeting
-            define participant: host from past_meeting or invitee from past_meeting or attendee from past_meeting
-            define viewer: [user:*] or participant or writer or auditor
-
-        # // Hide this from PERMISSIONS.md until we fold v1_meeting into meeting.
-        # @fgadoc:hide
-        # The past_meeting_recording type identifies a recording of a past meeting.
-        # Access to a recording is limited to one of the following groups:
-        # - Only meeting hosts
-        # - Only meeting participants
-        # - Public (anyone)
-        type past_meeting_recording
-          relations
-            define past_meeting: [past_meeting]
-            define writer: organizer from past_meeting
-            define auditor: auditor from past_meeting
-            define host: host from past_meeting
-            define participant: invitee from past_meeting or attendee from past_meeting
-            # The following "participant access by related meeting" relations are conditional
-            # because they depend on the past meeting artifact_visibility setting. Auditors
-            # and writers do however by default have access to view the recording.
-            define past_meeting_for_participant_view: [past_meeting]
-            define past_meeting_for_attendee_view: [past_meeting]
-            define past_meeting_for_host_view: [past_meeting]
-            # If the artifact_visibility is public, then every user should be a viewer
-            define viewer: [user, user:*] or writer or auditor or invitee from past_meeting_for_participant_view or attendee from past_meeting_for_attendee_view or host from past_meeting_for_host_view
-
-        # // Hide this from PERMISSIONS.md until we fold v1_meeting into meeting.
-        # @fgadoc:hide
-        # The past_meeting_transcript type identifies a transcript of a past meeting.
-        # Access to a transcript is limited to one of the following groups:
-        # - Only meeting hosts
-        # - Only meeting participants
-        # - Public (anyone)
-        type past_meeting_transcript
-          relations
-            define past_meeting: [past_meeting]
-            define writer: organizer from past_meeting
-            define auditor: auditor from past_meeting
-            define host: host from past_meeting
-            define participant: invitee from past_meeting or attendee from past_meeting
-            # The following "participant access by related meeting" relations are conditional
-            # because they depend on the past meeting artifact_visibility setting. Auditors
-            # and writers do however by default have access to view the transcript.
-            define past_meeting_for_participant_view: [past_meeting]
-            define past_meeting_for_attendee_view: [past_meeting]
-            define past_meeting_for_host_view: [past_meeting]
-            # If the artifact_visibility is public, then every user should be a viewer
-            define viewer: [user, user:*] or writer or auditor or invitee from past_meeting_for_participant_view or attendee from past_meeting_for_attendee_view or host from past_meeting_for_host_view
-
-        # // Hide this from PERMISSIONS.md until we fold v1_meeting into meeting.
-        # @fgadoc:hide
-        # The past_meeting_summary type identifies a summary of a past meeting.
-        # Access to a summary is limited to one of the following groups:
-        # - Only meeting hosts
-        # - Only meeting participants
-        # - Public (anyone)
-        type past_meeting_summary
-          relations
-            define past_meeting: [past_meeting]
-            define writer: organizer from past_meeting
-            define auditor: auditor from past_meeting
-            define host: host from past_meeting
-            define participant: invitee from past_meeting or attendee from past_meeting
-            # The following "participant access by related meeting" relations are conditional
-            # because they depend on the past meeting artifact_visibility setting. Auditors
-            # and writers do however by default have access to view the summary.
-            define past_meeting_for_participant_view: [past_meeting]
-            define past_meeting_for_attendee_view: [past_meeting]
-            define past_meeting_for_host_view: [past_meeting]
-            # If the artifact_visibility is public, then every user should be a viewer
-            define viewer: [user, user:*] or writer or auditor or invitee from past_meeting_for_participant_view or attendee from past_meeting_for_attendee_view or host from past_meeting_for_host_view
-
         # The following v1 meeting types support read-only, indexer-only data
-        # being synced from LFX v1. At this time, they are *distinct types*
-        # from the main types above. This encapsulation will make it easier to
-        # eventually sunset all such v1 tuples when the data is migrated into
-        # the core data models (as this will result in new UUIDs, new relations
-        # would have been needed, even if the relation names had been reused
-        # for the v1 entities).
+        # being synced from LFX v1. These are the only meeting types currently
+        # in use; non-v1 meeting types were removed as they had no service
+        # writing tuples for them.
         #
-        # *All relations are as described in `meeting`, unless otherwise
-        # noted.*
+        # *All relations are as described in the v1_meeting type, unless
+        # otherwise noted.*
         # @fgadoc:alias Scheduled Meeting
         type v1_meeting
           relations
@@ -289,7 +140,7 @@ spec:
             # @fgadoc:jtbd Get meeting join link & ICS file
             define viewer: [user:*] or participant or organizer or auditor
 
-        # *All relations are as described in `past_meeting`, unless otherwise noted.*
+        # *All relations are as described in `v1_meeting`, unless otherwise noted.*
         # @fgadoc:alias Past Meeting
         type v1_past_meeting
           relations
