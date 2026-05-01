@@ -38,6 +38,7 @@ spec:
           relations
             # @fgadoc:jtbd Manage survey email exclusions
             # @fgadoc:jtbd Validate survey email templates
+            # @fgadoc:jtbd View survey email templates
             define member: [user]
 
         type project
@@ -103,6 +104,7 @@ spec:
             # @fgadoc:jtbd Update & delete a Groups.io service
             # @fgadoc:jtbd Create project mailing lists
             define writer: [user] or writer from project
+            # @fgadoc:jtbd View Groups.io service settings
             define auditor: [user] or auditor from project or writer
             # @fgadoc:jtbd View a Groups.io service
             define viewer: [user:*] or auditor
@@ -116,6 +118,7 @@ spec:
             # @fgadoc:jtbd Update & delete a mailing list
             # @fgadoc:jtbd Add & remove mailing list members
             define writer: [user] or writer from groupsio_service or writer from committee
+            # @fgadoc:jtbd View mailing list settings
             define auditor: [user] or auditor from groupsio_service or auditor from committee
             # @fgadoc:jtbd View a mailing list
             # @fgadoc:jtbd View & download mailing list artifacts
@@ -331,6 +334,7 @@ spec:
             define past_meeting_for_participant_recording_view: [v1_past_meeting]
             define past_meeting_for_attendee_recording_view: [v1_past_meeting]
             define past_meeting_for_host_recording_view: [v1_past_meeting]
+            # @fgadoc:jtbd View past meeting recordings
             define recording_viewer: [user:*] or organizer or auditor or invitee from past_meeting_for_participant_recording_view or attendee from past_meeting_for_attendee_recording_view or host from past_meeting_for_host_recording_view
             # Per-artifact conditional access — transcript
             # Self-referential flag tuple: write relation(object=v1_past_meeting:<id>, user=v1_past_meeting:<id>)
@@ -338,6 +342,7 @@ spec:
             define past_meeting_for_participant_transcript_view: [v1_past_meeting]
             define past_meeting_for_attendee_transcript_view: [v1_past_meeting]
             define past_meeting_for_host_transcript_view: [v1_past_meeting]
+            # @fgadoc:jtbd View past meeting transcripts
             define transcript_viewer: [user:*] or organizer or auditor or invitee from past_meeting_for_participant_transcript_view or attendee from past_meeting_for_attendee_transcript_view or host from past_meeting_for_host_transcript_view
             # Per-artifact conditional access — AI summary
             # Self-referential flag tuple: write relation(object=v1_past_meeting:<id>, user=v1_past_meeting:<id>)
@@ -345,6 +350,7 @@ spec:
             define past_meeting_for_participant_summary_view: [v1_past_meeting]
             define past_meeting_for_attendee_summary_view: [v1_past_meeting]
             define past_meeting_for_host_summary_view: [v1_past_meeting]
+            # @fgadoc:jtbd View a past meeting summary
             define ai_summary_viewer: [user:*] or organizer or auditor or invitee from past_meeting_for_participant_summary_view or attendee from past_meeting_for_attendee_summary_view or host from past_meeting_for_host_summary_view
 
         # *All relations are as described in `past_meeting_recording`, unless
