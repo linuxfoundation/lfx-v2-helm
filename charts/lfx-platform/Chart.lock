@@ -7,7 +7,7 @@ dependencies:
   version: 0.2.62
 - name: heimdall
   repository: oci://ghcr.io/dadrus/heimdall/chart
-  version: 0.16.13
+  version: 0.16.14
 - name: nats
   repository: https://nats-io.github.io/k8s/helm/charts/
   version: 1.3.16
@@ -19,7 +19,7 @@ dependencies:
   version: 0.25.2
 - name: authelia
   repository: https://charts.authelia.com
-  version: 0.10.57
+  version: 0.10.58
 - name: nack
   repository: https://nats-io.github.io/k8s/helm/charts/
   version: 0.29.2
@@ -31,34 +31,34 @@ dependencies:
   version: 2.1.0
 - name: cert-manager
   repository: https://charts.jetstack.io
-  version: v1.18.6
+  version: v1.18.3
 - name: trust-manager
   repository: https://charts.jetstack.io
   version: v0.18.0
 - name: lfx-v2-query-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-query-service/chart
-  version: 0.4.15
+  version: 0.4.16
 - name: lfx-v2-project-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-project-service/chart
-  version: 0.6.2
+  version: 0.6.6
 - name: lfx-v2-fga-sync
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-fga-sync/chart
-  version: 0.2.16
+  version: 0.3.0
 - name: lfx-v2-access-check
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-access-check/chart
-  version: 0.2.11
+  version: 0.3.1
 - name: lfx-v2-indexer-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-indexer-service/chart
   version: 0.4.19
 - name: lfx-v2-committee-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-committee-service/chart
-  version: 0.2.31
+  version: 0.2.32
 - name: lfx-v2-meeting-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-meeting-service/chart
   version: 0.8.0
 - name: lfx-v2-mailing-list-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-mailing-list-service/chart
-  version: 0.4.9
+  version: 0.4.11
 - name: lfx-v2-auth-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-auth-service/chart
   version: 0.4.5
@@ -68,5 +68,5 @@ dependencies:
 - name: lfx-v2-survey-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-survey-service/chart
   version: 0.2.6
-digest: sha256:16e89335021ec2e0a239f1b7c805dc6397043f59ba4e66b4467758592aabebfe
-generated: "2026-04-13T15:34:59.724857-04:00"
+digest: sha256:6b7efc9eea3d06e6e901e73134c368d653c6cfde6229946a9732e0dab702cae1
+generated: "2026-04-21T10:14:30.019842-07:00"

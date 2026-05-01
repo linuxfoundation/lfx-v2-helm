@@ -67,11 +67,11 @@ dependencies:
     condition: lfx-v2-project-service.enabled
   - name: lfx-v2-fga-sync
     repository: oci://ghcr.io/linuxfoundation/lfx-v2-fga-sync/chart
-    version: ~0.2.16
+    version: ~0.3.0
     condition: lfx-v2-fga-sync.enabled
   - name: lfx-v2-access-check
     repository: oci://ghcr.io/linuxfoundation/lfx-v2-access-check/chart
-    version: ~0.2.11
+    version: ~0.3.1
     condition: lfx-v2-access-check.enabled
   - name: lfx-v2-indexer-service
     repository: oci://ghcr.io/linuxfoundation/lfx-v2-indexer-service/chart
