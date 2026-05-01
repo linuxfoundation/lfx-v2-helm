@@ -34,9 +34,9 @@ the JTBD annotations need to be refreshed from real API usage.
   JTBDs are synthesized from indexer contracts in Step 2b.
 - An indexed object type may not appear in `model.yaml` at all (e.g.,
   `v1_meeting_registrant`). Step 2b writes JTBDs onto the **delegate type**'s
-  relation in `model.yaml` — that is, the `access_check_object` value with any
-  `:<id>` suffix stripped (e.g. `v1_past_meeting:{meeting_and_occurrence_id}` →
-  `v1_past_meeting`) — **not** onto the indexed type itself.
+  relation in `model.yaml` — that is, `access_check_object` with everything
+  after the first `:` stripped (e.g. `v1_past_meeting:{meeting_and_occurrence_id}`
+  → `v1_past_meeting`) — **not** onto the source `object_type` itself.
 
 ## Discipline rules — read before synthesizing any JTBD
 
@@ -270,8 +270,9 @@ For each confirmed `<object>#<relation>` group:
 1. Find the `define <relation>:` line within the correct `type` block.
    - For RuleSet-sourced groups, `<object>` is the type block to target.
    - For Query Service-sourced groups, `<object>` is the **delegate type**
-     (e.g., `v1_past_meeting`), not the indexed type. Write onto the delegate
-     type's relation block even if the indexed type also exists in `model.yaml`.
+     (e.g., `v1_past_meeting`), not the source `object_type`. Write onto the
+     delegate type's relation block even if the `object_type` also exists in
+     `model.yaml`.
 2. **Replace** only the `# @fgadoc:jtbd` lines in the comment block
    immediately above that `define`. Leave all other lines untouched.
 3. The comment format must be:
