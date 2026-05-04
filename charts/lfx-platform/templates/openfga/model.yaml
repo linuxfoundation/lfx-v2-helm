@@ -119,7 +119,7 @@ spec:
             define project: project from groupsio_service # Inherit project permissions
             define committee: [committee] # Inherit committee permissions
             # @fgadoc:jtbd Update & delete a mailing list
-            # @fgadoc:jtbd Add & remove mailing list members
+            # @fgadoc:jtbd Manage mailing list members
             define writer: [user] or writer from groupsio_service or writer from committee
             # @fgadoc:jtbd View mailing list settings
             define auditor: [user] or auditor from groupsio_service or auditor from committee
@@ -319,15 +319,13 @@ spec:
             # No explicit [user] relation for organizer in v1.
             # @fgadoc:jtbd Update & delete a past meeting
             # @fgadoc:jtbd Manage past meeting participants & attachments
+            # @fgadoc:jtbd Update a past meeting summary
             define organizer: meeting_coordinator from project or writer from project or organizer from meeting
             define host: [user] or organizer
             define invitee: [user]
             define attendee: [user]
             # @fgadoc:jtbd View a past meeting
             # @fgadoc:jtbd View past meeting participants
-            # @fgadoc:jtbd View past meeting recordings
-            # @fgadoc:jtbd View past meeting transcripts
-            # @fgadoc:jtbd View past meeting summaries
             # @fgadoc:jtbd View past meeting attachments
             define viewer: [user:*] or attendee or invitee or host or organizer or auditor
             # Per-artifact conditional access — recording
@@ -398,7 +396,6 @@ spec:
         type v1_past_meeting_summary
           relations
             define past_meeting: [v1_past_meeting]
-            # @fgadoc:jtbd Update a past meeting summary
             define writer: organizer from past_meeting
             define auditor: auditor from past_meeting
             define host: host from past_meeting
@@ -410,7 +407,6 @@ spec:
             define past_meeting_for_attendee_view: [v1_past_meeting]
             define past_meeting_for_host_view: [v1_past_meeting]
             # If the artifact_visibility is public, then every user should be a viewer
-            # @fgadoc:jtbd View a past meeting summary
             define viewer: [user:*] or writer or auditor or invitee from past_meeting_for_participant_view or attendee from past_meeting_for_attendee_view or host from past_meeting_for_host_view
 
         type vote
