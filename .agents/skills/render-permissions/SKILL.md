@@ -208,6 +208,21 @@ The JTBD "View past meeting recordings" is on `recording_viewer`. Its define:
 Result row: `| View past meeting recordings | ✅ | ✅ | 🟡 | 🟡 | 🟡 | 🟡 |`
 (columns: *Organizer*, *Auditor*, Host, Invitee, Attendee, *Everyone*)
 
+**Cross-type conditional fields — halt and flag:**
+
+If you encounter a `<rel> from <field>` term where `<field>` is typed to a
+**different** type (not the current type) and is a bare secondary settable
+pointer (no `or` terms, not the primary parent link) — a cross-type
+conditional field — **do not attempt to render it**. Instead, stop and report:
+
+> ⚠ Unhandled cross-type conditional field `<field>` (type `<other_type>`) in
+> `<current_type>#<relation>`. Manual review required before rendering.
+
+Do not emit a blank cell, a 🟡, or a ✅ for that column. Leave the entire
+type's table unrendered and continue to the next type. This pattern has no
+current instances in the model; if one appears, the skill must be extended
+before it can be rendered correctly.
+
 **For the Everyone column** (`[user:*]`):
 
 For each relation R whose define contains `[user:*]`, build R's own upward
@@ -416,6 +431,7 @@ After writing, re-read `PERMISSIONS.md` and confirm:
 
 - Count of `###` headings matches the number of non-hidden types.
 - Relations with `<rel> from <field>` terms where `<field>` is a same-type self-referential conditional field (bare `[<same_type>]`, no `or`, not the primary parent) show 🟡 for the named `<rel>` column and its upward reachability set — not blank and not ✅.
+- No cross-type conditional field (bare `[<other_type>]`, no `or`, not the primary parent, typed to a *different* type) was silently rendered — if one was found, rendering halted and a ⚠ flag was emitted instead.
 - Every visible type with at least one visible column or Everyone column has a table.
 - No `[user:*]`-only relation appears as a direct-grant or indirect-only column.
 - Every type with at least one `[user:*]` relation has an *Everyone* column (italicized header).
