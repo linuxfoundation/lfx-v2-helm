@@ -150,13 +150,14 @@ Do **not** traverse downward (i.e., do not add JTBDs from relations listed
 via `or <peer>` inside this column's own define — those are relations this
 role subsumes, not roles that subsume this role).
 
-**Same-type self-referential conditional fields (🟡):**
+**Self-referential conditional fields (🟡):**
 
 A relation's define may contain `<rel> from <field>` terms where `<field>` is
-typed as `[<same_type>]` on the *current* type — a bare secondary settable
-pointer with no `or` terms, not the primary parent link. These are flag tuples
-that are set per-object to enable access for a particular role. Examples from
-`v1_past_meeting`:
+typed as `[<current_type>]` — i.e. the field's declared type is the same type
+currently being rendered. These are self-referential flag tuples set per-object
+to enable conditional access for a particular role. The self-referential type
+is the sole criterion; no other heuristic (naming pattern, presence of `or`
+terms, etc.) is needed. Examples from `v1_past_meeting`:
 
 ```
 define past_meeting_for_participant_recording_view: [v1_past_meeting]
@@ -170,16 +171,15 @@ define recording_viewer: [user:*] or organizer or auditor
 
 For each such `<rel> from <field>` term in the relation being computed:
 
-1. Identify the `<field>` relation on the same type. Confirm it is a
-   **conditional field**: its define is a bare `[<same_type>]` with no `or`
-   terms, and it is not the primary parent-link field (the field used by the
-   majority of peer relations in their own `from` expressions).
+1. Check whether `<field>`'s declared type (from `define <field>: [<type>]`) is
+   the **same** as the current type. If yes, it is a self-referential
+   conditional field — proceed with step 2.
 2. The `<rel>` named in the expression is a direct-grant column on the same
    type. Mark 🟡 for that column (and apply the upward reachability propagation
    rule: all columns that include `<rel>` via `or` also get 🟡, unless they
-   already have ✅ from a different unconditional source).
-3. Do **not** escalate 🟡 to ✅ — conditional same-type fields are never
-   unconditional.
+   already have ✅ from a different source).
+3. Do **not** escalate 🟡 to ✅ — self-referential conditional fields always
+   yield conditional access only.
 
 **Worked example — `v1_past_meeting#recording_viewer` JTBD:**
 
@@ -197,8 +197,8 @@ The JTBD "View past meeting recordings" is on `recording_viewer`. Its define:
   ✅; auditor's upward set also yields ✅ for auditor.
 - `auditor` is an indirect-only column. Gets ✅ directly.
 - `invitee from past_meeting_for_participant_recording_view`:
-  `past_meeting_for_participant_recording_view` is a bare `[v1_past_meeting]`
-  field on the same type → conditional → Invitee (direct-grant column) gets 🟡.
+  `past_meeting_for_participant_recording_view` is declared `[v1_past_meeting]`
+  — same as the current type → self-referential conditional → Invitee gets 🟡.
 - `attendee from past_meeting_for_attendee_recording_view`:
   Attendee gets 🟡.
 - `host from past_meeting_for_host_recording_view`:
@@ -208,20 +208,24 @@ The JTBD "View past meeting recordings" is on `recording_viewer`. Its define:
 Result row: `| View past meeting recordings | ✅ | ✅ | 🟡 | 🟡 | 🟡 | 🟡 |`
 (columns: *Organizer*, *Auditor*, Host, Invitee, Attendee, *Everyone*)
 
-**Cross-type conditional fields — halt and flag:**
+**Cross-type fields — unconditional or halt:**
 
-If you encounter a `<rel> from <field>` term where `<field>` is typed to a
-**different** type (not the current type) and is a bare secondary settable
-pointer (no `or` terms, not the primary parent link) — a cross-type
-conditional field — **do not attempt to render it**. Instead, stop and report:
+If `<field>`'s declared type is a **different** type than the current one, it
+is a cross-type link. There are two sub-cases:
 
-> ⚠ Unhandled cross-type conditional field `<field>` (type `<other_type>`) in
-> `<current_type>#<relation>`. Manual review required before rendering.
+- **Primary parent links** (e.g. `project`, `committee`, `meeting` on
+  `v1_past_meeting`) — these are already handled by the standard upward
+  reachability algorithm in Step 2c. No special treatment needed here.
+- **Any other cross-type field** whose semantics are not covered by the
+  upward reachability algorithm — **halt and flag**:
 
-Do not emit a blank cell, a 🟡, or a ✅ for that column. Leave the entire
-type's table unrendered and continue to the next type. This pattern has no
-current instances in the model; if one appears, the skill must be extended
-before it can be rendered correctly.
+  > ⚠ Unhandled cross-type field `<field>` (type `<other_type>`) in
+  > `<current_type>#<relation>`. Manual review required before rendering.
+
+  Do not emit a blank cell, a 🟡, or a ✅ for that column. Leave the entire
+  type's table unrendered and continue to the next type. This pattern has no
+  current instances in the model; if one appears, the skill must be extended
+  before it can be rendered correctly.
 
 **For the Everyone column** (`[user:*]`):
 
@@ -430,8 +434,8 @@ exists.
 After writing, re-read `PERMISSIONS.md` and confirm:
 
 - Count of `###` headings matches the number of non-hidden types.
-- Relations with `<rel> from <field>` terms where `<field>` is a same-type self-referential conditional field (bare `[<same_type>]`, no `or`, not the primary parent) show 🟡 for the named `<rel>` column and its upward reachability set — not blank and not ✅.
-- No cross-type conditional field (bare `[<other_type>]`, no `or`, not the primary parent, typed to a *different* type) was silently rendered — if one was found, rendering halted and a ⚠ flag was emitted instead.
+- Relations with `<rel> from <field>` terms where `<field>` is declared as `[<current_type>]` (self-referential) show 🟡 for the named `<rel>` column and its upward reachability set — not blank and not ✅.
+- No cross-type field (declared as `[<other_type>]`) outside the standard upward reachability algorithm was silently rendered — if one was found, rendering halted and a ⚠ flag was emitted instead.
 - Every visible type with at least one visible column or Everyone column has a table.
 - No `[user:*]`-only relation appears as a direct-grant or indirect-only column.
 - Every type with at least one `[user:*]` relation has an *Everyone* column (italicized header).

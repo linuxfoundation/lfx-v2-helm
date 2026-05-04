@@ -30,13 +30,13 @@ role assignment.
 | View project meeting count | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | View project settings | ✅ | ✅ | | ✅ | |
 | Update project settings | ✅ | | | | |
-| View project memberships & member companies | ✅ | ✅ | | ✅ | |
+| Create & update a project | ✅ | | | | |
 | View project membership tiers | ✅ | ✅ | | ✅ | |
+| View project memberships & member companies | ✅ | ✅ | | ✅ | |
 | View project membership key contacts | ✅ | ✅ | | ✅ | |
 | Manage project membership key contacts | ✅ | | | | |
 | Search B2B organizations | ✅ | ✅ | | ✅ | |
 | View B2B organization memberships | ✅ | ✅ | | ✅ | |
-| Create & update a project | ✅ | | | | |
 | Create a vote | ✅ | | | | |
 | Create project committees & mailing lists | ✅ | | | | |
 | Create project meetings | ✅ | | ✅ | | |
@@ -137,9 +137,9 @@ role assignment.
 | View a past meeting | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | View past meeting participants | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | View past meeting attachments | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
-| View past meeting recordings | ✅ | ✅ | | | | 🟡 |
-| View past meeting transcripts | ✅ | ✅ | | | | 🟡 |
-| View a past meeting summary | ✅ | ✅ | | | | 🟡 |
+| View past meeting recordings | ✅ | ✅ | 🟡 | 🟡 | 🟡 | 🟡 |
+| View past meeting transcripts | ✅ | ✅ | 🟡 | 🟡 | 🟡 | 🟡 |
+| View a past meeting summary | ✅ | ✅ | 🟡 | 🟡 | 🟡 | 🟡 |
 | Update a past meeting summary | ✅ | | | | | |
 | Manage past meeting participants & attachments | ✅ | | | | | |
 | Update & delete a past meeting | ✅ | | | | | |
@@ -157,7 +157,7 @@ role assignment.
 |---|---|---|---|---|
 | View a vote & its status | ✅ | ✅ | ✅ | 🟡 |
 | View vote responses | ✅ | ✅ | ✅ | 🟡 |
-| View aggregated voting results | ✅ | ✅ | | 🟡 |
+| View aggregated voting results | ✅ | ✅ | 🟡 | 🟡 |
 | Cast a vote response | | | ✅ | |
 | Extend, enable & resend a vote | ✅ | | | |
 | Update & delete a vote | ✅ | | | |

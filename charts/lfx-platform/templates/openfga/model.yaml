@@ -18,8 +18,8 @@ spec:
     - minor: Additions or deletions of relations
     - patch: Modifications of define
 
-  Changes to @fgadoc:jtbd, @fgadoc:alias, or @fgadoc:hide
-  annotations are documentation only and do NOT require a version bump.
+  Changes to @fgadoc:jtbd, @fgadoc:alias, or @fgadoc:hide annotations are
+  documentation only and do NOT require a version bump.
 
   Do NOT add @fgadoc:jtbd lines manually. These are updated by the
   `populate-jtbds` skill by analyzing live RuleSets and API docs.
