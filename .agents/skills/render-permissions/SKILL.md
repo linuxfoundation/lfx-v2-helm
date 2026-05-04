@@ -39,7 +39,6 @@ they describe:
 # @fgadoc:alias    Display Name   — human-readable name for a type or relation
 # @fgadoc:hide                    — suppress type (whole section) or relation (column)
 # @fgadoc:jtbd     Statement      — one JTBD; multiple lines allowed per relation
-# @fgadoc:collapse <target_type>  — collapse this type's JTBDs into <target_type>'s section
 ```
 
 ## Step 1 — Parse model.yaml
@@ -54,12 +53,6 @@ For each `type <name>` block, extract:
 | Raw type name | `type <name>` |
 | Display name | `@fgadoc:alias` in preceding annotation block; else raw name in Title Case with underscores replaced by spaces |
 | Hidden? | `@fgadoc:hide` in preceding annotation block |
-| Collapse target | `@fgadoc:collapse <target_type>` in preceding annotation block (raw type name of the target) |
-
-A type with `@fgadoc:collapse <target_type>` is treated as **collapsed**: it
-is hidden (no `###` section is generated for it) and its JTBDs are folded
-into the `<target_type>` section. See Step 2b for how collapsed JTBDs are
-incorporated.
 
 For each `define <relation>:` line, extract:
 
@@ -103,102 +96,6 @@ from **all relations** that contain `[user:*]`.
 deduplicated. Do **not** filter out JTBDs whose relation has no visible
 column — they still appear as rows (they may have a 🟡 in the Everyone
 column).
-
-**Collapsed types:** For each type C whose `@fgadoc:collapse` names this
-type as the target, include C's JTBDs in this type's JTBD pool as well.
-To determine ✅ placement for a collapsed JTBD:
-
-1. For each relation `R_c` on C that carries the JTBD, build the full set
-   of **contributing relations on C**: start with R_c itself, then for
-   every `or <peer>` in R_c's define, add that peer — and recurse into
-   each peer's define for further `or <peer>` terms (downward inclusion
-   expansion within type C only; do NOT expand `or <peer>` on the target
-   type here).
-
-2. For each contributing relation on C, collect every `<rel> from <field>`
-   term in that relation's define where `<field>` resolves to the target
-   type. "Resolves to the target type" means the field's declared type
-   (from the `define <field>: [<type>]` line on C) is the target type.
-   This includes fields whose type is `[<target_type>]` directly (e.g.
-   `define past_meeting: [v1_past_meeting]`) **and** fields typed as
-   `[<target_type>]` via a different name (e.g.
-   `define past_meeting_for_participant_view: [v1_past_meeting]`).
-
-   For each such `<field>`, determine whether it is **unconditional** or
-   **conditional**:
-
-   - **Unconditional**: the field is the primary parent link — it is the
-     field that the majority of peer relations on C use in their own
-     `from` expressions (e.g. `past_meeting` is used by `writer`,
-     `auditor`, `host`, `participant`). Cross-type sources via an
-     unconditional field yield **✅**.
-   - **Conditional**: the field is a secondary settable pointer whose
-     define is a bare `[<type>]` with no `or` terms, and it is *not* the
-     primary parent field described above (e.g.
-     `past_meeting_for_participant_view`, `past_meeting_for_attendee_view`,
-     `past_meeting_for_host_view`, `vote_for_participant_result_access`).
-     These fields are only populated when a per-object setting enables
-     that group's access. Cross-type sources via a conditional field yield
-     **🟡** instead of ✅ — place the marker in the same column that ✅
-     would have occupied.
-
-3. Each `<rel>` identified in step 2 names a relation on the target type.
-   Build its **full upward reachability set** on the target type (same
-   algorithm as Step 2c) to determine which columns get the marker (✅ or
-   🟡 as determined in step 2).
-
-   **Propagation rule for 🟡:** if a source relation yields 🟡, all
-   columns in its upward reachability set also get 🟡 (not ✅) for this
-   JTBD — unless those columns already have ✅ from a different
-   unconditional source.
-
-4. If no contributing relation on C has any `<rel> from <field>` term
-   pointing to the target type (after the full expansion in steps 1–2),
-   the collapsed JTBD still appears as a row but no column gets ✅ or 🟡
-   for it.
-
-**Example** (`v1_past_meeting_summary` collapsed into `v1_past_meeting`):
-
-`viewer` on `v1_past_meeting_summary` carries the JTBD "View a past
-meeting summary". Its define is:
-```
-[user:*] or writer or auditor
-  or invitee from past_meeting_for_participant_view
-  or attendee from past_meeting_for_attendee_view
-  or host from past_meeting_for_host_view
-```
-Step 1 expands downward `or` peers of `viewer` on the collapsed type:
-- `writer` (define: `organizer from past_meeting`) → field `past_meeting`
-- `auditor` (define: `auditor from past_meeting`) → field `past_meeting`
-
-`past_meeting` is the **primary parent field** (used by `writer`, `auditor`,
-`host`, `participant` on `v1_past_meeting_summary`) → **unconditional** → ✅.
-
-Direct `<rel> from <field>` on `viewer` itself:
-- `invitee from past_meeting_for_participant_view`
-- `attendee from past_meeting_for_attendee_view`
-- `host from past_meeting_for_host_view`
-
-These three fields (`past_meeting_for_*_view`) are secondary settable
-pointers (bare `[v1_past_meeting]`, no `or` terms, not the primary parent
-field) → **conditional** → 🟡.
-
-Step 3: build upward reachability on `v1_past_meeting` for each source `<rel>`:
-- `organizer` (unconditional) → upward set includes `auditor`. *Organizer*
-  and *Auditor* indirect-only columns get ✅.
-- `auditor` (unconditional) → upward set = {}. *Auditor* column gets ✅.
-- `invitee` (conditional) → upward set: `viewer` (not a column). Invitee
-  direct-grant column gets 🟡.
-- `attendee` (conditional) → Attendee column gets 🟡.
-- `host` (conditional) → Host column gets 🟡.
-
-Result: "View a past meeting summary" row shows ✅ for *Organizer* and
-*Auditor*, 🟡 for Host, Invitee, Attendee, and 🟡 for Everyone (because
-`[user:*]` is in the viewer define of the collapsed type).
-
-Collapsed JTBDs are **interleaved** with the target type's own JTBDs using
-the same row-ordering rules below — they are not appended as a separate
-group.
 
 **Row ordering:** Sort JTBD rows using the following priority rules, applied
 in order:
@@ -253,20 +150,88 @@ Do **not** traverse downward (i.e., do not add JTBDs from relations listed
 via `or <peer>` inside this column's own define — those are relations this
 role subsumes, not roles that subsume this role).
 
+**Self-referential conditional fields (🟡):**
+
+A relation's define may contain `<rel> from <field>` terms where `<field>` is
+typed as `[<current_type>]` — i.e. the field's declared type is the same type
+currently being rendered. These are self-referential flag tuples set per-object
+to enable conditional access for a particular role. The self-referential type
+is the sole criterion; no other heuristic (naming pattern, presence of `or`
+terms, etc.) is needed. Examples from `v1_past_meeting`:
+
+```
+define past_meeting_for_participant_recording_view: [v1_past_meeting]
+define past_meeting_for_attendee_recording_view:    [v1_past_meeting]
+define past_meeting_for_host_recording_view:        [v1_past_meeting]
+define recording_viewer: [user:*] or organizer or auditor
+    or invitee from past_meeting_for_participant_recording_view
+    or attendee from past_meeting_for_attendee_recording_view
+    or host    from past_meeting_for_host_recording_view
+```
+
+For each such `<rel> from <field>` term in the relation being computed:
+
+1. Check whether `<field>`'s declared type (from `define <field>: [<type>]`) is
+   the **same** as the current type. If yes, it is a self-referential
+   conditional field — proceed with step 2.
+2. The `<rel>` named in the expression is a direct-grant column on the same
+   type. Mark 🟡 for that column (and apply the upward reachability propagation
+   rule: all columns that include `<rel>` via `or` also get 🟡, unless they
+   already have ✅ from a different source).
+3. Do **not** escalate 🟡 to ✅ — self-referential conditional fields always
+   yield conditional access only.
+
+**Worked example — `v1_past_meeting#recording_viewer` JTBD:**
+
+The JTBD "View past meeting recordings" is on `recording_viewer`. Its define:
+
+```
+[user:*] or organizer or auditor
+    or invitee from past_meeting_for_participant_recording_view
+    or attendee from past_meeting_for_attendee_recording_view
+    or host    from past_meeting_for_host_recording_view
+```
+
+- `organizer` is an indirect-only column. Upward set from organizer:
+  `auditor` says `or organizer` (implicitly via upward chain). Organizer gets
+  ✅; auditor's upward set also yields ✅ for auditor.
+- `auditor` is an indirect-only column. Gets ✅ directly.
+- `invitee from past_meeting_for_participant_recording_view`:
+  `past_meeting_for_participant_recording_view` is declared `[v1_past_meeting]`
+  — same as the current type → self-referential conditional → Invitee gets 🟡.
+- `attendee from past_meeting_for_attendee_recording_view`:
+  Attendee gets 🟡.
+- `host from past_meeting_for_host_recording_view`:
+  Host gets 🟡.
+- `[user:*]` → Everyone column gets 🟡.
+
+Result row: `| View past meeting recordings | ✅ | ✅ | 🟡 | 🟡 | 🟡 | 🟡 |`
+(columns: *Organizer*, *Auditor*, Host, Invitee, Attendee, *Everyone*)
+
+**Cross-type fields — unconditional or halt:**
+
+If `<field>`'s declared type is a **different** type than the current one, it
+is a cross-type link. There are two sub-cases:
+
+- **Primary parent links** (e.g. `project`, `committee`, `meeting` on
+  `v1_past_meeting`) — these are already handled by the standard upward
+  reachability algorithm in Step 2c. No special treatment needed here.
+- **Any other cross-type field** whose semantics are not covered by the
+  upward reachability algorithm — **halt and flag**:
+
+  > ⚠ Unhandled cross-type field `<field>` (type `<other_type>`) in
+  > `<current_type>#<relation>`. Manual review required before rendering.
+
+  Do not emit a blank cell, a 🟡, or a ✅ for that column. Leave the entire
+  type's table unrendered and continue to the next type. This pattern has no
+  current instances in the model; if one appears, the skill must be extended
+  before it can be rendered correctly.
+
 **For the Everyone column** (`[user:*]`):
 
 For each relation R whose define contains `[user:*]`, build R's own upward
 reachability set using the same rule. Mark 🟡 if the JTBD appears in the
 JTBD list of R itself **or** any relation in R's upward reachability set.
-
-**Everyone column for collapsed JTBDs:** If a collapsed type C has a
-relation R_c whose define contains `[user:*]`, and R_c carries (or its
-upward reachability set carries) the collapsed JTBD, mark 🟡 for that JTBD
-in the target type's Everyone column. The target type's Everyone column
-must already exist (i.e. the target type itself has at least one relation
-with `[user:*]`); if it does not, the 🟡 is still shown — the Everyone
-column is added even if it would otherwise be absent on the target type,
-because the collapsed type contributes a `[user:*]` relation.
 
 **Worked example — `project` type:**
 
@@ -333,9 +298,8 @@ itself (nothing includes viewer).
 
 ### 2d — Omit the Everyone column only when no type-level relation has `[user:*]`
 
-If no relation in the type **or any type that collapses into it** has
-`[user:*]` in its define expression, omit the Everyone column entirely.
-The Everyone column is ALWAYS the rightmost.
+If no relation in the type has `[user:*]` in its define expression, omit the
+Everyone column entirely. The Everyone column is ALWAYS the rightmost.
 
 ## Step 3 — Build Permission Inheritance sections
 
@@ -469,11 +433,9 @@ exists.
 
 After writing, re-read `PERMISSIONS.md` and confirm:
 
-- Count of `###` headings matches the number of non-hidden, non-collapsed types.
-- Collapsed types (those with `@fgadoc:collapse`) have no `###` section of their own; their JTBDs appear in their target type's section.
-- Collapsed JTBDs are interleaved with the target type's own JTBDs (not appended as a separate block).
-- For each collapsed JTBD, ✅ placement uses the full expansion algorithm (Step 2b): downward `or` peer expansion on the collapsed type, then cross-type `<rel> from <field>` resolution (including fields typed as the target type under a different name), then upward reachability on the target type.
-- Collapsed JTBDs sourced via a **conditional** field (secondary settable pointer, not the primary parent field) show 🟡 rather than ✅ for the corresponding columns and their upward reachability set — unless those columns already have ✅ from a separate unconditional source.
+- Count of `###` headings matches the number of non-hidden types.
+- Relations with `<rel> from <field>` terms where `<field>` is declared as `[<current_type>]` (self-referential) show 🟡 for the named `<rel>` column and its upward reachability set — not blank and not ✅.
+- No cross-type field (declared as `[<other_type>]`) outside the standard upward reachability algorithm was silently rendered — if one was found, rendering halted and a ⚠ flag was emitted instead.
 - Every visible type with at least one visible column or Everyone column has a table.
 - No `[user:*]`-only relation appears as a direct-grant or indirect-only column.
 - Every type with at least one `[user:*]` relation has an *Everyone* column (italicized header).

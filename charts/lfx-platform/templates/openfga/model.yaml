@@ -18,16 +18,16 @@ spec:
     - minor: Additions or deletions of relations
     - patch: Modifications of define
 
-  Changes to @fgadoc:jtbd, @fgadoc:alias, @fgadoc:hide, or @fgadoc:collapse
-  annotations are documentation only and do NOT require a version bump.
+  Changes to @fgadoc:jtbd, @fgadoc:alias, or @fgadoc:hide annotations are
+  documentation only and do NOT require a version bump.
 
   Do NOT add @fgadoc:jtbd lines manually. These are updated by the
   `populate-jtbds` skill by analyzing live RuleSets and API docs.
-  @fgadoc:hide, @fgadoc:alias, @fgadoc:collapse tags are managed manually.
+  @fgadoc:hide and @fgadoc:alias tags are managed manually.
 */}}
     - version:
-        major: 11
-        minor: 1
+        major: 12
+        minor: 0
         patch: 0
       authorizationModel: |
         model
@@ -119,7 +119,7 @@ spec:
             define project: project from groupsio_service # Inherit project permissions
             define committee: [committee] # Inherit committee permissions
             # @fgadoc:jtbd Update & delete a mailing list
-            # @fgadoc:jtbd Add & remove mailing list members
+            # @fgadoc:jtbd Manage mailing list members
             define writer: [user] or writer from groupsio_service or writer from committee
             # @fgadoc:jtbd View mailing list settings
             define auditor: [user] or auditor from groupsio_service or auditor from committee
@@ -207,75 +207,6 @@ spec:
             define participant: host from past_meeting or invitee from past_meeting or attendee from past_meeting
             define viewer: [user:*] or participant or writer or auditor
 
-        # // Hide this from PERMISSIONS.md until we fold v1_meeting into meeting.
-        # @fgadoc:hide
-        # The past_meeting_recording type identifies a recording of a past meeting.
-        # Access to a recording is limited to one of the following groups:
-        # - Only meeting hosts
-        # - Only meeting participants
-        # - Public (anyone)
-        type past_meeting_recording
-          relations
-            define past_meeting: [past_meeting]
-            define writer: organizer from past_meeting
-            define auditor: auditor from past_meeting
-            define host: host from past_meeting
-            define participant: invitee from past_meeting or attendee from past_meeting
-            # The following "participant access by related meeting" relations are conditional
-            # because they depend on the past meeting artifact_visibility setting. Auditors
-            # and writers do however by default have access to view the recording.
-            define past_meeting_for_participant_view: [past_meeting]
-            define past_meeting_for_attendee_view: [past_meeting]
-            define past_meeting_for_host_view: [past_meeting]
-            # If the artifact_visibility is public, then every user should be a viewer
-            define viewer: [user, user:*] or writer or auditor or invitee from past_meeting_for_participant_view or attendee from past_meeting_for_attendee_view or host from past_meeting_for_host_view
-
-        # // Hide this from PERMISSIONS.md until we fold v1_meeting into meeting.
-        # @fgadoc:hide
-        # The past_meeting_transcript type identifies a transcript of a past meeting.
-        # Access to a transcript is limited to one of the following groups:
-        # - Only meeting hosts
-        # - Only meeting participants
-        # - Public (anyone)
-        type past_meeting_transcript
-          relations
-            define past_meeting: [past_meeting]
-            define writer: organizer from past_meeting
-            define auditor: auditor from past_meeting
-            define host: host from past_meeting
-            define participant: invitee from past_meeting or attendee from past_meeting
-            # The following "participant access by related meeting" relations are conditional
-            # because they depend on the past meeting artifact_visibility setting. Auditors
-            # and writers do however by default have access to view the transcript.
-            define past_meeting_for_participant_view: [past_meeting]
-            define past_meeting_for_attendee_view: [past_meeting]
-            define past_meeting_for_host_view: [past_meeting]
-            # If the artifact_visibility is public, then every user should be a viewer
-            define viewer: [user, user:*] or writer or auditor or invitee from past_meeting_for_participant_view or attendee from past_meeting_for_attendee_view or host from past_meeting_for_host_view
-
-        # // Hide this from PERMISSIONS.md until we fold v1_meeting into meeting.
-        # @fgadoc:hide
-        # The past_meeting_summary type identifies a summary of a past meeting.
-        # Access to a summary is limited to one of the following groups:
-        # - Only meeting hosts
-        # - Only meeting participants
-        # - Public (anyone)
-        type past_meeting_summary
-          relations
-            define past_meeting: [past_meeting]
-            define writer: organizer from past_meeting
-            define auditor: auditor from past_meeting
-            define host: host from past_meeting
-            define participant: invitee from past_meeting or attendee from past_meeting
-            # The following "participant access by related meeting" relations are conditional
-            # because they depend on the past meeting artifact_visibility setting. Auditors
-            # and writers do however by default have access to view the summary.
-            define past_meeting_for_participant_view: [past_meeting]
-            define past_meeting_for_attendee_view: [past_meeting]
-            define past_meeting_for_host_view: [past_meeting]
-            # If the artifact_visibility is public, then every user should be a viewer
-            define viewer: [user, user:*] or writer or auditor or invitee from past_meeting_for_participant_view or attendee from past_meeting_for_attendee_view or host from past_meeting_for_host_view
-
         # The following v1 meeting types support read-only, indexer-only data
         # being synced from LFX v1. At this time, they are *distinct types*
         # from the main types above. This encapsulation will make it easier to
@@ -319,15 +250,13 @@ spec:
             # No explicit [user] relation for organizer in v1.
             # @fgadoc:jtbd Update & delete a past meeting
             # @fgadoc:jtbd Manage past meeting participants & attachments
+            # @fgadoc:jtbd Update a past meeting summary
             define organizer: meeting_coordinator from project or writer from project or organizer from meeting
             define host: [user] or organizer
             define invitee: [user]
             define attendee: [user]
             # @fgadoc:jtbd View a past meeting
             # @fgadoc:jtbd View past meeting participants
-            # @fgadoc:jtbd View past meeting recordings
-            # @fgadoc:jtbd View past meeting transcripts
-            # @fgadoc:jtbd View past meeting summaries
             # @fgadoc:jtbd View past meeting attachments
             define viewer: [user:*] or attendee or invitee or host or organizer or auditor
             # Per-artifact conditional access — recording
@@ -355,63 +284,6 @@ spec:
             define past_meeting_for_host_summary_view: [v1_past_meeting]
             # @fgadoc:jtbd View a past meeting summary
             define ai_summary_viewer: [user:*] or organizer or auditor or invitee from past_meeting_for_participant_summary_view or attendee from past_meeting_for_attendee_summary_view or host from past_meeting_for_host_summary_view
-
-        # *All relations are as described in `past_meeting_recording`, unless
-        # otherwise noted.*
-        # @fgadoc:collapse v1_past_meeting
-        type v1_past_meeting_recording
-          relations
-            define past_meeting: [v1_past_meeting]
-            define writer: organizer from past_meeting
-            define auditor: auditor from past_meeting
-            define host: host from past_meeting
-            define participant: invitee from past_meeting or attendee from past_meeting
-            # The following "participant access by related meeting" relations are conditional
-            # because they depend on the past meeting artifact_visibility setting. Auditors
-            # and writers do however by default have access to view the recording.
-            define past_meeting_for_participant_view: [v1_past_meeting]
-            define past_meeting_for_attendee_view: [v1_past_meeting]
-            define past_meeting_for_host_view: [v1_past_meeting]
-            # If the artifact_visibility is public, then every user should be a viewer
-            define viewer: [user:*] or writer or auditor or invitee from past_meeting_for_participant_view or attendee from past_meeting_for_attendee_view or host from past_meeting_for_host_view
-
-        # *All relations are as described in `past_meeting_transcript`, unless
-        # otherwise noted.*
-        # @fgadoc:collapse v1_past_meeting
-        type v1_past_meeting_transcript
-          relations
-            define past_meeting: [v1_past_meeting]
-            define writer: organizer from past_meeting
-            define auditor: auditor from past_meeting
-            define host: host from past_meeting
-            define participant: invitee from past_meeting or attendee from past_meeting
-            # The following "participant access by related meeting" relations are conditional
-            # because they depend on the past meeting artifact_visibility setting. Auditors
-            # and writers do however by default have access to view the transcript.
-            define past_meeting_for_participant_view: [v1_past_meeting]
-            define past_meeting_for_attendee_view: [v1_past_meeting]
-            define past_meeting_for_host_view: [v1_past_meeting]
-            # If the artifact_visibility is public, then every user should be a viewer
-            define viewer: [user:*] or writer or auditor or invitee from past_meeting_for_participant_view or attendee from past_meeting_for_attendee_view or host from past_meeting_for_host_view
-
-        # @fgadoc:collapse v1_past_meeting
-        type v1_past_meeting_summary
-          relations
-            define past_meeting: [v1_past_meeting]
-            # @fgadoc:jtbd Update a past meeting summary
-            define writer: organizer from past_meeting
-            define auditor: auditor from past_meeting
-            define host: host from past_meeting
-            define participant: invitee from past_meeting or attendee from past_meeting
-            # The following "participant access by related meeting" relations are conditional
-            # because they depend on the past meeting artifact_visibility setting. Auditors
-            # and writers do however by default have access to view the summary.
-            define past_meeting_for_participant_view: [v1_past_meeting]
-            define past_meeting_for_attendee_view: [v1_past_meeting]
-            define past_meeting_for_host_view: [v1_past_meeting]
-            # If the artifact_visibility is public, then every user should be a viewer
-            # @fgadoc:jtbd View a past meeting summary
-            define viewer: [user:*] or writer or auditor or invitee from past_meeting_for_participant_view or attendee from past_meeting_for_attendee_view or host from past_meeting_for_host_view
 
         type vote
           relations
