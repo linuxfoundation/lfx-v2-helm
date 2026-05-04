@@ -24,20 +24,23 @@ role assignment.
 
 ### Project
 
-| | Writer | Auditor | Meeting Coordinator | *Everyone* |
-|---|---|---|---|---|
-| View a project | ✅ | ✅ | ✅ | 🟡 |
-| View project meeting count | ✅ | ✅ | ✅ | 🟡 |
-| View project settings | ✅ | ✅ | | |
-| View project membership tiers | ✅ | ✅ | | |
-| View project memberships & member companies | ✅ | ✅ | | |
-| View project membership key contacts | ✅ | ✅ | | |
-| Manage project membership key contacts | ✅ | | | |
-| Update project settings | ✅ | | | |
-| Create & update a project | ✅ | | | |
-| Create a vote | ✅ | | | |
-| Create project committees & mailing lists | ✅ | | | |
-| Create project meetings | ✅ | | ✅ | |
+| | Writer | Auditor | Meeting Coordinator | Executive Director | *Everyone* |
+|---|---|---|---|---|---|
+| View a project | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View project meeting count | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View project settings | ✅ | ✅ | | ✅ | |
+| View project membership tiers | ✅ | ✅ | | ✅ | |
+| View project memberships & member companies | ✅ | ✅ | | ✅ | |
+| View project membership key contacts | ✅ | ✅ | | ✅ | |
+| Search B2B organizations | ✅ | ✅ | | ✅ | |
+| View B2B organization memberships | ✅ | ✅ | | ✅ | |
+| Manage project membership key contacts | ✅ | | | | |
+| Update project settings | ✅ | | | | |
+| Create & update a project | ✅ | | | | |
+| Create a vote | ✅ | | | | |
+| Create project committees & mailing lists | ✅ | | | | |
+| Create project meetings | ✅ | | ✅ | | |
+| Create past meetings | ✅ | | ✅ | | |
 
 #### Permission Inheritance
 
@@ -50,11 +53,17 @@ role assignment.
 
 | | Writer | Auditor | Member | *Everyone* |
 |---|---|---|---|---|
-| View committee details, members, invites & resources | ✅ | ✅ | ✅ | 🟡 |
+| View committee details | ✅ | ✅ | ✅ | 🟡 |
 | View committee settings | ✅ | ✅ | | |
-| Update committee settings | ✅ | | | |
+| View committee members | ✅ | ✅ | ✅ | 🟡 |
+| View committee invites | ✅ | ✅ | ✅ | 🟡 |
+| View committee applications | ✅ | ✅ | ✅ | 🟡 |
+| View committee links | ✅ | ✅ | ✅ | 🟡 |
+| View committee link folders | ✅ | ✅ | ✅ | 🟡 |
+| Download committee documents | ✅ | ✅ | ✅ | 🟡 |
 | Manage committee members, invites & applications | ✅ | | | |
-| Manage committee links & folders | ✅ | | | |
+| Manage committee links, folders & documents | ✅ | | | |
+| Update committee settings | ✅ | | | |
 | Update & delete a committee | ✅ | | | |
 | Schedule a survey for a committee | ✅ | | | |
 
@@ -70,6 +79,7 @@ role assignment.
 | | Writer | Auditor | *Everyone* |
 |---|---|---|---|
 | View a Groups.io service | ✅ | ✅ | 🟡 |
+| View Groups.io service settings | ✅ | ✅ | |
 | Update & delete a Groups.io service | ✅ | | |
 | Create project mailing lists | ✅ | | |
 
@@ -84,8 +94,10 @@ role assignment.
 
 | | Writer | Auditor | Subscriber | *Everyone* |
 |---|---|---|---|---|
-| View a mailing list & its members | ✅ | ✅ | ✅ | 🟡 |
+| View a mailing list | ✅ | ✅ | ✅ | 🟡 |
+| View mailing list settings | ✅ | ✅ | | |
 | View & download mailing list artifacts | ✅ | ✅ | ✅ | 🟡 |
+| View mailing list members | ✅ | ✅ | ✅ | 🟡 |
 | Add & remove mailing list members | ✅ | | | |
 | Update & delete a mailing list | ✅ | | | |
 
@@ -100,10 +112,13 @@ role assignment.
 
 | | *Organizer* | *Auditor* | Host | Participant | *Everyone* |
 |---|---|---|---|---|---|
-| View a meeting & its attachments | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View a meeting | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View meeting registrants | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View a meeting registrant | ✅ | ✅ | | | |
+| View meeting RSVPs | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | Submit a meeting response | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | Get meeting join link & ICS file | ✅ | ✅ | ✅ | ✅ | 🟡 |
-| View a meeting registrant | ✅ | ✅ | | | |
+| View meeting attachments | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | Manage meeting attachments | ✅ | | | | |
 | Manage meeting registrants & occurrences | ✅ | | | | |
 | Update & delete a meeting | ✅ | | | | |
@@ -119,9 +134,14 @@ role assignment.
 
 | | *Organizer* | *Auditor* | Host | Invitee | Attendee | *Everyone* |
 |---|---|---|---|---|---|---|
-| View a past meeting & its attachments | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View a past meeting | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View past meeting participants | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View past meeting recordings | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View past meeting transcripts | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View past meeting summaries | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | View a past meeting summary | ✅ | ✅ | 🟡 | 🟡 | 🟡 | 🟡 |
-| Update a past meeting summary | ✅ | ✅ | | | | |
+| View past meeting attachments | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| Update a past meeting summary | ✅ | ✅ | ✅ | | | |
 | Manage past meeting participants & attachments | ✅ | | | | | |
 | Update & delete a past meeting | ✅ | | | | | |
 
@@ -137,6 +157,7 @@ role assignment.
 | | *Writer* | *Auditor* | Participant | *Everyone* |
 |---|---|---|---|---|
 | View a vote & its status | ✅ | ✅ | ✅ | 🟡 |
+| View vote responses | ✅ | ✅ | ✅ | 🟡 |
 | View aggregated voting results | ✅ | ✅ | | 🟡 |
 | Cast a vote response | | | ✅ | |
 | Extend, enable & resend a vote | ✅ | | | |
@@ -167,6 +188,7 @@ role assignment.
 | | *Writer* | *Auditor* | Participant | *Everyone* |
 |---|---|---|---|---|
 | View a survey | ✅ | ✅ | ✅ | 🟡 |
+| View survey responses | ✅ | ✅ | ✅ | 🟡 |
 | Preview survey send recipients | ✅ | ✅ | | |
 | Manage survey recipients & responses | ✅ | | | |
 | Update & delete a survey | ✅ | | | |
