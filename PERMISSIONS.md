@@ -2,7 +2,7 @@
 <!-- SPDX-License-Identifier: MIT -->
 <!-- generated-intro
 This file is generated automatically from
-charts/lfx-platform/templates/openfga/model.yaml
+charts/lfx-platform/files/model.fga
 by the render-permissions agent skill. Do not edit the sections below by hand.
 Run .agents/skills/render-permissions/SKILL.md to regenerate after any model change.
 -->

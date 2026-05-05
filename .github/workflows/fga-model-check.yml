@@ -19,10 +19,12 @@ jobs:
           # Strip comment lines and blank lines before comparing so that
           # annotation-only changes (@fgadoc:jtbd, @fgadoc:alias, etc.)
           # do not trigger a version-bump requirement.
-          strip() { grep -v '^[[:space:]]*#' | grep -v '^[[:space:]]*$'; }
-          BASE_DSL=$(git show "$BASE:$MODEL" | strip)
+          strip() { grep -v '^[[:space:]]*#' | grep -v '^[[:space:]]*$' || true; }
+          BASE_DSL=$(git show "$BASE:$MODEL" 2>/dev/null | strip || true)
           HEAD_DSL=$(git show "HEAD:$MODEL"  | strip)
-          if [ "$BASE_DSL" = "$HEAD_DSL" ]; then
+          if [ -z "$BASE_DSL" ] && [ -n "$HEAD_DSL" ]; then
+            echo "New model file detected, treating as changed."
+          elif [ "$BASE_DSL" = "$HEAD_DSL" ]; then
             echo "Model DSL unchanged (comment-only changes), skipping version check."
             exit 0
           fi

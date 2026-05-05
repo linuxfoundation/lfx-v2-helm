@@ -96,7 +96,7 @@ To update the authorization model:
    Note: the `{{ .Files.Get ... }}` line starts at column 0 in the template
    file — `indent 8` provides the required indentation for the YAML block scalar.
 
-   CI will fail if `files/model.fga` changes without a corresponding version bump in `model.yaml`.
+   CI will fail if `files/model.fga` changes without any corresponding change to `model.yaml`. The version bump itself is a social contract — CI verifies the files were edited together, not that the numbers were incremented.
 
 3. **Redeploy the chart** to apply the changes:   ```bash
    helm upgrade lfx-platform ./charts/lfx-platform -n lfx
