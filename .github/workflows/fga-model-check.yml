@@ -16,8 +16,14 @@ jobs:
           MODEL=charts/lfx-platform/files/model.fga
           TMPL=charts/lfx-platform/templates/openfga/model.yaml
           BASE="origin/${{ github.base_ref }}"
-          if git diff "$BASE"...HEAD --quiet -- "$MODEL"; then
-            echo "Model unchanged, skipping version check."
+          # Strip comment lines and blank lines before comparing so that
+          # annotation-only changes (@fgadoc:jtbd, @fgadoc:alias, etc.)
+          # do not trigger a version-bump requirement.
+          strip() { grep -v '^\s*#' "$1" | grep -v '^\s*$'; }
+          BASE_DSL=$(git show "$BASE:$MODEL" | strip /dev/stdin)
+          HEAD_DSL=$(git show "HEAD:$MODEL"  | strip /dev/stdin)
+          if [ "$BASE_DSL" = "$HEAD_DSL" ]; then
+            echo "Model DSL unchanged (comment-only changes), skipping version check."
             exit 0
           fi
           # Note: this check verifies that model.yaml was changed alongside
