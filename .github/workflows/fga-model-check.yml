@@ -1,0 +1,27 @@
+# Copyright The Linux Foundation and each contributor to LFX.
+# SPDX-License-Identifier: MIT
+name: FGA Model Check
+on: [pull_request]
+permissions:
+  contents: read
+jobs:
+  fga-model-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check version bump when model changes
+        run: |
+          MODEL=charts/lfx-platform/files/model.fga
+          TMPL=charts/lfx-platform/templates/openfga/model.yaml
+          BASE="origin/${{ github.base_ref }}"
+          if git diff "$BASE"...HEAD --quiet -- "$MODEL"; then
+            echo "Model unchanged, skipping version check."
+            exit 0
+          fi
+          if git diff "$BASE"...HEAD --quiet -- "$TMPL"; then
+            echo "::error::files/model.fga changed but version in model.yaml was not updated."
+            exit 1
+          fi
+          echo "Model changed and version updated."
