@@ -318,7 +318,7 @@ Use ripgrep to detect outliers:
 
 ```bash
 rg -n "^ *# @fgadoc:|^ *define " charts/lfx-platform/files/model.fga \
-  | rg -v "^[0-9]+:            [^ ]|^[0-9]+:        [^ ]"
+  | rg -v "^[0-9]+:    [^ ]|^[0-9]+:# @fgadoc:"
 ```
 
 No output means all lines are correctly aligned.
@@ -329,7 +329,7 @@ Re-read `model.fga` and confirm:
 
 - Count of `@fgadoc:jtbd` lines has changed only for the affected relations.
 - No `@fgadoc:alias` or `@fgadoc:hide` lines were removed or altered.
-- `git diff --name-only` shows only `model.fga` changed.
+- `git diff --name-only` shows only `model.fga` changed (and `PERMISSIONS.md` if annotations were updated — regenerate it with the render-permissions skill).
 
 If any of these checks fail, revert and report the issue.
 

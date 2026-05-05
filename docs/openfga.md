@@ -98,8 +98,10 @@ To update the authorization model:
 
    CI will fail if `files/model.fga` changes without any corresponding change to `model.yaml`. The version bump itself is a social contract — CI verifies the files were edited together, not that the numbers were incremented.
 
-3. **Redeploy the chart** to apply the changes:   ```bash
-   helm upgrade lfx-platform ./charts/lfx-platform -n lfx
+3. **Regenerate `PERMISSIONS.md`** by running the render-permissions agent skill to keep the human-readable permissions reference in sync.
+
+4. **Redeploy the chart** to apply the changes:
+   ```bash   helm upgrade lfx-platform ./charts/lfx-platform -n lfx
    ```
 
 The fga-operator will automatically detect the version change and create a new authorization model in OpenFGA while keeping the existing model for backward compatibility.
