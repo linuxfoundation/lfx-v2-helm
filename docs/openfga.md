@@ -93,6 +93,8 @@ To update the authorization model:
        authorizationModel: |
    {{ .Files.Get "files/model.fga" | indent 8 }}
    ```
+   Note: the `{{ .Files.Get ... }}` line starts at column 0 in the template
+   file — `indent 8` provides the required indentation for the YAML block scalar.
 
    CI will fail if `files/model.fga` changes without a corresponding version bump in `model.yaml`.
 

@@ -20,6 +20,10 @@ jobs:
             echo "Model unchanged, skipping version check."
             exit 0
           fi
+          # Note: this check verifies that model.yaml was changed alongside
+          # the model DSL, not that the version numbers were specifically
+          # incremented. It is a heuristic — a comment-only change to
+          # model.yaml would satisfy this check without a true version bump.
           if git diff "$BASE"...HEAD --quiet -- "$TMPL"; then
             echo "::error::files/model.fga changed but version in model.yaml was not updated."
             exit 1
