@@ -30,6 +30,5 @@ spec:
         minor: 1
         patch: 0
       authorizationModel: |
-{{- /* indent (not nindent) avoids a leading newline in the block scalar */ -}}
 {{ .Files.Get "files/model.fga" | indent 8 }}
 {{- end }}
