@@ -72,7 +72,6 @@ type committee_invite
     define invitee: [user]
     # @fgadoc:jtbd View a committee invite
     define viewer: invitee or auditor from committee
-
 # @fgadoc:alias Groups.io Service
 type groupsio_service
   relations
