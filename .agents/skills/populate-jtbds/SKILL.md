@@ -298,10 +298,10 @@ For each confirmed `<object>#<relation>` group:
    immediately above that `define`. Leave all other lines untouched.
 3. The comment format must be:
 
-```
-    # @fgadoc:jtbd <statement one>
-    # @fgadoc:jtbd <statement two>
-    define <relation>: ...
+```yaml
+            # @fgadoc:jtbd <statement one>
+            # @fgadoc:jtbd <statement two>
+            define <relation>: ...
 ```
 
 Leave unchanged any `define` lines not covered by either source.
@@ -318,7 +318,7 @@ Use ripgrep to detect outliers:
 
 ```bash
 rg -n "^ *# @fgadoc:|^ *define " charts/lfx-platform/files/model.fga \
-  | rg -v "^[0-9]+:    [^ ]"
+  | rg -v "^[0-9]+:            [^ ]|^[0-9]+:        [^ ]"
 ```
 
 No output means all lines are correctly aligned.
