@@ -12,10 +12,12 @@ jobs:
         with:
           fetch-depth: 0
       - name: Check version bump when model changes
+        env:
+          BASE_REF: ${{ github.base_ref }}
         run: |
           MODEL=charts/lfx-platform/files/model.fga
           TEMPLATE=charts/lfx-platform/templates/openfga/model.yaml
-          BASE="origin/${{ github.base_ref }}"
+          BASE="origin/$BASE_REF"
           # Strip comment lines and blank lines before comparing so that
           # annotation-only changes (@fgadoc:jtbd, @fgadoc:alias, etc.)
           # do not trigger a version-bump requirement.
