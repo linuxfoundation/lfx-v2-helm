@@ -19,7 +19,7 @@ jobs:
           # Strip comment lines and blank lines before comparing so that
           # annotation-only changes (@fgadoc:jtbd, @fgadoc:alias, etc.)
           # do not trigger a version-bump requirement.
-          strip() { sed 's/[[:space:]]*#.*$//' | grep -v '^[[:space:]]*$' || true; }
+          strip() { grep -v '^[[:space:]]*#' | sed 's/[[:space:]]\+#.*$//' | grep -v '^[[:space:]]*$' || true; }
           BASE_DSL=$(git show "$BASE:$MODEL" 2>/dev/null | strip || true)
           HEAD_DSL=$(git show "HEAD:$MODEL"  | strip)
           if [ -z "$BASE_DSL" ] && [ -n "$HEAD_DSL" ]; then
