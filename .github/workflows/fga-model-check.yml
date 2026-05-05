@@ -14,7 +14,7 @@ jobs:
       - name: Check version bump when model changes
         run: |
           MODEL=charts/lfx-platform/files/model.fga
-          TMPL=charts/lfx-platform/templates/openfga/model.yaml
+          TEMPLATE=charts/lfx-platform/templates/openfga/model.yaml
           BASE="origin/${{ github.base_ref }}"
           # Strip comment lines and blank lines before comparing so that
           # annotation-only changes (@fgadoc:jtbd, @fgadoc:alias, etc.)
@@ -32,7 +32,7 @@ jobs:
           # the model DSL, not that the version numbers were specifically
           # incremented. It is a heuristic — a comment-only change to
           # model.yaml would satisfy this check without a true version bump.
-          if git diff "$BASE"...HEAD --quiet -- "$TMPL"; then
+          if git diff "$BASE"...HEAD --quiet -- "$TEMPLATE"; then
             echo "::error::files/model.fga changed but version in model.yaml was not updated."
             exit 1
           fi
