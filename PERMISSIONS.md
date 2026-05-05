@@ -29,14 +29,14 @@ role assignment.
 | View a project | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | View project meeting count | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | View project settings | ✅ | ✅ | | ✅ | |
+| Update project settings | ✅ | | | | |
+| Create & update a project | ✅ | | | | |
 | View project membership tiers | ✅ | ✅ | | ✅ | |
 | View project memberships & member companies | ✅ | ✅ | | ✅ | |
 | View project membership key contacts | ✅ | ✅ | | ✅ | |
+| Manage project membership key contacts | ✅ | | | | |
 | Search B2B organizations | ✅ | ✅ | | ✅ | |
 | View B2B organization memberships | ✅ | ✅ | | ✅ | |
-| Manage project membership key contacts | ✅ | | | | |
-| Update project settings | ✅ | | | | |
-| Create & update a project | ✅ | | | | |
 | Create a vote | ✅ | | | | |
 | Create project committees & mailing lists | ✅ | | | | |
 | Create project meetings | ✅ | | ✅ | | |
@@ -55,17 +55,17 @@ role assignment.
 |---|---|---|---|---|
 | View committee details | ✅ | ✅ | ✅ | 🟡 |
 | View committee settings | ✅ | ✅ | | |
+| Update committee settings | ✅ | | | |
 | View committee members | ✅ | ✅ | ✅ | 🟡 |
+| Manage committee members, invites & applications | ✅ | | | |
 | View committee invites | ✅ | ✅ | ✅ | 🟡 |
 | View committee applications | ✅ | ✅ | ✅ | 🟡 |
 | View committee links | ✅ | ✅ | ✅ | 🟡 |
 | View committee link folders | ✅ | ✅ | ✅ | 🟡 |
-| Download committee documents | ✅ | ✅ | ✅ | 🟡 |
-| Manage committee members, invites & applications | ✅ | | | |
 | Manage committee links, folders & documents | ✅ | | | |
-| Update committee settings | ✅ | | | |
-| Update & delete a committee | ✅ | | | |
+| Download committee documents | ✅ | ✅ | ✅ | 🟡 |
 | Schedule a survey for a committee | ✅ | | | |
+| Update & delete a committee | ✅ | | | |
 
 #### Permission Inheritance
 
@@ -98,7 +98,7 @@ role assignment.
 | View mailing list settings | ✅ | ✅ | | |
 | View & download mailing list artifacts | ✅ | ✅ | ✅ | 🟡 |
 | View mailing list members | ✅ | ✅ | ✅ | 🟡 |
-| Add & remove mailing list members | ✅ | | | |
+| Manage mailing list members | ✅ | | | |
 | Update & delete a mailing list | ✅ | | | |
 
 #### Permission Inheritance
@@ -113,11 +113,11 @@ role assignment.
 | | *Organizer* | *Auditor* | Host | Participant | *Everyone* |
 |---|---|---|---|---|---|
 | View a meeting | ✅ | ✅ | ✅ | ✅ | 🟡 |
-| View meeting registrants | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | View a meeting registrant | ✅ | ✅ | | | |
-| View meeting RSVPs | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | Submit a meeting response | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | Get meeting join link & ICS file | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View meeting registrants | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View meeting RSVPs | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | View meeting attachments | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | Manage meeting attachments | ✅ | | | | |
 | Manage meeting registrants & occurrences | ✅ | | | | |
@@ -136,12 +136,11 @@ role assignment.
 |---|---|---|---|---|---|---|
 | View a past meeting | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | View past meeting participants | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
-| View past meeting recordings | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
-| View past meeting transcripts | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
-| View past meeting summaries | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
-| View a past meeting summary | ✅ | ✅ | 🟡 | 🟡 | 🟡 | 🟡 |
 | View past meeting attachments | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
-| Update a past meeting summary | ✅ | ✅ | ✅ | | | |
+| View past meeting recordings | ✅ | ✅ | 🟡 | 🟡 | 🟡 | 🟡 |
+| View past meeting transcripts | ✅ | ✅ | 🟡 | 🟡 | 🟡 | 🟡 |
+| View a past meeting summary | ✅ | ✅ | 🟡 | 🟡 | 🟡 | 🟡 |
+| Update a past meeting summary | ✅ | | | | | |
 | Manage past meeting participants & attachments | ✅ | | | | | |
 | Update & delete a past meeting | ✅ | | | | | |
 
@@ -158,7 +157,7 @@ role assignment.
 |---|---|---|---|---|
 | View a vote & its status | ✅ | ✅ | ✅ | 🟡 |
 | View vote responses | ✅ | ✅ | ✅ | 🟡 |
-| View aggregated voting results | ✅ | ✅ | | 🟡 |
+| View aggregated voting results | ✅ | ✅ | 🟡 | 🟡 |
 | Cast a vote response | | | ✅ | |
 | Extend, enable & resend a vote | ✅ | | | |
 | Update & delete a vote | ✅ | | | |
