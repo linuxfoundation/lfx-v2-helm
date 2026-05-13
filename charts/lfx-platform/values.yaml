@@ -725,4 +725,3 @@ lfx-v2-auth-service:
         value: lfx-platform-authelia
       AUTHELIA_SECRET_NAME:
         value: authelia-users
-
