@@ -726,9 +726,3 @@ lfx-v2-auth-service:
       AUTHELIA_SECRET_NAME:
         value: authelia-users
 
-lfx-v2-email-service:
-  replicaCount: 1
-  enabled: true
-  app:
-    emailEnabled: false
-    smtpSecretName: "lfx-v2-email-service-smtp"
