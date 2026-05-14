@@ -52,7 +52,7 @@ dependencies:
   version: 0.4.22
 - name: lfx-v2-committee-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-committee-service/chart
-  version: 0.2.34
+  version: 0.2.35
 - name: lfx-v2-meeting-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-meeting-service/chart
   version: 0.8.0
@@ -68,5 +68,8 @@ dependencies:
 - name: lfx-v2-survey-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-survey-service/chart
   version: 0.2.8
-digest: sha256:7da95283e3a80fc22ab6abbccf3b92e757b8a11e216b6a2dd743be5c6d9ef7ac
-generated: "2026-05-13T08:45:12.863701-07:00"
+- name: lfx-v2-email-service
+  repository: oci://ghcr.io/linuxfoundation/lfx-v2-email-service/chart
+  version: 0.1.0
+digest: sha256:2d2a677cbde8e03507df0cb6f8d6c22de8519cb18a9edd3f7263737a26a382f0
+generated: "2026-05-14T11:33:47.131522-07:00"
