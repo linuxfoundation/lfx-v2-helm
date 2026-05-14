@@ -59,6 +59,8 @@ lfx:
       - "_access-check/openapi3.yaml"
       - "_voting/openapi3.yaml"
       - "_survey/openapi3.yaml"
+      - "_groupsio/openapi3.yaml"
+      - "_memberships/openapi3.yaml"
 
   # Tells rulesets to use the oidc_contextualizer, needed for
   # local dev with authelia
