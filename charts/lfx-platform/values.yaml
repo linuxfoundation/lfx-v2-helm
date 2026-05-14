@@ -701,6 +701,17 @@ lfx-v2-mailing-list-service:
   externalSecretsOperator:
     enabled: false
 
+lfx-v2-email-service:
+  replicaCount: 1
+  enabled: true
+  lfx:
+    domain: k8s.orb.local
+
+  # External Secrets Operator is disabled because we can't get secrets from AWS Secrets Manager in local development.
+  # Instead, create the Kubernetes secret manually. See the chart README for instructions.
+  externalSecretsOperator:
+    enabled: false
+
 lfx-v2-auth-service:
   replicaCount: 1
   enabled: true
