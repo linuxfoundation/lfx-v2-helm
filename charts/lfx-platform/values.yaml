@@ -59,6 +59,8 @@ lfx:
       - "_access-check/openapi3.yaml"
       - "_voting/openapi3.yaml"
       - "_survey/openapi3.yaml"
+      - "_groupsio/openapi3.yaml"
+      - "_memberships/openapi3.yaml"
 
   # Tells rulesets to use the oidc_contextualizer, needed for
   # local dev with authelia
@@ -691,6 +693,17 @@ lfx-v2-meeting-service:
     reloader.stakater.com/auto: "true"
 
 lfx-v2-mailing-list-service:
+  replicaCount: 1
+  enabled: true
+  lfx:
+    domain: k8s.orb.local
+
+  # External Secrets Operator is disabled because we can't get secrets from AWS Secrets Manager in local development.
+  # Instead, create the Kubernetes secret manually. See the chart README for instructions.
+  externalSecretsOperator:
+    enabled: false
+
+lfx-v2-email-service:
   replicaCount: 1
   enabled: true
   lfx:

@@ -24,20 +24,23 @@ role assignment.
 
 ### Project
 
-| | Writer | Auditor | Meeting Coordinator | *Everyone* |
-|---|---|---|---|---|
-| View a project | ✅ | ✅ | ✅ | 🟡 |
-| View project meeting count | ✅ | ✅ | ✅ | 🟡 |
-| View project settings | ✅ | ✅ | | |
-| View project membership tiers | ✅ | ✅ | | |
-| View project memberships & member companies | ✅ | ✅ | | |
-| View project membership key contacts | ✅ | ✅ | | |
-| Manage project membership key contacts | ✅ | | | |
-| Update project settings | ✅ | | | |
-| Create & update a project | ✅ | | | |
-| Create a vote | ✅ | | | |
-| Create project committees & mailing lists | ✅ | | | |
-| Create project meetings | ✅ | | ✅ | |
+| | Writer | Auditor | Meeting Coordinator | Executive Director | *Everyone* |
+|---|---|---|---|---|---|
+| View a project | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View project meeting count | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View project settings | ✅ | ✅ | | ✅ | |
+| Update project settings | ✅ | | | | |
+| Create & update a project | ✅ | | | | |
+| View project membership tiers | ✅ | ✅ | | ✅ | |
+| View project memberships & member companies | ✅ | ✅ | | ✅ | |
+| View project membership key contacts | ✅ | ✅ | | ✅ | |
+| Manage project membership key contacts | ✅ | | | | |
+| Search B2B organizations | ✅ | ✅ | | ✅ | |
+| View B2B organization memberships | ✅ | ✅ | | ✅ | |
+| Create a vote | ✅ | | | | |
+| Create project committees & mailing lists | ✅ | | | | |
+| Create project meetings | ✅ | | ✅ | | |
+| Create past meetings | ✅ | | ✅ | | |
 
 #### Permission Inheritance
 
@@ -50,13 +53,19 @@ role assignment.
 
 | | Writer | Auditor | Member | *Everyone* |
 |---|---|---|---|---|
-| View committee details, members, invites & resources | ✅ | ✅ | ✅ | 🟡 |
+| View committee details | ✅ | ✅ | ✅ | 🟡 |
 | View committee settings | ✅ | ✅ | | |
 | Update committee settings | ✅ | | | |
+| View committee members | ✅ | ✅ | ✅ | 🟡 |
 | Manage committee members, invites & applications | ✅ | | | |
-| Manage committee links & folders | ✅ | | | |
-| Update & delete a committee | ✅ | | | |
+| View committee invites | ✅ | ✅ | ✅ | 🟡 |
+| View committee applications | ✅ | ✅ | ✅ | 🟡 |
+| View committee links | ✅ | ✅ | ✅ | 🟡 |
+| View committee link folders | ✅ | ✅ | ✅ | 🟡 |
+| Manage committee links, folders & documents | ✅ | | | |
+| Download committee documents | ✅ | ✅ | ✅ | 🟡 |
 | Schedule a survey for a committee | ✅ | | | |
+| Update & delete a committee | ✅ | | | |
 
 #### Permission Inheritance
 
@@ -70,6 +79,7 @@ role assignment.
 | | Writer | Auditor | *Everyone* |
 |---|---|---|---|
 | View a Groups.io service | ✅ | ✅ | 🟡 |
+| View Groups.io service settings | ✅ | ✅ | |
 | Update & delete a Groups.io service | ✅ | | |
 | Create project mailing lists | ✅ | | |
 
@@ -84,9 +94,11 @@ role assignment.
 
 | | Writer | Auditor | Subscriber | *Everyone* |
 |---|---|---|---|---|
-| View a mailing list & its members | ✅ | ✅ | ✅ | 🟡 |
+| View a mailing list | ✅ | ✅ | ✅ | 🟡 |
+| View mailing list settings | ✅ | ✅ | | |
 | View & download mailing list artifacts | ✅ | ✅ | ✅ | 🟡 |
-| Add & remove mailing list members | ✅ | | | |
+| View mailing list members | ✅ | ✅ | ✅ | 🟡 |
+| Manage mailing list members | ✅ | | | |
 | Update & delete a mailing list | ✅ | | | |
 
 #### Permission Inheritance
@@ -100,10 +112,13 @@ role assignment.
 
 | | *Organizer* | *Auditor* | Host | Participant | *Everyone* |
 |---|---|---|---|---|---|
-| View a meeting & its attachments | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View a meeting | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View a meeting registrant | ✅ | ✅ | | | |
 | Submit a meeting response | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | Get meeting join link & ICS file | ✅ | ✅ | ✅ | ✅ | 🟡 |
-| View a meeting registrant | ✅ | ✅ | | | |
+| View meeting registrants | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View meeting RSVPs | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View meeting attachments | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | Manage meeting attachments | ✅ | | | | |
 | Manage meeting registrants & occurrences | ✅ | | | | |
 | Update & delete a meeting | ✅ | | | | |
@@ -119,9 +134,13 @@ role assignment.
 
 | | *Organizer* | *Auditor* | Host | Invitee | Attendee | *Everyone* |
 |---|---|---|---|---|---|---|
-| View a past meeting & its attachments | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View a past meeting | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View past meeting participants | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View past meeting attachments | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View past meeting recordings | ✅ | ✅ | 🟡 | 🟡 | 🟡 | 🟡 |
+| View past meeting transcripts | ✅ | ✅ | 🟡 | 🟡 | 🟡 | 🟡 |
 | View a past meeting summary | ✅ | ✅ | 🟡 | 🟡 | 🟡 | 🟡 |
-| Update a past meeting summary | ✅ | ✅ | | | | |
+| Update a past meeting summary | ✅ | | | | | |
 | Manage past meeting participants & attachments | ✅ | | | | | |
 | Update & delete a past meeting | ✅ | | | | | |
 
@@ -137,7 +156,8 @@ role assignment.
 | | *Writer* | *Auditor* | Participant | *Everyone* |
 |---|---|---|---|---|
 | View a vote & its status | ✅ | ✅ | ✅ | 🟡 |
-| View aggregated voting results | ✅ | ✅ | | 🟡 |
+| View vote responses | ✅ | ✅ | ✅ | 🟡 |
+| View aggregated voting results | ✅ | ✅ | 🟡 | 🟡 |
 | Cast a vote response | | | ✅ | |
 | Extend, enable & resend a vote | ✅ | | | |
 | Update & delete a vote | ✅ | | | |
@@ -167,6 +187,7 @@ role assignment.
 | | *Writer* | *Auditor* | Participant | *Everyone* |
 |---|---|---|---|---|
 | View a survey | ✅ | ✅ | ✅ | 🟡 |
+| View survey responses | ✅ | ✅ | ✅ | 🟡 |
 | Preview survey send recipients | ✅ | ✅ | | |
 | Manage survey recipients & responses | ✅ | | | |
 | Update & delete a survey | ✅ | | | |
@@ -175,43 +196,3 @@ role assignment.
 
 - ***Writer***: inherited from Project Writer, Committee Writer
 - ***Auditor***: inherited from Project Auditor, Committee Auditor
-
----
-
-### B2B Organization
-
-Access to a B2B Organization object is controlled via three directly-assignable
-roles: **Owner**, **Writer**, and **Auditor**. No job-to-be-done actions are
-documented for this type yet; this section will be expanded as API coverage
-grows.
-
-#### Permission Inheritance
-
-- **Writer**: also granted to Owner; inherited from global org-admin team
-- **Auditor**: also granted to Writer
-
----
-
-### Project Membership
-
-Access to a Project Membership object is fully inherited — there are no
-directly-assignable roles on this type. Write access is scoped to B2B
-Organization writers; read access is additionally available to Project auditors.
-
-#### Permission Inheritance
-
-- ***Writer***: inherited from B2B Organization Writer
-- ***Auditor***: inherited from B2B Organization Auditor, Project Auditor
-
----
-
-### Key Contact
-
-Access to a Key Contact object is fully inherited — there are no
-directly-assignable roles on this type. Both write and read access are
-available to either the parent B2B Organization or the parent Project.
-
-#### Permission Inheritance
-
-- ***Writer***: inherited from B2B Organization Writer, Project Writer
-- ***Auditor***: inherited from B2B Organization Auditor, Project Auditor
