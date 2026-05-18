@@ -30,13 +30,10 @@ spec:
               mountPath: /shared
             - name: merge-script
               mountPath: /scripts
+          {{- with .Values.lfx.swagger_ui.merger.resources }}
           resources:
-            requests:
-              memory: "64Mi"
-              cpu: "100m"
-            limits:
-              memory: "128Mi"
-              cpu: "200m"
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
       containers:
         - name: swagger-ui
           image: {{ .Values.lfx.swagger_ui.image }}:{{ .Values.lfx.swagger_ui.tag }}
@@ -51,13 +48,10 @@ spec:
               value: "spec/openapi-merged.yaml"
             - name: OAUTH_CLIENT_ID
               value: {{ .Values.lfx.swagger_ui.auth.clientId | quote }}
+          {{- with .Values.lfx.swagger_ui.resources }}
           resources:
-            requests:
-              memory: "64Mi"
-              cpu: "100m"
-            limits:
-              memory: "128Mi"
-              cpu: "200m"
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           readinessProbe:
             httpGet:
               path: /

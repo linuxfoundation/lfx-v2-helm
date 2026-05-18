@@ -42,9 +42,23 @@ lfx:
     enabled: true
     image: swaggerapi/swagger-ui
     tag: latest
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "64Mi"
+      limits:
+        cpu: "200m"
+        memory: "128Mi"
     merger:
       image: node
       tag: 24-alpine
+      resources:
+        requests:
+          cpu: "100m"
+          memory: "64Mi"
+        limits:
+          cpu: "200m"
+          memory: "128Mi"
     auth:
       enabled: true
       domain: "https://auth.k8s.orb.local"
