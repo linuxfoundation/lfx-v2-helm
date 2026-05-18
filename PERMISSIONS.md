@@ -196,5 +196,3 @@ role assignment.
 
 - ***Writer***: inherited from Project Writer, Committee Writer
 - ***Auditor***: inherited from Project Auditor, Committee Auditor
-
----
