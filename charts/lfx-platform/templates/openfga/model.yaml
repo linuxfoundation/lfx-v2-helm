@@ -27,8 +27,8 @@ spec:
 */}}
     - version:
         major: 13
-        minor: 1
-        patch: 0
+        minor: 0
+        patch: 1
       authorizationModel: |
         model
           schema 1.1
