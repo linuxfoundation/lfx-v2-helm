@@ -28,7 +28,7 @@ spec:
     - version:
         major: 13
         minor: 0
-        patch: 0
+        patch: 1
       authorizationModel: |
         model
           schema 1.1
@@ -365,7 +365,7 @@ spec:
             define global_org_admin: [team#member]
             define owner: [user]
             define writer: [user] or owner or global_org_admin
-            define auditor: [user, team#member] or writer
+            define auditor: [user, team#member] or writer or key_contact from membership
             # parent is included to model company subsidiaries (a b2b_org may have a
             # parent b2b_org in Salesforce). It is not yet used to propagate access
             # control — it is recorded here for future use only.
