@@ -735,13 +735,16 @@ lfx-v2-invite-service:
     pullPolicy: IfNotPresent
   app:
     logLevel: debug
-    # For local dev only — production injects INVITE_JWT_SECRET via extraEnv + secretKeyRef
-    inviteJWTSecret: "local-dev-invite-jwt-secret-change-me"
+    # Disable secretKeyRef injection for local dev — secret is injected via extraEnv below
+    jwtSecretName: ""
     selfServeBaseURL: "http://localhost:4200"
     otel:
       tracesExporter: "none"
       metricsExporter: "none"
       logsExporter: "none"
+    extraEnv:
+      - name: INVITE_JWT_SECRET
+        value: "local-dev-invite-jwt-secret-change-me"
 
 lfx-v2-auth-service:
   replicaCount: 1
