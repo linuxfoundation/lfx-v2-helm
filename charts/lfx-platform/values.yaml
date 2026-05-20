@@ -728,6 +728,21 @@ lfx-v2-email-service:
   externalSecretsOperator:
     enabled: false
 
+lfx-v2-invite-service:
+  replicaCount: 1
+  enabled: true
+  image:
+    pullPolicy: IfNotPresent
+  app:
+    logLevel: debug
+    # For local dev only — production injects INVITE_JWT_SECRET via extraEnv + secretKeyRef
+    inviteJWTSecret: "local-dev-invite-jwt-secret-change-me"
+    selfServeBaseURL: "http://localhost:4200"
+    otel:
+      tracesExporter: "none"
+      metricsExporter: "none"
+      logsExporter: "none"
+
 lfx-v2-auth-service:
   replicaCount: 1
   enabled: true

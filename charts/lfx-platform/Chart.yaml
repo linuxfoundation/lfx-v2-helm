@@ -105,3 +105,7 @@ dependencies:
     repository: oci://ghcr.io/linuxfoundation/lfx-v2-email-service/chart
     version: ~0.1.0
     condition: lfx-v2-email-service.enabled
+  - name: lfx-v2-invite-service
+    repository: oci://ghcr.io/linuxfoundation/lfx-v2-invite-service/chart
+    version: ~0.1.0
+    condition: lfx-v2-invite-service.enabled
