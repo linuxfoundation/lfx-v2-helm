@@ -204,6 +204,10 @@ linked documentation for the full set of configuration options.
 | lfx-v2-survey-service       | `lfx-v2-survey-service`       | `true`            | [lfx-v2-survey-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-survey-service/tree/main/charts/lfx-v2-survey-service) |
 | lfx-v2-meeting-service      | `lfx-v2-meeting-service`      | `true`            | [lfx-v2-meeting-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-meeting-service/tree/main/charts/lfx-v2-meeting-service) |
 | lfx-v2-mailing-list-service | `lfx-v2-mailing-list-service` | `true`            | [lfx-v2-mailing-list-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-mailing-list-service/tree/main/charts/lfx-v2-mailing-list-service) |
+| lfx-v2-email-service        | `lfx-v2-email-service`        | `true`            | [lfx-v2-email-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-email-service/tree/main/charts/lfx-v2-email-service) |
+| lfx-v2-invite-service       | `lfx-v2-invite-service`       | `true`            | [lfx-v2-invite-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-invite-service/tree/main/charts/lfx-v2-invite-service) |
+| lfx-v2-email-service        | `lfx-v2-email-service`        | `true`            | [lfx-v2-email-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-email-service/tree/main/charts/lfx-v2-email-service) |
+| lfx-v2-invite-service       | `lfx-v2-invite-service`       | `true`            | [lfx-v2-invite-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-invite-service/tree/main/charts/lfx-v2-invite-service) |
 
 #### Developing a service locally
 
