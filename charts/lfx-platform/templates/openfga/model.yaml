@@ -28,7 +28,7 @@ spec:
     - version:
         major: 13
         minor: 0
-        patch: 1
+        patch: 2
       authorizationModel: |
         model
           schema 1.1
@@ -365,15 +365,17 @@ spec:
             define global_org_admin: [team#member]
             define owner: [user]
             define writer: [user] or owner or global_org_admin
-            define auditor: [user, team#member] or writer or key_contact from membership
+            # auditor cascades transitively up and down the hierarchy via parent/child.
+            # writer does NOT cascade — edit scope stays on the directly-assigned org only.
+            define auditor: [user, team#member] or writer or auditor from parent or auditor from child or key_contact from membership
             # parent is included to model company subsidiaries (a b2b_org may have a
-            # parent b2b_org in Salesforce). It is not yet used to propagate access
-            # control — it is recorded here for future use only.
+            # parent b2b_org in Salesforce).
             define parent: [b2b_org]
             # The following are reverse "downward" relations — the parent holds a
             # reference to its children. This is intentional for userset traversal
             # but introduces a cross-type dependency; be wary of cycles if adding
             # further reverse relations that reference b2b_org from child types.
+            define child: [b2b_org]
             define membership: [project_membership]
             define key_contact: key_contact from membership
 
