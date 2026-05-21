@@ -64,12 +64,15 @@ dependencies:
   version: 0.4.5
 - name: lfx-v2-voting-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-voting-service/chart
-  version: 0.2.9
+  version: 0.2.13
 - name: lfx-v2-survey-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-survey-service/chart
-  version: 0.2.8
+  version: 0.2.11
 - name: lfx-v2-email-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-email-service/chart
   version: 0.1.0
-digest: sha256:2d2a677cbde8e03507df0cb6f8d6c22de8519cb18a9edd3f7263737a26a382f0
-generated: "2026-05-14T11:33:47.131522-07:00"
+- name: lfx-v2-invite-service
+  repository: oci://ghcr.io/linuxfoundation/lfx-v2-invite-service/chart
+  version: 0.1.0
+digest: sha256:44e4ea58f0fc24ac70bd1462ac7d04ab984297b09e20eb2c6bdb3b46eba33ce0
+generated: "2026-05-21T08:57:05.161502-07:00"
