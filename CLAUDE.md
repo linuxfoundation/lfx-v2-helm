@@ -6,7 +6,7 @@ stack. It is not the owner for service-specific application logic.
 > **Central LFX skills:**
 > - Start with `/lfx-skills:lfx` for cross-repo tasks, "where does X live" questions, owner/peer repo routing, or missing checkouts.
 > - Use `/lfx-skills:lfx-platform-architecture` after routing when you need platform composition or write/read/access-check flows across FGA, indexer, query, Heimdall, OpenFGA, Helm, or ArgoCD.
-> - Use `/lfx-skills:lfx-platform-architecture` for service classes and service-chart handoff boundaries. Go coding conventions live in each service repo's path-scoped `development-conventions` skill.
+> - Use `/lfx-skills:lfx-platform-architecture` for service classes and service-chart handoff boundaries. Go coding conventions live in each service repo's path-scoped `<short-repo-name>-dev` skill.
 > - Repo-owned docs under `docs/` are canonical for platform chart, OpenFGA model, service chart conventions, and local stack guidance. If the plugin is missing, install with `/plugin marketplace add linuxfoundation/lfx-skills` then `/plugin install lfx-skills@lfx-skills`.
 
 ## Repository Ownership
