@@ -81,13 +81,14 @@ kubectl run --rm -it fga-cli --namespace lfx --image=openfga/cli --env="FGA_STOR
 
 To update the authorization model, modify the version and model definition in `charts/lfx-platform/templates/openfga/model.yaml`:
 
-1. **Increment the version** in the `instances` section:
+1. **Increment the version** in the `instances` section. The current version
+   lives in `model.yaml`; bump the appropriate component for the change:
    ```yaml
    instances:
      - version:
-         major: 1
-         minor: 1
-         patch: 3  # Bump this version number
+         major: 12
+         minor: 0
+         patch: 1  # Example patch bump from 12.0.0
    authorizationModel: |
      model
        schema 1.1
