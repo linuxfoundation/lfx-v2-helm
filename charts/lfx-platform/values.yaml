@@ -42,9 +42,23 @@ lfx:
     enabled: true
     image: swaggerapi/swagger-ui
     tag: latest
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "64Mi"
+      limits:
+        cpu: "200m"
+        memory: "128Mi"
     merger:
       image: node
       tag: 24-alpine
+      resources:
+        requests:
+          cpu: "100m"
+          memory: "64Mi"
+        limits:
+          cpu: "200m"
+          memory: "128Mi"
     auth:
       enabled: true
       domain: "https://auth.k8s.orb.local"
@@ -59,6 +73,8 @@ lfx:
       - "_access-check/openapi3.yaml"
       - "_voting/openapi3.yaml"
       - "_survey/openapi3.yaml"
+      - "_groupsio/openapi3.yaml"
+      - "_memberships/openapi3.yaml"
 
   # Tells rulesets to use the oidc_contextualizer, needed for
   # local dev with authelia
@@ -695,6 +711,26 @@ lfx-v2-mailing-list-service:
   enabled: true
   lfx:
     domain: k8s.orb.local
+
+  # External Secrets Operator is disabled because we can't get secrets from AWS Secrets Manager in local development.
+  # Instead, create the Kubernetes secret manually. See the chart README for instructions.
+  externalSecretsOperator:
+    enabled: false
+
+lfx-v2-email-service:
+  replicaCount: 1
+  enabled: true
+  lfx:
+    domain: k8s.orb.local
+
+  # External Secrets Operator is disabled because we can't get secrets from AWS Secrets Manager in local development.
+  # Instead, create the Kubernetes secret manually. See the chart README for instructions.
+  externalSecretsOperator:
+    enabled: false
+
+lfx-v2-invite-service:
+  replicaCount: 1
+  enabled: true
 
   # External Secrets Operator is disabled because we can't get secrets from AWS Secrets Manager in local development.
   # Instead, create the Kubernetes secret manually. See the chart README for instructions.
