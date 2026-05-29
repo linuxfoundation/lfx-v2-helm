@@ -86,9 +86,9 @@ To update the authorization model, modify the version and model definition in `c
    ```yaml
    instances:
      - version:
-         major: 12
+         major: 13
          minor: 0
-         patch: 1  # Example patch bump from 12.0.0
+         patch: 3  # Example patch bump from 13.0.2 (current version in model.yaml)
    authorizationModel: |
      model
        schema 1.1
@@ -103,11 +103,15 @@ To update the authorization model, modify the version and model definition in `c
        relations
          define parent: [project]
          define owner: [team#member] or owner from parent
-         define writer: owner or writer from parent
-         define auditor: [user, team#member] or writer or auditor from parent
-         define viewer: [user:*] or auditor or auditor from parent
+         define writer: [user] or owner or writer from parent
+         define auditor: [user, team#member] or executive_director or writer or auditor from parent
+         define viewer: [user:*] or auditor or meeting_coordinator
          # Add new relations here as needed
    ```
+
+   The version and relations above are illustrative. The authoritative,
+   current model definition lives in
+   `charts/lfx-platform/templates/openfga/model.yaml`.
 
 2. **Redeploy the chart** to apply the changes:
    ```bash
@@ -197,8 +201,8 @@ kubectl run --rm -it fga-cli --namespace lfx --image=openfga/cli --env="FGA_STOR
 Test authorization decisions:
 
 ```bash
-# Check if a user can read a project
-kubectl run --rm -it fga-cli --namespace lfx --image=openfga/cli --env="FGA_STORE_ID=$STORE_ID" --env="FGA_API_URL=http://lfx-platform-openfga:8080" --restart=Never -- check --tuple "user:john@example.com:reader:project:project1"
+# Check if a user can view a project (the read relation is `viewer`)
+kubectl run --rm -it fga-cli --namespace lfx --image=openfga/cli --env="FGA_STORE_ID=$STORE_ID" --env="FGA_API_URL=http://lfx-platform-openfga:8080" --restart=Never -- check --tuple "user:john@example.com:viewer:project:project1"
 ```
 
 ## Advanced Topics

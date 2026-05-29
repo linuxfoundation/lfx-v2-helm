@@ -35,6 +35,8 @@ includes:
   - `lfx-v2-auth-service`
   - `lfx-v2-voting-service`
   - `lfx-v2-survey-service`
+  - `lfx-v2-email-service`
+  - `lfx-v2-invite-service`
 
 Service subchart versions in `Chart.yaml` are platform-side **defaults**.
 Deployed dev/staging/prod chart pins are owned by `lfx-v2-argocd`'s
@@ -46,14 +48,15 @@ This repo also ships templates rendered directly by the umbrella chart:
 
 ```text
 charts/lfx-platform/templates/
+├── gateway.yaml            # Shared Gateway API Gateway
 ├── openfga/
 │   ├── model.yaml          # Shared OpenFGA authorization model
 │   └── db-secrets.yaml
-├── heimdall/               # Shared Heimdall RuleSet / middleware
+├── heimdall/               # Shared Heimdall middleware + signer cert/bundle
 ├── authelia/               # Local-only auth
 ├── mailpit/                # Local-only email capture
-├── swagger_ui/             # Aggregated OpenAPI viewer
-└── whoami/                 # Diagnostic
+├── swagger_ui/             # Aggregated OpenAPI viewer (incl. its RuleSet)
+└── whoami/                 # Diagnostic (incl. its RuleSet)
 ```
 
 The OpenFGA model is the single most important shared template: every
