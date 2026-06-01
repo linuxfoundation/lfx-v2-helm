@@ -23,6 +23,12 @@ tags, ApplicationSets, previews, custom resources, and promotion.
 
 ## Agent Guidance
 
+The repo-local `/helm-local-stack` skill (under `.claude/skills/`) is the
+guided entry point for bringing up the local platform stack, editing the
+OpenFGA model and re-rendering permissions docs, updating platform chart
+dependencies, and debugging local stack install/sync issues. Prefer it over
+reinventing commands.
+
 Repo-owned implementation guidance lives under `docs/`:
 
 - `docs/platform-chart.md` - composition of
