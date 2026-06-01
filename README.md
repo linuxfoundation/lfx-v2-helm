@@ -121,9 +121,10 @@ This repository automatically publishes Helm charts to GitHub Container Registry
    subchart version constraints in `Chart.yaml` and regenerate `Chart.lock`
    only when dependency pins change.
 2. After the pull request is merged, create a GitHub release and choose the
-   option for GitHub to also tag the repository. The tag can be anything, but
-   the current convention is `v{version}` (for example, `v0.0.2`). The release
-   tag is the chart release version used by the packaging workflow.
+   option for GitHub to also tag the repository. The tag must match the `v*`
+   pattern (for example, `v0.0.2`); the release workflow only runs for pushed
+   tags matching `v*` (see `.github/workflows/release.yaml`). The release tag
+   is the chart release version used by the packaging workflow.
 3. The GitHub Actions workflow will automatically:
    - Package the Helm chart
    - Publish it to `ghcr.io/linuxfoundation/lfx-v2-helm/chart`

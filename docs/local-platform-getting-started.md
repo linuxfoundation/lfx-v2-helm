@@ -1,5 +1,5 @@
 <!-- Copyright The Linux Foundation and each contributor to LFX. -->
-<!-- SPDX-License-Identifier: MIT -->
+<!-- SPDX-License-Identifier: CC-BY-4.0 -->
 
 # Local Platform Bring-Up
 

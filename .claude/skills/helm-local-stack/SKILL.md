@@ -1,6 +1,7 @@
 ---
 name: helm-local-stack
 description: Use when the user wants to bring up the local LFX platform stack, edit the OpenFGA authorization model and re-render permissions docs, update platform chart dependencies, or debug local stack install/sync issues. Fires on "bring up local LFX platform", "edit OpenFGA model", "update platform chart dependencies", "debug local stack".
+license: MIT
 ---
 
 # helm-local-stack

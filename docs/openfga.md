@@ -89,24 +89,24 @@ To update the authorization model, modify the version and model definition in `c
          major: 13
          minor: 0
          patch: 3  # Example patch bump from 13.0.2 (current version in model.yaml)
-   authorizationModel: |
-     model
-       schema 1.1
+       authorizationModel: |
+         model
+           schema 1.1
 
-     type user
+         type user
 
-     type team
-       relations
-         define member: [user]
+         type team
+           relations
+             define member: [user]
 
-     type project
-       relations
-         define parent: [project]
-         define owner: [team#member] or owner from parent
-         define writer: [user] or owner or writer from parent
-         define auditor: [user, team#member] or executive_director or writer or auditor from parent
-         define viewer: [user:*] or auditor or meeting_coordinator
-         # Add new relations here as needed
+         type project
+           relations
+             define parent: [project]
+             define owner: [team#member] or owner from parent
+             define writer: [user] or owner or writer from parent
+             define auditor: [user, team#member] or executive_director or writer or auditor from parent
+             define viewer: [user:*] or auditor or meeting_coordinator
+             # Add new relations here as needed
    ```
 
    The version and relations above are illustrative. The authoritative,
