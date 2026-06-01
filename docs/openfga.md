@@ -201,8 +201,12 @@ kubectl run --rm -it fga-cli --namespace lfx --image=openfga/cli --env="FGA_STOR
 Test authorization decisions:
 
 ```bash
-# Check if a user can view a project (the read relation is `viewer`)
-kubectl run --rm -it fga-cli --namespace lfx --image=openfga/cli --env="FGA_STORE_ID=$STORE_ID" --env="FGA_API_URL=http://lfx-platform-openfga:8080" --restart=Never -- check --tuple "user:john@example.com:viewer:project:project1"
+# Check if a user can write to a project (a tuple-dependent relation).
+# Note: `project#viewer` is public in the model (`define viewer: [user:*] ...`),
+# so a `viewer` check always returns allowed even with no tuples. Use a
+# restrictive relation like `writer` or `auditor` for a meaningful check that
+# actually validates the tuples you have written.
+kubectl run --rm -it fga-cli --namespace lfx --image=openfga/cli --env="FGA_STORE_ID=$STORE_ID" --env="FGA_API_URL=http://lfx-platform-openfga:8080" --restart=Never -- check --tuple "user:john@example.com:writer:project:project1"
 ```
 
 ## Advanced Topics
