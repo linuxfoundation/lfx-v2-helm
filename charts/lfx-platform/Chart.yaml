@@ -109,3 +109,23 @@ dependencies:
     repository: oci://ghcr.io/linuxfoundation/lfx-v2-invite-service/chart
     version: ~0.1.0
     condition: lfx-v2-invite-service.enabled
+  - name: lfx-v1-sync-helper
+    repository: oci://ghcr.io/linuxfoundation/lfx-v1-sync-helper/chart
+    version: ~0.10.3
+    condition: lfx-v1-sync-helper.enabled
+  - name: lfx-v2-forwards-service
+    repository: oci://ghcr.io/linuxfoundation/lfx-v2-forwards-service/chart
+    version: ~0.1.1
+    condition: lfx-v2-forwards-service.enabled
+  - name: lfx-v2-member-service
+    repository: oci://ghcr.io/linuxfoundation/lfx-v2-member-service/chart
+    version: ~0.8.0
+    condition: lfx-v2-member-service.enabled
+  - name: lfx-v2-newsletter-service
+    repository: oci://ghcr.io/linuxfoundation/lfx-v2-newsletter-service/chart
+    version: ~0.1.13
+    condition: lfx-v2-newsletter-service.enabled
+  - name: lfx-v2-persona-service
+    repository: oci://ghcr.io/linuxfoundation/lfx-v2-persona-service/chart
+    version: ~0.0.9
+    condition: lfx-v2-persona-service.enabled

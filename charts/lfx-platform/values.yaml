@@ -737,6 +737,46 @@ lfx-v2-invite-service:
   externalSecretsOperator:
     enabled: false
 
+lfx-v1-sync-helper:
+  replicaCount: 1
+  enabled: true
+
+lfx-v2-forwards-service:
+  replicaCount: 1
+  enabled: true
+
+  # External Secrets Operator is disabled because we can't get secrets from AWS Secrets Manager in local development.
+  # Instead, create the Kubernetes secret manually. See the chart README for instructions.
+  externalSecretsOperator:
+    enabled: false
+
+lfx-v2-member-service:
+  replicaCount: 1
+  enabled: true
+  lfx:
+    domain: k8s.orb.local
+
+lfx-v2-newsletter-service:
+  replicaCount: 1
+  enabled: true
+  lfx:
+    domain: k8s.orb.local
+
+  app:
+    # Disable real email dispatch for local development — exercises the
+    # recipient-resolution path without calling email-service.
+    send:
+      fanoutEnabled: false
+
+  # External Secrets Operator is disabled because we can't get secrets from AWS Secrets Manager in local development.
+  # Instead, create the Kubernetes secret manually. See the chart README for instructions.
+  externalSecretsOperator:
+    enabled: false
+
+lfx-v2-persona-service:
+  replicaCount: 1
+  enabled: true
+
 lfx-v2-auth-service:
   replicaCount: 1
   enabled: true

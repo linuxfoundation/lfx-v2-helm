@@ -10,64 +10,6 @@ resource APIs for the LFX platform.
 - PV provisioner support in the underlying infrastructure (if persistence is
   enabled)
 
-## Secrets setup
-
-Some subcharts require Kubernetes secrets to exist in the namespace before
-installing the chart. These secrets are only needed if the corresponding
-subchart is enabled.
-
-To check whether a subchart is enabled, look for its `enabled` field in
-`charts/lfx-platform/values.yaml`:
-
-```bash
-grep -A1 "lfx-v2-voting-service:" charts/lfx-platform/values.yaml
-# enabled: false  ← skip secret creation if false
-```
-
-Secret values are stored in the **LFX V2** vault in 1Password under the note
-**LFX Platform Chart Values Secrets - Local Development**.
-
-### lfx-v2-voting-service
-
-Requires an Auth0 client ID and RSA private key.
-
-```bash
-kubectl create secret generic lfx-v2-voting-service -n lfx \
-  --from-literal=ITX_CLIENT_ID="<from-1password>" \
-  --from-file=ITX_CLIENT_PRIVATE_KEY=/path/to/private.key
-```
-
-### lfx-v2-survey-service
-
-Requires an Auth0 client ID and RSA private key.
-
-```bash
-kubectl create secret generic lfx-v2-survey-service -n lfx \
-  --from-literal=ITX_CLIENT_ID="<from-1password>" \
-  --from-file=ITX_CLIENT_PRIVATE_KEY=/path/to/private.key
-```
-
-### lfx-v2-meeting-service
-
-Requires an Auth0 client ID and RSA private key.
-
-```bash
-kubectl create secret generic meeting-secrets -n lfx \
-  --from-literal=auth0_client_id="<from-1password>" \
-  --from-file=auth0_client_private_key=/path/to/private.key
-```
-
-### lfx-v2-mailing-list-service
-
-Requires Groups.io credentials and a webhook secret.
-
-```bash
-kubectl create secret generic lfx-v2-mailing-list-service -n lfx \
-  --from-literal=GROUPSIO_EMAIL="<from-1password>" \
-  --from-literal=GROUPSIO_PASSWORD="<from-1password>" \
-  --from-literal=GROUPSIO_WEBHOOK_SECRET="<from-1password>"
-```
-
 ## Installing the chart
 
 First, create the namespace (recommended):
@@ -206,6 +148,7 @@ permissions regardless of what resource is being accessed.
 | [lfx-v2-query-service](https://github.com/linuxfoundation/lfx-v2-query-service) | `lfx-v2-query-service` | `true` | HTTP service for performing access-controlled queries against LFX resources, including typeahead and full-text search. | [lfx-v2-query-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-query-service/tree/main/charts/lfx-v2-query-service) |
 | [lfx-v2-email-service](https://github.com/linuxfoundation/lfx-v2-email-service) | `lfx-v2-email-service` | `true` | Thin transactional email relay that receives pre-rendered email payloads over NATS and delivers them via Amazon SES. | [lfx-v2-email-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-email-service/tree/main/charts/lfx-v2-email-service) |
 | [lfx-v2-invite-service](https://github.com/linuxfoundation/lfx-v2-invite-service) | `lfx-v2-invite-service` | `true` | Handles invite issuance and tracking — receives invite requests from resource services over NATS, renders the email, and persists records in NATS KV. | [lfx-v2-invite-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-invite-service/tree/main/charts/lfx-v2-invite-service) |
+| [lfx-v2-forwards-service](https://github.com/linuxfoundation/lfx-v2-forwards-service) | `lfx-v2-forwards-service` | `true` | Stateless NATS service that manages email alias forwarding routes via forwardemail.net; alias ownership remains in auth-service. | [lfx-v2-forwards-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-forwards-service/tree/main/charts/lfx-v2-forwards-service) |
 | [lfx-v1-sync-helper](https://github.com/linuxfoundation/lfx-v1-sync-helper) | `lfx-v1-sync-helper` | `true` | Monitors NATS KV stores for replicated v1 data and synchronizes it into the v2 platform APIs, handling data transformation and conflict resolution. | [lfx-v1-sync-helper Helm Chart](https://github.com/linuxfoundation/lfx-v1-sync-helper/tree/main/charts/lfx-v1-sync-helper) |
 | [lfx-v2-persona-service](https://github.com/linuxfoundation/lfx-v2-persona-service) | `lfx-v2-persona-service` | `true` | Provides a fast, personalized summary of a user's involvement across Linux Foundation projects for UI/UX feature enablement. | [lfx-v2-persona-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-persona-service/tree/main/charts/lfx-v2-persona-service) |
 
@@ -216,16 +159,16 @@ data (e.g. meetings, committees). They rely on platform services to handle
 cross-cutting concerns such as permission checks, search indexing, and email
 notifications.
 
-| Subchart | Key | Enabled by default | Chart |
-|----------|-----|--------------------|-------|
-| [lfx-v2-project-service](https://github.com/linuxfoundation/lfx-v2-project-service) | `lfx-v2-project-service` | `true` | [lfx-v2-project-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-project-service/tree/main/charts/lfx-v2-project-service) |
-| [lfx-v2-committee-service](https://github.com/linuxfoundation/lfx-v2-committee-service) | `lfx-v2-committee-service` | `true` | [lfx-v2-committee-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-committee-service/tree/main/charts/lfx-v2-committee-service) |
-| [lfx-v2-voting-service](https://github.com/linuxfoundation/lfx-v2-voting-service) | `lfx-v2-voting-service` | `true` | [lfx-v2-voting-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-voting-service/tree/main/charts/lfx-v2-voting-service) |
-| [lfx-v2-survey-service](https://github.com/linuxfoundation/lfx-v2-survey-service) | `lfx-v2-survey-service` | `true` | [lfx-v2-survey-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-survey-service/tree/main/charts/lfx-v2-survey-service) |
-| [lfx-v2-meeting-service](https://github.com/linuxfoundation/lfx-v2-meeting-service) | `lfx-v2-meeting-service` | `true` | [lfx-v2-meeting-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-meeting-service/tree/main/charts/lfx-v2-meeting-service) |
-| [lfx-v2-mailing-list-service](https://github.com/linuxfoundation/lfx-v2-mailing-list-service) | `lfx-v2-mailing-list-service` | `true` | [lfx-v2-mailing-list-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-mailing-list-service/tree/main/charts/lfx-v2-mailing-list-service) |
-| [lfx-v2-newsletter-service](https://github.com/linuxfoundation/lfx-v2-newsletter-service) | `lfx-v2-newsletter-service` | `true` | [lfx-v2-newsletter-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-newsletter-service/tree/main/charts/lfx-v2-newsletter-service) |
-| [lfx-v2-member-service](https://github.com/linuxfoundation/lfx-v2-member-service) | `lfx-v2-member-service` | `true` | [lfx-v2-member-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-member-service/tree/main/charts/lfx-v2-member-service) |
+| Subchart | Key | Enabled by default | Description | Chart |
+|----------|-----|--------------------|-------------|-------|
+| [lfx-v2-project-service](https://github.com/linuxfoundation/lfx-v2-project-service) | `lfx-v2-project-service` | `true` | Manages LF project metadata, settings, and project-level configuration. | [lfx-v2-project-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-project-service/tree/main/charts/lfx-v2-project-service) |
+| [lfx-v2-committee-service](https://github.com/linuxfoundation/lfx-v2-committee-service) | `lfx-v2-committee-service` | `true` | Manages committees, members, invites, applications, links, and documents. | [lfx-v2-committee-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-committee-service/tree/main/charts/lfx-v2-committee-service) |
+| [lfx-v2-voting-service](https://github.com/linuxfoundation/lfx-v2-voting-service) | `lfx-v2-voting-service` | `true` | Wraps the ITX voting platform for ballots, elections, and vote management. | [lfx-v2-voting-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-voting-service/tree/main/charts/lfx-v2-voting-service) |
+| [lfx-v2-survey-service](https://github.com/linuxfoundation/lfx-v2-survey-service) | `lfx-v2-survey-service` | `true` | Wraps the ITX survey platform for scheduling and managing committee surveys. | [lfx-v2-survey-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-survey-service/tree/main/charts/lfx-v2-survey-service) |
+| [lfx-v2-meeting-service](https://github.com/linuxfoundation/lfx-v2-meeting-service) | `lfx-v2-meeting-service` | `true` | Manages meetings, agendas, recordings, and Zoom integration. | [lfx-v2-meeting-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-meeting-service/tree/main/charts/lfx-v2-meeting-service) |
+| [lfx-v2-mailing-list-service](https://github.com/linuxfoundation/lfx-v2-mailing-list-service) | `lfx-v2-mailing-list-service` | `true` | Wraps Groups.io for project mailing list provisioning and management. | [lfx-v2-mailing-list-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-mailing-list-service/tree/main/charts/lfx-v2-mailing-list-service) |
+| [lfx-v2-newsletter-service](https://github.com/linuxfoundation/lfx-v2-newsletter-service) | `lfx-v2-newsletter-service` | `true` | Owns newsletter persistence and send orchestration for project newsletters. | [lfx-v2-newsletter-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-newsletter-service/tree/main/charts/lfx-v2-newsletter-service) |
+| [lfx-v2-member-service](https://github.com/linuxfoundation/lfx-v2-member-service) | `lfx-v2-member-service` | `true` | Manages B2B organization memberships, tiers, and Salesforce-backed membership data. | [lfx-v2-member-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-member-service/tree/main/charts/lfx-v2-member-service) |
 
 #### Developing a service locally
 
@@ -244,6 +187,94 @@ lfx-v2-query-service:
 
 Follow the local development instructions in the service repository to
 build and deploy it against the running platform.
+
+### Adding a new subchart
+
+When adding an LFX service as a dependency of this umbrella chart:
+
+1. Add a dependency entry to [`Chart.yaml`](Chart.yaml) with the OCI
+   repository URL, a semver constraint (e.g. `~0.1.0`), and a
+   `condition: <service>.enabled`.
+2. Add a default values block in [`values.yaml`](values.yaml). At minimum,
+   include `enabled: true`, `replicaCount: 1`, and `lfx.domain` for HTTP
+   services. Set `externalSecretsOperator.enabled: false` when the service
+   chart supports ESO — local development uses manually created Kubernetes
+   secrets instead.
+3. Regenerate the lock file:
+
+   ```bash
+   helm dependency build charts/lfx-platform
+   ```
+
+4. Add a row to the appropriate subchart table in this README.
+5. If the service requires manual Kubernetes secrets for local development,
+   document them in [Secrets setup](#secrets-setup).
+6. Optionally add an entry to [`values.local.example.yaml`](values.local.example.yaml).
+7. Bump the chart version in `Chart.yaml` before release (see the root
+   [README release process](../../README.md#releases)).
+8. For staging and production, also follow the
+   [Adding a New Service](https://github.com/linuxfoundation/lfx-v2-argocd/blob/main/README.md#adding-a-new-service)
+   guide in `lfx-v2-argocd`. When a service is deployed as its own ArgoCD
+   application, disable its subchart in `lfx-v2-argocd/values/global/lfx-platform.yaml`
+   to avoid deploying it twice.
+
+## Secrets setup
+
+Some subcharts require Kubernetes secrets to exist in the namespace before
+installing the chart. These secrets are only needed if the corresponding
+subchart is enabled.
+
+To check whether a subchart is enabled, look for its `enabled` field in
+`charts/lfx-platform/values.yaml`:
+
+```bash
+grep -A1 "lfx-v2-voting-service:" charts/lfx-platform/values.yaml
+# enabled: false  ← skip secret creation if false
+```
+
+Secret values are stored in the **LFX V2** vault in 1Password under the note
+**LFX Platform Chart Values Secrets - Local Development**.
+
+### lfx-v2-voting-service
+
+Requires an Auth0 client ID and RSA private key.
+
+```bash
+kubectl create secret generic lfx-v2-voting-service -n lfx \
+  --from-literal=ITX_CLIENT_ID="<from-1password>" \
+  --from-file=ITX_CLIENT_PRIVATE_KEY=/path/to/private.key
+```
+
+### lfx-v2-survey-service
+
+Requires an Auth0 client ID and RSA private key.
+
+```bash
+kubectl create secret generic lfx-v2-survey-service -n lfx \
+  --from-literal=ITX_CLIENT_ID="<from-1password>" \
+  --from-file=ITX_CLIENT_PRIVATE_KEY=/path/to/private.key
+```
+
+### lfx-v2-meeting-service
+
+Requires an Auth0 client ID and RSA private key.
+
+```bash
+kubectl create secret generic meeting-secrets -n lfx \
+  --from-literal=auth0_client_id="<from-1password>" \
+  --from-file=auth0_client_private_key=/path/to/private.key
+```
+
+### lfx-v2-mailing-list-service
+
+Requires Groups.io credentials and a webhook secret.
+
+```bash
+kubectl create secret generic lfx-v2-mailing-list-service -n lfx \
+  --from-literal=GROUPSIO_EMAIL="<from-1password>" \
+  --from-literal=GROUPSIO_PASSWORD="<from-1password>" \
+  --from-literal=GROUPSIO_WEBHOOK_SECRET="<from-1password>"
+```
 
 ## Using external PostgreSQL with OpenFGA
 

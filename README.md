@@ -110,7 +110,8 @@ To contribute to this repository:
 3. Ensure the chart version in `charts/lfx-platform/Chart.yaml` has been
    updated following semantic version conventions.
 4. If you are adding a new platform component, ensure it is documented in the
-   [component diagram](#component-diagram) and the README.
+   [component diagram](#component-diagram) and the
+   [lfx-platform chart README](./charts/lfx-platform/README.md#adding-a-new-subchart).
 5. Run MegaLinter locally at the root of the working directory to check for
    errors or linting problems:
    ```bash
