@@ -112,8 +112,10 @@ is the inline comments in [`values.yaml`](values.yaml).
 
 ### Subcharts
 
-Each subchart can be enabled or disabled via its `enabled` key. Refer to the
-linked documentation for the full set of configuration options.
+Each subchart can be enabled or disabled via its `enabled` key in
+[`values.yaml`](values.yaml). The exception is `trust-manager`, which is toggled
+via the top-level `trustManagerEnabled` key (see the infrastructure table below).
+Refer to the linked documentation for the full set of configuration options.
 
 Default `enabled` values in [`values.yaml`](values.yaml) target local
 development. In deployed environments, most LFX service subcharts are disabled
