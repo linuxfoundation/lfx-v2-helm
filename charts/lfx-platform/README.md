@@ -127,8 +127,9 @@ linked documentation for the full set of configuration options.
 | OpenSearch     | `opensearch`    | `true`            | Search and analytics engine that powers platform-wide full-text search and audit log capabilities. | [OpenSearch Helm Chart](https://github.com/opensearch-project/helm-charts) |
 | Authelia       | `authelia`      | `true`            | Open-source authentication server providing SSO and MFA for local development (replaces Auth0 in local environments). | [Authelia documentation](https://github.com/authelia/chartrepo/tree/master/charts/authelia) |
 | Mailpit        | `mailpit`       | `true`            | Local email testing tool that captures outbound emails for inspection during development without sending them externally. | [Mailpit documentation](https://github.com/jouve/charts/tree/main/charts/mailpit) |
-| External Secrets Operator | `external-secrets` | `true` | Kubernetes operator that syncs secrets from external vaults (e.g. AWS Secrets Manager) into Kubernetes secrets. | [External Secrets Helm Chart](https://external-secrets.io/latest/introduction/getting-started/) |
+| External Secrets Operator | `external-secrets` | `false` | Kubernetes operator that syncs secrets from external vaults (e.g. AWS Secrets Manager) into Kubernetes secrets. | [External Secrets Helm Chart](https://external-secrets.io/latest/introduction/getting-started/) |
 | cert-manager   | `cert-manager`  | `false`           | Kubernetes certificate manager that automates TLS certificate provisioning and renewal. | [cert-manager Helm Chart](https://cert-manager.io/docs/installation/helm/) |
+| trust-manager  | `trustManagerEnabled` | `false` | cert-manager companion controller that distributes trust bundles to workloads across namespaces. | [trust-manager Helm Chart](https://cert-manager.io/docs/trust/trust-manager/) |
 | fga-operator   | `fga-operator`  | `true`            | Kubernetes operator that manages OpenFGA authorization models and store configuration declaratively via CRDs. | — |
 
 #### LFX platform service subcharts
@@ -210,8 +211,10 @@ When adding an LFX service as a dependency of this umbrella chart:
 5. If the service requires manual Kubernetes secrets for local development,
    document them in [Secrets setup](#secrets-setup).
 6. Optionally add an entry to [`values.local.example.yaml`](values.local.example.yaml).
-7. Bump the chart version in `Chart.yaml` before release (see the root
-   [README release process](../../README.md#releases)).
+7. Do not manually bump the `version` field in [`Chart.yaml`](Chart.yaml) — CI
+   replaces it during the release build (see the comment at the top of that
+   file). Publishing is triggered by creating a GitHub release tag per the
+   root [README release process](../../README.md#releases).
 8. For staging and production, also follow the
    [Adding a New Service](https://github.com/linuxfoundation/lfx-v2-argocd/blob/main/README.md#adding-a-new-service)
    guide in `lfx-v2-argocd`. When a service is deployed as its own ArgoCD
