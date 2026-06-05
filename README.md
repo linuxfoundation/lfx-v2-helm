@@ -84,14 +84,14 @@ This repository automatically publishes Helm charts to GitHub Container Registry
 
 ### Creating a Release
 
-1. Update the chart version in `charts/lfx-platform/Chart.yaml` as part of any
-   pull requests which update the chart manifests or configuration.
+1. Merge pull requests that update chart manifests or configuration. Do not
+   manually bump the `version` field in `charts/lfx-platform/Chart.yaml` — the
+   release workflow sets the published chart version from the Git tag.
 2. After the pull request is merged, create a GitHub release and choose the
    option for GitHub to also tag the repository. The tag can be anything, but
-   the current convention is for the format `v{version}` (e.g., `v0.0.2`). This
-   tag does _not_ have to match the chart version: it is an `appVersion` that
-   is unused at the umbrella chart level, and _only_ used to trigger Helm
-   releases.
+   the current convention is for the format `v{version}` (e.g., `v0.3.36`). The
+   tag determines the chart version published to GHCR (e.g. tag `v0.3.36`
+   publishes chart version `0.3.36`).
 3. The GitHub Actions workflow will automatically:
    - Package the Helm chart
    - Publish it to `ghcr.io/linuxfoundation/lfx-v2-helm/chart`
@@ -107,8 +107,9 @@ To contribute to this repository:
    are signed with the [Developer Certificate of Origin
    (DCO)](https://developercertificate.org/).
    You can use the `git commit -s` command to sign your commits.
-3. Ensure the chart version in `charts/lfx-platform/Chart.yaml` has been
-   updated following semantic version conventions.
+3. Do not manually bump the `version` field in `charts/lfx-platform/Chart.yaml`
+   — the release workflow sets the published chart version from the Git tag
+   (see [Releases](#releases)).
 4. If you are adding a new platform component, ensure it is documented in the
    [component diagram](#component-diagram) and the
    [lfx-platform chart README](./charts/lfx-platform/README.md#adding-a-new-subchart).

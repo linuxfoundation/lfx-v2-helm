@@ -115,6 +115,12 @@ is the inline comments in [`values.yaml`](values.yaml).
 Each subchart can be enabled or disabled via its `enabled` key. Refer to the
 linked documentation for the full set of configuration options.
 
+Default `enabled` values in [`values.yaml`](values.yaml) target local
+development. In deployed environments, most LFX service subcharts are disabled
+in the umbrella chart via
+`lfx-v2-argocd/values/global/lfx-platform.yaml` and deployed as separate
+ArgoCD applications instead.
+
 #### Infrastructure subcharts
 
 | Subchart       | Key             | Enabled by default | Description | Documentation |
