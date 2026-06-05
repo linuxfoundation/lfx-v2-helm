@@ -189,59 +189,43 @@ linked documentation for the full set of configuration options.
 | cert-manager   | `cert-manager`  | `false`           | [cert-manager Helm Chart](https://cert-manager.io/docs/installation/helm/) |
 | fga-operator   | `fga-operator`  | `true`            | — |
 
-#### LFX service subcharts
+#### LFX platform service subcharts
 
-| Subchart                    | Key                           | Enabled by default | Chart |
-|-----------------------------|-------------------------------|-------------------|-------|
+Platform services are integral to the platform as a whole and are resource
+data-agnostic — they operate independently of any particular domain and are
+consumed by resource services. For example, the indexer service can index any
+kind of data from any resource service, and the access-check service enforces
+permissions regardless of what resource is being accessed.
+
+| Subchart | Key | Enabled by default | Chart |
+|----------|-----|--------------------|-------|
 | [lfx-v2-auth-service](https://github.com/linuxfoundation/lfx-v2-auth-service) | `lfx-v2-auth-service` | `true` | [lfx-v2-auth-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-auth-service/tree/main/charts/lfx-v2-auth-service) |
 | [lfx-v2-fga-sync](https://github.com/linuxfoundation/lfx-v2-fga-sync) | `lfx-v2-fga-sync` | `true` | [lfx-v2-fga-sync Helm Chart](https://github.com/linuxfoundation/lfx-v2-fga-sync/tree/main/charts/lfx-v2-fga-sync) |
 | [lfx-v2-access-check](https://github.com/linuxfoundation/lfx-v2-access-check) | `lfx-v2-access-check` | `true` | [lfx-v2-access-check Helm Chart](https://github.com/linuxfoundation/lfx-v2-access-check/tree/main/charts/lfx-v2-access-check) |
 | [lfx-v2-indexer-service](https://github.com/linuxfoundation/lfx-v2-indexer-service) | `lfx-v2-indexer-service` | `true` | [lfx-v2-indexer-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-indexer-service/tree/main/charts/lfx-v2-indexer-service) |
 | [lfx-v2-query-service](https://github.com/linuxfoundation/lfx-v2-query-service) | `lfx-v2-query-service` | `true` | [lfx-v2-query-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-query-service/tree/main/charts/lfx-v2-query-service) |
+| [lfx-v2-email-service](https://github.com/linuxfoundation/lfx-v2-email-service) | `lfx-v2-email-service` | `true` | [lfx-v2-email-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-email-service/tree/main/charts/lfx-v2-email-service) |
+| [lfx-v2-invite-service](https://github.com/linuxfoundation/lfx-v2-invite-service) | `lfx-v2-invite-service` | `true` | [lfx-v2-invite-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-invite-service/tree/main/charts/lfx-v2-invite-service) |
+| [lfx-v1-sync-helper](https://github.com/linuxfoundation/lfx-v1-sync-helper) | `lfx-v1-sync-helper` | `true` | [lfx-v1-sync-helper Helm Chart](https://github.com/linuxfoundation/lfx-v1-sync-helper/tree/main/charts/lfx-v1-sync-helper) |
+| [lfx-v2-persona-service](https://github.com/linuxfoundation/lfx-v2-persona-service) | `lfx-v2-persona-service` | `true` | [lfx-v2-persona-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-persona-service/tree/main/charts/lfx-v2-persona-service) |
+
+#### LFX resource service subcharts
+
+Resource services are each responsible for managing a specific set of domain
+data (e.g. meetings, committees). They rely on platform services to handle
+cross-cutting concerns such as permission checks, search indexing, and email
+notifications.
+
+| Subchart | Key | Enabled by default | Chart |
+|----------|-----|--------------------|-------|
 | [lfx-v2-project-service](https://github.com/linuxfoundation/lfx-v2-project-service) | `lfx-v2-project-service` | `true` | [lfx-v2-project-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-project-service/tree/main/charts/lfx-v2-project-service) |
 | [lfx-v2-committee-service](https://github.com/linuxfoundation/lfx-v2-committee-service) | `lfx-v2-committee-service` | `true` | [lfx-v2-committee-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-committee-service/tree/main/charts/lfx-v2-committee-service) |
 | [lfx-v2-voting-service](https://github.com/linuxfoundation/lfx-v2-voting-service) | `lfx-v2-voting-service` | `true` | [lfx-v2-voting-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-voting-service/tree/main/charts/lfx-v2-voting-service) |
 | [lfx-v2-survey-service](https://github.com/linuxfoundation/lfx-v2-survey-service) | `lfx-v2-survey-service` | `true` | [lfx-v2-survey-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-survey-service/tree/main/charts/lfx-v2-survey-service) |
 | [lfx-v2-meeting-service](https://github.com/linuxfoundation/lfx-v2-meeting-service) | `lfx-v2-meeting-service` | `true` | [lfx-v2-meeting-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-meeting-service/tree/main/charts/lfx-v2-meeting-service) |
 | [lfx-v2-mailing-list-service](https://github.com/linuxfoundation/lfx-v2-mailing-list-service) | `lfx-v2-mailing-list-service` | `true` | [lfx-v2-mailing-list-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-mailing-list-service/tree/main/charts/lfx-v2-mailing-list-service) |
-| [lfx-v2-email-service](https://github.com/linuxfoundation/lfx-v2-email-service) | `lfx-v2-email-service` | `true` | [lfx-v2-email-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-email-service/tree/main/charts/lfx-v2-email-service) |
-| [lfx-v2-invite-service](https://github.com/linuxfoundation/lfx-v2-invite-service) | `lfx-v2-invite-service` | `true` | [lfx-v2-invite-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-invite-service/tree/main/charts/lfx-v2-invite-service) |
-| [lfx-v2-persona-service](https://github.com/linuxfoundation/lfx-v2-persona-service) | `lfx-v2-persona-service` | `true` | [lfx-v2-persona-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-persona-service/tree/main/charts/lfx-v2-persona-service) |
-| [lfx-v1-sync-helper](https://github.com/linuxfoundation/lfx-v1-sync-helper) | `lfx-v1-sync-helper` | `true` | [lfx-v1-sync-helper Helm Chart](https://github.com/linuxfoundation/lfx-v1-sync-helper/tree/main/charts/lfx-v1-sync-helper) |
 | [lfx-v2-newsletter-service](https://github.com/linuxfoundation/lfx-v2-newsletter-service) | `lfx-v2-newsletter-service` | `true` | [lfx-v2-newsletter-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-newsletter-service/tree/main/charts/lfx-v2-newsletter-service) |
 | [lfx-v2-member-service](https://github.com/linuxfoundation/lfx-v2-member-service) | `lfx-v2-member-service` | `true` | [lfx-v2-member-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-member-service/tree/main/charts/lfx-v2-member-service) |
-
-### Platform and resource services
-
-**Platform services** are integral to the platform as a whole and are
-resource data-agnostic — they operate independently of any particular
-domain and are consumed by resource services. For example, the indexer
-service can index any kind of data from any resource service, and the
-access-check service enforces permissions regardless of what resource
-is being accessed.
-
-- lfx-v2-auth-service
-- lfx-v2-fga-sync
-- lfx-v2-access-check
-- lfx-v2-indexer-service
-- lfx-v2-query-service
-- lfx-v2-email-service
-- lfx-v2-invite-service
-- lfx-v1-sync-helper
-- lfx-v2-persona-service
-
-**Resource services** are each responsible for managing a specific set of
-domain data (e.g. meetings, committees). They rely on platform services to
-handle cross-cutting concerns such as permission checks, search indexing,
-and email notifications.
-
-- lfx-v2-project-service
-- lfx-v2-committee-service
-- lfx-v2-voting-service
-- lfx-v2-survey-service
-- lfx-v2-meeting-service
-- lfx-v2-mailing-list-service
-- lfx-v2-member-service
 
 #### Developing a service locally
 
