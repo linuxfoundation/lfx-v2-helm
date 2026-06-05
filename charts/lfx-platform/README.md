@@ -175,19 +175,19 @@ linked documentation for the full set of configuration options.
 
 #### Infrastructure subcharts
 
-| Subchart       | Key             | Enabled by default | Documentation |
-|----------------|-----------------|-------------------|---------------|
-| Traefik        | `traefik`       | `true`            | [Traefik Helm Chart](https://github.com/traefik/traefik-helm-chart) |
-| OpenFGA        | `openfga`       | `true`            | [OpenFGA Helm Chart](https://github.com/openfga/helm-charts) · [Local docs](../../docs/openfga.md) |
-| Heimdall       | `heimdall`      | `true`            | [Heimdall Helm Chart](https://github.com/dadrus/heimdall/tree/main/charts/heimdall) |
-| NATS           | `nats`          | `true`            | [NATS Helm Chart](https://github.com/nats-io/k8s/tree/main/helm/charts/nats) |
-| NACK           | `nack`          | `true`            | [NACK documentation](https://github.com/nats-io/k8s/tree/main/helm/charts/nack) |
-| OpenSearch     | `opensearch`    | `true`            | [OpenSearch Helm Chart](https://github.com/opensearch-project/helm-charts) |
-| Authelia       | `authelia`      | `true`            | [Authelia documentation](https://github.com/authelia/chartrepo/tree/master/charts/authelia) |
-| Mailpit        | `mailpit`       | `true`            | [Mailpit documentation](https://github.com/jouve/charts/tree/main/charts/mailpit) |
-| External Secrets Operator | `external-secrets` | `true`       | [External Secrets Helm Chart](https://external-secrets.io/latest/introduction/getting-started/) |
-| cert-manager   | `cert-manager`  | `false`           | [cert-manager Helm Chart](https://cert-manager.io/docs/installation/helm/) |
-| fga-operator   | `fga-operator`  | `true`            | — |
+| Subchart       | Key             | Enabled by default | Description | Documentation |
+|----------------|-----------------|-------------------|-------------|---------------|
+| Traefik        | `traefik`       | `true`            | Reverse proxy and ingress controller that routes external requests to platform services and enforces Heimdall's auth decisions. | [Traefik Helm Chart](https://github.com/traefik/traefik-helm-chart) |
+| OpenFGA        | `openfga`       | `true`            | Fine-grained authorization store implementing relationship-based access control (ReBAC) for the platform. | [OpenFGA Helm Chart](https://github.com/openfga/helm-charts) · [Local docs](../../docs/openfga.md) |
+| Heimdall       | `heimdall`      | `true`            | Access decision service that bridges Traefik to OpenFGA, enforcing per-request authorization based on URL pattern rulesets. | [Heimdall Helm Chart](https://github.com/dadrus/heimdall/tree/main/charts/heimdall) |
+| NATS           | `nats`          | `true`            | Distributed messaging system providing pub/sub, request/reply, and durable JetStream key-value storage used across all platform and resource services. | [NATS Helm Chart](https://github.com/nats-io/k8s/tree/main/helm/charts/nats) |
+| NACK           | `nack`          | `true`            | Kubernetes controller that manages NATS JetStream resources (streams, consumers, key-value buckets) declaratively via CRDs. | [NACK documentation](https://github.com/nats-io/k8s/tree/main/helm/charts/nack) |
+| OpenSearch     | `opensearch`    | `true`            | Search and analytics engine that powers platform-wide full-text search and audit log capabilities. | [OpenSearch Helm Chart](https://github.com/opensearch-project/helm-charts) |
+| Authelia       | `authelia`      | `true`            | Open-source authentication server providing SSO and MFA for local development (replaces Auth0 in local environments). | [Authelia documentation](https://github.com/authelia/chartrepo/tree/master/charts/authelia) |
+| Mailpit        | `mailpit`       | `true`            | Local email testing tool that captures outbound emails for inspection during development without sending them externally. | [Mailpit documentation](https://github.com/jouve/charts/tree/main/charts/mailpit) |
+| External Secrets Operator | `external-secrets` | `true` | Kubernetes operator that syncs secrets from external vaults (e.g. AWS Secrets Manager) into Kubernetes secrets. | [External Secrets Helm Chart](https://external-secrets.io/latest/introduction/getting-started/) |
+| cert-manager   | `cert-manager`  | `false`           | Kubernetes certificate manager that automates TLS certificate provisioning and renewal. | [cert-manager Helm Chart](https://cert-manager.io/docs/installation/helm/) |
+| fga-operator   | `fga-operator`  | `true`            | Kubernetes operator that manages OpenFGA authorization models and store configuration declaratively via CRDs. | — |
 
 #### LFX platform service subcharts
 
@@ -197,17 +197,17 @@ consumed by resource services. For example, the indexer service can index any
 kind of data from any resource service, and the access-check service enforces
 permissions regardless of what resource is being accessed.
 
-| Subchart | Key | Enabled by default | Chart |
-|----------|-----|--------------------|-------|
-| [lfx-v2-auth-service](https://github.com/linuxfoundation/lfx-v2-auth-service) | `lfx-v2-auth-service` | `true` | [lfx-v2-auth-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-auth-service/tree/main/charts/lfx-v2-auth-service) |
-| [lfx-v2-fga-sync](https://github.com/linuxfoundation/lfx-v2-fga-sync) | `lfx-v2-fga-sync` | `true` | [lfx-v2-fga-sync Helm Chart](https://github.com/linuxfoundation/lfx-v2-fga-sync/tree/main/charts/lfx-v2-fga-sync) |
-| [lfx-v2-access-check](https://github.com/linuxfoundation/lfx-v2-access-check) | `lfx-v2-access-check` | `true` | [lfx-v2-access-check Helm Chart](https://github.com/linuxfoundation/lfx-v2-access-check/tree/main/charts/lfx-v2-access-check) |
-| [lfx-v2-indexer-service](https://github.com/linuxfoundation/lfx-v2-indexer-service) | `lfx-v2-indexer-service` | `true` | [lfx-v2-indexer-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-indexer-service/tree/main/charts/lfx-v2-indexer-service) |
-| [lfx-v2-query-service](https://github.com/linuxfoundation/lfx-v2-query-service) | `lfx-v2-query-service` | `true` | [lfx-v2-query-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-query-service/tree/main/charts/lfx-v2-query-service) |
-| [lfx-v2-email-service](https://github.com/linuxfoundation/lfx-v2-email-service) | `lfx-v2-email-service` | `true` | [lfx-v2-email-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-email-service/tree/main/charts/lfx-v2-email-service) |
-| [lfx-v2-invite-service](https://github.com/linuxfoundation/lfx-v2-invite-service) | `lfx-v2-invite-service` | `true` | [lfx-v2-invite-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-invite-service/tree/main/charts/lfx-v2-invite-service) |
-| [lfx-v1-sync-helper](https://github.com/linuxfoundation/lfx-v1-sync-helper) | `lfx-v1-sync-helper` | `true` | [lfx-v1-sync-helper Helm Chart](https://github.com/linuxfoundation/lfx-v1-sync-helper/tree/main/charts/lfx-v1-sync-helper) |
-| [lfx-v2-persona-service](https://github.com/linuxfoundation/lfx-v2-persona-service) | `lfx-v2-persona-service` | `true` | [lfx-v2-persona-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-persona-service/tree/main/charts/lfx-v2-persona-service) |
+| Subchart | Key | Enabled by default | Description | Chart |
+|----------|-----|--------------------|-------------|-------|
+| [lfx-v2-auth-service](https://github.com/linuxfoundation/lfx-v2-auth-service) | `lfx-v2-auth-service` | `true` | NATS-based authentication and user management service that abstracts identity providers (Auth0 and Authelia) from the rest of the platform. | [lfx-v2-auth-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-auth-service/tree/main/charts/lfx-v2-auth-service) |
+| [lfx-v2-fga-sync](https://github.com/linuxfoundation/lfx-v2-fga-sync) | `lfx-v2-fga-sync` | `true` | Synchronizes authorization data between NATS and OpenFGA, and serves as a caching proxy for bulk access-check requests. | [lfx-v2-fga-sync Helm Chart](https://github.com/linuxfoundation/lfx-v2-fga-sync/tree/main/charts/lfx-v2-fga-sync) |
+| [lfx-v2-access-check](https://github.com/linuxfoundation/lfx-v2-access-check) | `lfx-v2-access-check` | `true` | HTTP service that allows API consumers to perform bulk permission checks across LFX resources. | [lfx-v2-access-check Helm Chart](https://github.com/linuxfoundation/lfx-v2-access-check/tree/main/charts/lfx-v2-access-check) |
+| [lfx-v2-indexer-service](https://github.com/linuxfoundation/lfx-v2-indexer-service) | `lfx-v2-indexer-service` | `true` | Processes resource change events from NATS and keeps OpenSearch in sync, propagating data updates across the platform. | [lfx-v2-indexer-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-indexer-service/tree/main/charts/lfx-v2-indexer-service) |
+| [lfx-v2-query-service](https://github.com/linuxfoundation/lfx-v2-query-service) | `lfx-v2-query-service` | `true` | HTTP service for performing access-controlled queries against LFX resources, including typeahead and full-text search. | [lfx-v2-query-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-query-service/tree/main/charts/lfx-v2-query-service) |
+| [lfx-v2-email-service](https://github.com/linuxfoundation/lfx-v2-email-service) | `lfx-v2-email-service` | `true` | Thin transactional email relay that receives pre-rendered email payloads over NATS and delivers them via Amazon SES. | [lfx-v2-email-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-email-service/tree/main/charts/lfx-v2-email-service) |
+| [lfx-v2-invite-service](https://github.com/linuxfoundation/lfx-v2-invite-service) | `lfx-v2-invite-service` | `true` | Handles invite issuance and tracking — receives invite requests from resource services over NATS, renders the email, and persists records in NATS KV. | [lfx-v2-invite-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-invite-service/tree/main/charts/lfx-v2-invite-service) |
+| [lfx-v1-sync-helper](https://github.com/linuxfoundation/lfx-v1-sync-helper) | `lfx-v1-sync-helper` | `true` | Monitors NATS KV stores for replicated v1 data and synchronizes it into the v2 platform APIs, handling data transformation and conflict resolution. | [lfx-v1-sync-helper Helm Chart](https://github.com/linuxfoundation/lfx-v1-sync-helper/tree/main/charts/lfx-v1-sync-helper) |
+| [lfx-v2-persona-service](https://github.com/linuxfoundation/lfx-v2-persona-service) | `lfx-v2-persona-service` | `true` | Provides a fast, personalized summary of a user's involvement across Linux Foundation projects for UI/UX feature enablement. | [lfx-v2-persona-service Helm Chart](https://github.com/linuxfoundation/lfx-v2-persona-service/tree/main/charts/lfx-v2-persona-service) |
 
 #### LFX resource service subcharts
 
