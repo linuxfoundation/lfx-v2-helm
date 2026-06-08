@@ -1,0 +1,7 @@
+{
+  "ignorePatterns": [
+    {
+      "pattern": "^https://github.com/linuxfoundation/lfx-v2-argocd"
+    }
+  ]
+}

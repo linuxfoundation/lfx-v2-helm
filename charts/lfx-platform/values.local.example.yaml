@@ -69,21 +69,37 @@ heimdall:
         memory: 128Mi
 
 # LFX services
+lfx-v1-sync-helper:
+  replicaCount: 1
 lfx-v2-access-check:
   replicaCount: 1
 lfx-v2-auth-service:
   replicaCount: 1
 lfx-v2-committee-service:
   replicaCount: 1
+lfx-v2-email-service:
+  replicaCount: 1
 lfx-v2-fga-sync:
   replicaCount: 1
+lfx-v2-forwards-service:
+  replicaCount: 1
 lfx-v2-indexer-service:
+  replicaCount: 1
+lfx-v2-invite-service:
   replicaCount: 1
 lfx-v2-mailing-list-service:
   replicaCount: 1
   externalSecretsOperator:
     enabled: false
 lfx-v2-meeting-service:
+  replicaCount: 1
+lfx-v2-member-service:
+  replicaCount: 1
+lfx-v2-newsletter-service:
+  replicaCount: 1
+  externalSecretsOperator:
+    enabled: false
+lfx-v2-persona-service:
   replicaCount: 1
 lfx-v2-project-service:
   replicaCount: 1
