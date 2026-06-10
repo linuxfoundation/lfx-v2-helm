@@ -28,35 +28,10 @@ installation instructions.
 
 ## Components
 
-LFX v2 includes the following infrastructure components:
-
-- **Traefik**: API Gateway and Ingress Controller.
-- **OpenFGA**: Fine-Grained Authorization with Relationship-Based Access
-  Control (ReBAC).
-- **Heimdall**: Access decision service, bridges Traefik to OpenFGA.
-- **NATS**: Messaging layer used by LFX v2 resource APIs to communicate with
-  each other and with platform components; also provides durable key-value storage.
-- **OpenSearch**: Powers platform global search and audit log capabilities.
-
-Building on those, custom platform components provide shared services essential
-to the LFX v2 platform:
-
-- **[indexer](https://github.com/linuxfoundation/lfx-v2-indexer-service)**:
-  Processes messages from resource APIs to keep OpenSearch in sync
-  with data changes, and propagates data events to the rest of the platform.
-- **[fga-sync](https://github.com/linuxfoundation/lfx-v2-fga-sync)**: Processes
-  messages from resource APIs to keep OpenFGA relationships in sync with data
-  changes, and acts as a caching proxy for serving OpenFGA bulk access-check
-  requests in the platform.
-- **[query-svc](https://github.com/linuxfoundation/lfx-v2-query-service)**:
-  HTTP service for LFX API consumers to perform
-  access-controlled queries for LFX resources, including typeahead and
-  full-text search.
-- **[access-check](https://github.com/linuxfoundation/lfx-v2-access-check)**:
-  HTTP service for LFX API consumers to perform bulk access checks for
-  resources.
-
-Key LFX resource APIs are forthcoming, which can be optionally enabled with this chart.
+The platform is composed of infrastructure components (Traefik, OpenFGA,
+Heimdall, NATS, OpenSearch, and others) along with LFX platform services and
+resource services. For the full list with links to each service repository, see
+the [lfx-platform chart README](./charts/lfx-platform/README.md#subcharts).
 
 ## Component diagram
 
@@ -116,15 +91,17 @@ This repository automatically publishes Helm charts to GitHub Container Registry
 
 ### Creating a Release
 
-1. Do not manually bump `charts/lfx-platform/Chart.yaml` `version`; the chart
-   build job dynamically replaces it with the release version. Update service
-   subchart version constraints in `Chart.yaml` and regenerate `Chart.lock`
-   only when dependency pins change.
+1. Merge pull requests that update chart manifests or configuration. Do not
+   manually bump the `version` field in `charts/lfx-platform/Chart.yaml` — the
+   release workflow sets the published chart version from the Git tag. Update
+   service subchart version constraints in `Chart.yaml` and regenerate
+   `Chart.lock` only when dependency pins change.
 2. After the pull request is merged, create a GitHub release and choose the
    option for GitHub to also tag the repository. The tag must match the `v*`
-   pattern (for example, `v0.0.2`); the release workflow only runs for pushed
-   tags matching `v*` (see `.github/workflows/release.yaml`). The release tag
-   is the chart release version used by the packaging workflow.
+   pattern (e.g., `v0.3.36`); the release workflow only runs for pushed tags
+   matching `v*` (see `.github/workflows/release.yaml`). The tag determines
+   the chart version published to GHCR (e.g. tag `v0.3.36` publishes chart
+   version `0.3.36`).
 3. The GitHub Actions workflow will automatically:
    - Package the Helm chart
    - Publish it to `ghcr.io/linuxfoundation/lfx-v2-helm/chart`
@@ -140,11 +117,14 @@ To contribute to this repository:
    are signed with the [Developer Certificate of Origin
    (DCO)](https://developercertificate.org/).
    You can use the `git commit -s` command to sign your commits.
-3. If you changed a service dependency, ensure `charts/lfx-platform/Chart.yaml`
-   and `charts/lfx-platform/Chart.lock` agree after running
-   `helm dependency update charts/lfx-platform`.
+3. Do not manually bump the `version` field in `charts/lfx-platform/Chart.yaml`
+   — the release workflow sets the published chart version from the Git tag
+   (see [Releases](#releases)). If you changed a service dependency, ensure
+   `charts/lfx-platform/Chart.yaml` and `charts/lfx-platform/Chart.lock` agree
+   after running `helm dependency update charts/lfx-platform`.
 4. If you are adding a new platform component, ensure it is documented in the
-   [component diagram](#component-diagram) and the README.
+   [component diagram](#component-diagram) and the
+   [lfx-platform chart README](./charts/lfx-platform/README.md#adding-a-new-subchart).
 5. Run MegaLinter locally at the root of the working directory to check for
    errors or linting problems:
    ```bash
