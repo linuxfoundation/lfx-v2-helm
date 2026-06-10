@@ -27,6 +27,7 @@ Subcharts in `charts/lfx-platform/`:
 ## Bring-up flow
 
 ```bash
+kubectl create namespace lfx
 helm dependency update charts/lfx-platform
 cp charts/lfx-platform/values.local.example.yaml charts/lfx-platform/values.local.yaml
 # fill in local secret values per the chart README and the team 1Password vault

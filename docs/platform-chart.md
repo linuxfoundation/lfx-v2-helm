@@ -37,6 +37,11 @@ includes:
   - `lfx-v2-survey-service`
   - `lfx-v2-email-service`
   - `lfx-v2-invite-service`
+  - `lfx-v1-sync-helper`
+  - `lfx-v2-forwards-service`
+  - `lfx-v2-member-service`
+  - `lfx-v2-newsletter-service`
+  - `lfx-v2-persona-service`
 
 Service subchart versions in `Chart.yaml` are platform-side **defaults**.
 Deployed dev/staging/prod chart pins are owned by `lfx-v2-argocd`'s

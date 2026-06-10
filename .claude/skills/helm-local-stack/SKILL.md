@@ -27,6 +27,7 @@ in `lfx-v2-argocd`.
 1. **Bring up locally:**
 
    ```bash
+   kubectl create namespace lfx
    helm dependency update charts/lfx-platform
    cp charts/lfx-platform/values.local.example.yaml charts/lfx-platform/values.local.yaml
    # fill in local secrets per chart README + 1Password "LFX V2" vault
