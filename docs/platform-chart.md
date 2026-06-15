@@ -138,8 +138,8 @@ from `~0.8.0` to `~0.9.0`.
 
 ## Validation commands
 
-Use the repo's existing Makefile / workflow docs as the source of truth.
-Common quick checks:
+Use the repo's existing workflow docs (`.github/workflows/`) and this
+`docs/` guidance as the source of truth. Common quick checks:
 
 ```bash
 helm dependency update charts/lfx-platform

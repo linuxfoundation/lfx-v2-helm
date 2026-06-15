@@ -94,8 +94,8 @@ This repository automatically publishes Helm charts to GitHub Container Registry
 1. Merge pull requests that update chart manifests or configuration. Do not
    manually bump the `version` field in `charts/lfx-platform/Chart.yaml` — the
    release workflow sets the published chart version from the Git tag. Update
-   service subchart version constraints in `Chart.yaml` and regenerate
-   `Chart.lock` only when dependency pins change.
+   service subchart version constraints in `charts/lfx-platform/Chart.yaml` and
+   regenerate `charts/lfx-platform/Chart.lock` only when dependency pins change.
 2. After the pull request is merged, create a GitHub release and choose the
    option for GitHub to also tag the repository. The tag must match the `v*`
    pattern (e.g., `v0.3.36`); the release workflow only runs for pushed tags
