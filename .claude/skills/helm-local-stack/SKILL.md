@@ -4,6 +4,9 @@ description: Use when the user wants to bring up the local LFX platform stack, e
 license: MIT
 ---
 
+<!-- Copyright The Linux Foundation and each contributor to LFX. -->
+<!-- SPDX-License-Identifier: MIT -->
+
 # helm-local-stack
 
 Guided workflow for the shared LFX V2 platform Helm chart and its local
