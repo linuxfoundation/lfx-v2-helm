@@ -301,7 +301,7 @@ itself (nothing includes viewer).
 If no relation in the type has `[user:*]` in its define expression, omit the
 Everyone column entirely. The Everyone column is ALWAYS the rightmost.
 
-## Step 2e — Collect team-suffix annotations
+### 2e — Collect team-suffix annotations
 
 Before writing any output, scan the **existing** `PERMISSIONS.md` for
 `#### Permission Inheritance` bullets that contain one or more "… Team"
