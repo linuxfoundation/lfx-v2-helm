@@ -26,9 +26,9 @@ spec:
   @fgadoc:hide and @fgadoc:alias tags are managed manually.
 */}}
     - version:
-        major: 13
+        major: 14
         minor: 0
-        patch: 2
+        patch: 0
       authorizationModel: |
         model
           schema 1.1
@@ -105,6 +105,13 @@ spec:
             define committee_for_member_email_access: [committee]
             define roster_viewer: [user:*] or auditor or member from committee_for_member_roster_access
             define email_viewer: auditor or member from committee_for_member_email_access
+
+        type committee_invite
+          relations
+            define committee: [committee]
+            # The invitee relation identifies the user who was invited to the committee.
+            define invitee: [user]
+            define viewer: invitee or auditor from committee
 
         # @fgadoc:alias Groups.io Service
         type groupsio_service
