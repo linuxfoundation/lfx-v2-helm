@@ -310,14 +310,11 @@ line (e.g. "global LF Staff Team", "global Product Support Team").
 
 For each such bullet, record the **relation name** (the bold or bold-italic
 text at the start of the bullet) and the **full list of "… Team" phrases**
-found in that bullet. Key these by `(<section-heading>, <relation-name>)`,
-where `<section-heading>` is the nearest preceding `###` heading.
-
-When generating a bullet for that same `(<section-heading>, <relation-name>)`
-pair in Step 3/4, append the preserved team phrases to the generated text,
-separated by a comma. If the relation has no model-derived sources at all
-(i.e. the model would normally omit the bullet entirely), still emit the
-bullet with only the team phrases as its content.
+found in that bullet. Key these by `(<section-heading>, <normalized-relation-name>)`,
+where `<section-heading>` is the nearest preceding `###` heading and
+`<normalized-relation-name>` is the relation display name with all Markdown
+emphasis characters (`*`, `_`) stripped and then lowercased (e.g. `***Owner***`
+→ `owner`, `**Writer**` → `writer`).
 
 This ensures hand-curated global team assignments survive regeneration
 without requiring any special markup in the file.
@@ -369,6 +366,14 @@ only (e.g. "inherited from Project Writer", "inherited from parent Project").
 
 When multiple direct cross-type sources exist for one relation, list them on
 a single bullet separated by commas.
+
+**Team-phrase lookup:** For each bullet emitted, look up
+`(<section-heading>, <normalized-relation-name>)` in the map collected in
+Step 2e, where `<normalized-relation-name>` is the relation display name with
+`*` and `_` stripped and lowercased. If a match is found, append the preserved
+"… Team" phrases to the bullet text, separated by a comma. If the relation has
+no model-derived sources at all (i.e. the bullet would otherwise be omitted),
+still emit the bullet with only the team phrases as its content.
 
 ## Step 4 — Write PERMISSIONS.md
 
