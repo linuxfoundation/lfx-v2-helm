@@ -332,6 +332,63 @@ heimdall:
           expressions:
             - expression: |
                 Payload.allowed == true
+      - id: openfga_or_check
+        type: remote
+        config:
+          endpoint: "http://lfx-platform-openfga:8080/stores/${OPENFGA_STORE_ID}/batch-check"
+          values:
+            model_id: ${OPENFGA_AUTH_MODEL_ID}
+          payload: |
+            {
+              "authorization_model_id": "{{ .Values.model_id }}",
+              "checks": [
+                {
+                  "tuple_key": {
+                    "user": {{
+                      list
+                        "user:"
+                        (
+                          eq .Subject.ID "_anonymous"
+                          | ternary
+                            "_anonymous"
+                            (or
+                              .Subject.Attributes.username
+                              (list .Subject.Attributes.client_id "@clients" | join ""))
+                        )
+                      | join "" | quote
+                    }},
+                    "relation": "{{ .Values.relation }}",
+                    "object": "{{ .Values.object }}"
+                  },
+                  "correlation_id": "primary_check"
+                }
+                {{- if .Values.or_object }},
+                {
+                  "tuple_key": {
+                    "user": {{
+                      list
+                        "user:"
+                        (
+                          eq .Subject.ID "_anonymous"
+                          | ternary
+                            "_anonymous"
+                            (or
+                              .Subject.Attributes.username
+                              (list .Subject.Attributes.client_id "@clients" | join ""))
+                        )
+                      | join "" | quote
+                    }},
+                    "relation": "{{ or .Values.or_relation .Values.relation }}",
+                    "object": "{{ .Values.or_object }}"
+                  },
+                  "correlation_id": "secondary_check"
+                }
+                {{- end }}
+              ]
+            }
+          expressions:
+            - expression: |
+                Payload.result.primary_check.allowed || ("secondary_check" in Payload.result && Payload.result.secondary_check.allowed)
     finalizers:
       - id: create_jwt
         type: jwt
