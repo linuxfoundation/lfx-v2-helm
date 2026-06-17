@@ -48,10 +48,6 @@ spec:
         type project
           relations
             define parent: [project]
-            # Hiding `owner` relation AND "delete a project" JTBD because we
-            # are not yet documenting "global group/team permissions" in the
-            # output.
-            # @fgadoc:hide
             # @fgadoc:jtbd Delete a project
             define owner: [team#member] or owner from parent
             # @fgadoc:jtbd Create & update a project

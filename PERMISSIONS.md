@@ -24,28 +24,24 @@ role assignment.
 
 ### Project
 
-| | Writer | Auditor | Meeting Coordinator | Executive Director | *Everyone* |
-|---|---|---|---|---|---|
-| View a project | ✅ | ✅ | ✅ | ✅ | 🟡 |
-| View project meeting count | ✅ | ✅ | ✅ | ✅ | 🟡 |
-| View project settings | ✅ | ✅ | | ✅ | |
-| Update project settings | ✅ | | | | |
-| Create & update a project | ✅ | | | | |
-| View project membership tiers | ✅ | ✅ | | ✅ | |
-| View project memberships & member companies | ✅ | ✅ | | ✅ | |
-| View project membership key contacts | ✅ | ✅ | | ✅ | |
-| Manage project membership key contacts | ✅ | | | | |
-| Search B2B organizations | ✅ | ✅ | | ✅ | |
-| View B2B organization memberships | ✅ | ✅ | | ✅ | |
-| Create a vote | ✅ | | | | |
-| Create project committees & mailing lists | ✅ | | | | |
-| Create project meetings | ✅ | | ✅ | | |
-| Create past meetings | ✅ | | ✅ | | |
+| | *Owner* | Writer | Auditor | Meeting Coordinator | Executive Director | *Everyone* |
+|---|---|---|---|---|---|---|
+| View project details & meeting count | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View project links & folders | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View project documents | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View project settings | ✅ | ✅ | ✅ | | ✅ | |
+| Create & update a project | ✅ | ✅ | | | | |
+| Manage project links, folders & documents | ✅ | ✅ | | | | |
+| Delete a project | ✅ | | | | | |
+| Create project committees & Groups.io services | ✅ | ✅ | | | | |
+| Create a vote poll | ✅ | ✅ | | | | |
+| Create meetings & past meetings | ✅ | ✅ | | ✅ | | |
 
 #### Permission Inheritance
 
+- ***Owner***: inherited from parent Project, global Product Support Team, global Formation Team
 - **Writer**: inherited from parent Project
-- **Auditor**: inherited from parent Project
+- **Auditor**: inherited from parent Project, global LF Staff Team, global LF Contractor Team
 
 ---
 
@@ -53,19 +49,15 @@ role assignment.
 
 | | Writer | Auditor | Member | *Everyone* |
 |---|---|---|---|---|
-| View committee details | ✅ | ✅ | ✅ | 🟡 |
+| View committee details & weekly brief | ✅ | ✅ | ✅ | 🟡 |
+| View committee members, invites & applications | ✅ | ✅ | ✅ | 🟡 |
+| View committee links, folders & documents | ✅ | ✅ | ✅ | 🟡 |
 | View committee settings | ✅ | ✅ | | |
-| Update committee settings | ✅ | | | |
-| View committee members | ✅ | ✅ | ✅ | 🟡 |
-| Manage committee members, invites & applications | ✅ | | | |
-| View committee invites | ✅ | ✅ | ✅ | 🟡 |
-| View committee applications | ✅ | ✅ | ✅ | 🟡 |
-| View committee links | ✅ | ✅ | ✅ | 🟡 |
-| View committee link folders | ✅ | ✅ | ✅ | 🟡 |
-| Manage committee links, folders & documents | ✅ | | | |
-| Download committee documents | ✅ | ✅ | ✅ | 🟡 |
-| Schedule a survey for a committee | ✅ | | | |
 | Update & delete a committee | ✅ | | | |
+| Manage committee members, invites & applications | ✅ | | | |
+| Manage committee links, folders & documents | ✅ | | | |
+| Generate & edit the committee weekly brief | ✅ | | | |
+| Create a committee survey | ✅ | | | |
 
 #### Permission Inheritance
 
@@ -81,7 +73,7 @@ role assignment.
 | View a Groups.io service | ✅ | ✅ | 🟡 |
 | View Groups.io service settings | ✅ | ✅ | |
 | Update & delete a Groups.io service | ✅ | | |
-| Create project mailing lists | ✅ | | |
+| Create a Groups.io mailing list | ✅ | | |
 
 #### Permission Inheritance
 
@@ -94,12 +86,11 @@ role assignment.
 
 | | Writer | Auditor | Subscriber | *Everyone* |
 |---|---|---|---|---|
-| View a mailing list | ✅ | ✅ | ✅ | 🟡 |
-| View mailing list settings | ✅ | ✅ | | |
-| View & download mailing list artifacts | ✅ | ✅ | ✅ | 🟡 |
-| View mailing list members | ✅ | ✅ | ✅ | 🟡 |
-| Manage mailing list members | ✅ | | | |
-| Update & delete a mailing list | ✅ | | | |
+| View a Groups.io mailing list & members | ✅ | ✅ | ✅ | 🟡 |
+| View & download Groups.io artifacts | ✅ | ✅ | ✅ | 🟡 |
+| View Groups.io mailing list settings | ✅ | ✅ | | |
+| Manage Groups.io mailing list members | ✅ | | | |
+| Update & delete a Groups.io mailing list | ✅ | | | |
 
 #### Permission Inheritance
 
@@ -112,16 +103,13 @@ role assignment.
 
 | | *Organizer* | *Auditor* | Host | Participant | *Everyone* |
 |---|---|---|---|---|---|
-| View a meeting | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View a meeting & join link | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| Submit a meeting RSVP & download attachments | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View meeting registrants & RSVPs | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | View a meeting registrant | ✅ | ✅ | | | |
-| Submit a meeting response | ✅ | ✅ | ✅ | ✅ | 🟡 |
-| Get meeting join link & ICS file | ✅ | ✅ | ✅ | ✅ | 🟡 |
-| View meeting registrants | ✅ | ✅ | ✅ | ✅ | 🟡 |
-| View meeting RSVPs | ✅ | ✅ | ✅ | ✅ | 🟡 |
-| View meeting attachments | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| Manage meeting registrants & invitations | ✅ | | | | |
 | Manage meeting attachments | ✅ | | | | |
-| Manage meeting registrants & occurrences | ✅ | | | | |
-| Update & delete a meeting | ✅ | | | | |
+| Update & delete meetings & occurrences | ✅ | | | | |
 
 #### Permission Inheritance
 
@@ -134,15 +122,13 @@ role assignment.
 
 | | *Organizer* | *Auditor* | Host | Invitee | Attendee | *Everyone* |
 |---|---|---|---|---|---|---|
-| View a past meeting | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View a past meeting & attachments | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | View past meeting participants | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
-| View past meeting attachments | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | View past meeting recordings | ✅ | ✅ | 🟡 | 🟡 | 🟡 | 🟡 |
 | View past meeting transcripts | ✅ | ✅ | 🟡 | 🟡 | 🟡 | 🟡 |
-| View a past meeting summary | ✅ | ✅ | 🟡 | 🟡 | 🟡 | 🟡 |
-| Update a past meeting summary | ✅ | | | | | |
+| View past meeting AI summaries | ✅ | ✅ | 🟡 | 🟡 | 🟡 | 🟡 |
 | Manage past meeting participants & attachments | ✅ | | | | | |
-| Update & delete a past meeting | ✅ | | | | | |
+| Update & delete past meetings & summaries | ✅ | | | | | |
 
 #### Permission Inheritance
 
@@ -155,12 +141,11 @@ role assignment.
 
 | | *Writer* | *Auditor* | Participant | *Everyone* |
 |---|---|---|---|---|
-| View a vote & its status | ✅ | ✅ | ✅ | 🟡 |
-| View vote responses | ✅ | ✅ | ✅ | 🟡 |
-| View aggregated voting results | ✅ | ✅ | 🟡 | 🟡 |
+| View vote polls & vote responses | ✅ | ✅ | ✅ | 🟡 |
+| View vote results | ✅ | ✅ | 🟡 | 🟡 |
 | Cast a vote response | | | ✅ | |
-| Extend, enable & resend a vote | ✅ | | | |
-| Update & delete a vote | ✅ | | | |
+| Extend a vote & resend notifications | ✅ | | | |
+| Update, enable & delete a vote | ✅ | | | |
 
 #### Permission Inheritance
 
@@ -174,7 +159,7 @@ role assignment.
 | | *Auditor* | Voter |
 |---|---|---|
 | View a vote response | ✅ | ✅ |
-| Update your vote response | | ✅ |
+| Submit & update a vote response | | ✅ |
 
 #### Permission Inheritance
 
@@ -186,13 +171,41 @@ role assignment.
 
 | | *Writer* | *Auditor* | Participant | *Everyone* |
 |---|---|---|---|---|
-| View a survey | ✅ | ✅ | ✅ | 🟡 |
-| View survey responses | ✅ | ✅ | ✅ | 🟡 |
-| Preview survey send recipients | ✅ | ✅ | | |
-| Manage survey recipients & responses | ✅ | | | |
+| View survey details & responses | ✅ | ✅ | ✅ | 🟡 |
+| Preview survey resend impact | ✅ | ✅ | | |
+| Resend survey emails & manage recipients | ✅ | | | |
 | Update & delete a survey | ✅ | | | |
 
 #### Permission Inheritance
 
 - ***Writer***: inherited from Project Writer, Committee Writer
 - ***Auditor***: inherited from Project Auditor, Committee Auditor
+
+---
+
+### B2B Organization
+
+| | Owner | Writer | Auditor |
+|---|---|---|---|
+| View org details, settings & committee seats | ✅ | ✅ | ✅ |
+| View org workspaces & workspace projects | ✅ | ✅ | ✅ |
+| Update org details & access settings | ✅ | ✅ | |
+| Manage org workspace membership & projects | ✅ | ✅ | |
+
+#### Permission Inheritance
+
+- **Auditor**: inherited from parent B2B Organization, child B2B Organization, Project Membership Key Contact
+
+---
+
+### Project Membership
+
+| | *Writer* | *Auditor* | Key Contact |
+|---|---|---|---|
+| View project membership & key contacts | | ✅ | |
+| Create, update & delete key contacts | ✅ | | |
+
+#### Permission Inheritance
+
+- ***Writer***: inherited from B2B Organization Writer
+- ***Auditor***: inherited from B2B Organization Auditor, Project Auditor

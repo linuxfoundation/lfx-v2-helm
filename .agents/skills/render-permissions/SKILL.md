@@ -301,6 +301,27 @@ itself (nothing includes viewer).
 If no relation in the type has `[user:*]` in its define expression, omit the
 Everyone column entirely. The Everyone column is ALWAYS the rightmost.
 
+## Step 2e — Collect team-suffix annotations
+
+Before writing any output, scan the **existing** `PERMISSIONS.md` for
+`#### Permission Inheritance` bullets that contain one or more "… Team"
+references — i.e. any phrase matching `\b\w[\w\s]*Team\b` within a bullet
+line (e.g. "global LF Staff Team", "global Product Support Team").
+
+For each such bullet, record the **relation name** (the bold or bold-italic
+text at the start of the bullet) and the **full list of "… Team" phrases**
+found in that bullet. Key these by `(<section-heading>, <relation-name>)`,
+where `<section-heading>` is the nearest preceding `###` heading.
+
+When generating a bullet for that same `(<section-heading>, <relation-name>)`
+pair in Step 3/4, append the preserved team phrases to the generated text,
+separated by a comma. If the relation has no model-derived sources at all
+(i.e. the model would normally omit the bullet entirely), still emit the
+bullet with only the team phrases as its content.
+
+This ensures hand-curated global team assignments survive regeneration
+without requiring any special markup in the file.
+
 ## Step 3 — Build Permission Inheritance sections
 
 For each **visible** type, for each **direct-grant relation** (has `[user]`,
@@ -460,5 +481,6 @@ After writing, re-read `PERMISSIONS.md` and confirm:
 - The H1 `# LFX Self Service Platform Permissions` is present.
 - The `## Object types` heading is used (not `## Objects supporting role assignment` or `## Entities`).
 - The intro block is unchanged (if it existed before).
+- Every "… Team" phrase that appeared in a Permission Inheritance bullet in the previous file is present in the corresponding bullet in the output (same section, same relation).
 
 Report: types rendered, total columns (excluding Everyone), total JTBD rows.
