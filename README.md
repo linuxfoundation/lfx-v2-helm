@@ -2,6 +2,13 @@
 
 This repository contains Helm charts for deploying the LFX v2 platform on Kubernetes.
 
+> Agents working in this repo should start with [`CLAUDE.md`](CLAUDE.md).
+> Platform chart guidance lives in [`docs/platform-chart.md`](docs/platform-chart.md),
+> local stack guidance lives in
+> [`docs/local-platform-getting-started.md`](docs/local-platform-getting-started.md),
+> and service chart conventions live in
+> [`docs/service-chart-patterns.md`](docs/service-chart-patterns.md).
+
 ## Repository structure
 
 ```text
@@ -86,12 +93,15 @@ This repository automatically publishes Helm charts to GitHub Container Registry
 
 1. Merge pull requests that update chart manifests or configuration. Do not
    manually bump the `version` field in `charts/lfx-platform/Chart.yaml` — the
-   release workflow sets the published chart version from the Git tag.
+   release workflow sets the published chart version from the Git tag. Update
+   service subchart version constraints in `charts/lfx-platform/Chart.yaml` and
+   regenerate `charts/lfx-platform/Chart.lock` only when dependency pins change.
 2. After the pull request is merged, create a GitHub release and choose the
-   option for GitHub to also tag the repository. The tag can be anything, but
-   the current convention is for the format `v{version}` (e.g., `v0.3.36`). The
-   tag determines the chart version published to GHCR (e.g. tag `v0.3.36`
-   publishes chart version `0.3.36`).
+   option for GitHub to also tag the repository. The tag must match the `v*`
+   pattern (e.g., `v0.3.36`); the release workflow only runs for pushed tags
+   matching `v*` (see `.github/workflows/release.yaml`). The tag determines
+   the chart version published to GHCR (e.g. tag `v0.3.36` publishes chart
+   version `0.3.36`).
 3. The GitHub Actions workflow will automatically:
    - Package the Helm chart
    - Publish it to `ghcr.io/linuxfoundation/lfx-v2-helm/chart`
@@ -109,7 +119,9 @@ To contribute to this repository:
    You can use the `git commit -s` command to sign your commits.
 3. Do not manually bump the `version` field in `charts/lfx-platform/Chart.yaml`
    — the release workflow sets the published chart version from the Git tag
-   (see [Releases](#releases)).
+   (see [Releases](#releases)). If you changed a service dependency, ensure
+   `charts/lfx-platform/Chart.yaml` and `charts/lfx-platform/Chart.lock` agree
+   after running `helm dependency update charts/lfx-platform`.
 4. If you are adding a new platform component, ensure it is documented in the
    [component diagram](#component-diagram) and the
    [lfx-platform chart README](./charts/lfx-platform/README.md#adding-a-new-subchart).

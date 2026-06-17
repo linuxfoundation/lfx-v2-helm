@@ -81,32 +81,37 @@ kubectl run --rm -it fga-cli --namespace lfx --image=openfga/cli --env="FGA_STOR
 
 To update the authorization model, modify the version and model definition in `charts/lfx-platform/templates/openfga/model.yaml`:
 
-1. **Increment the version** in the `instances` section:
+1. **Increment the version** in the `instances` section. The current version
+   lives in `model.yaml`; bump the appropriate component for the change:
    ```yaml
    instances:
      - version:
-         major: 1
-         minor: 1
-         patch: 3  # Bump this version number
-   authorizationModel: |
-     model
-       schema 1.1
+         major: 13
+         minor: 0
+         patch: 3  # Example patch bump from 13.0.2 (current version in model.yaml)
+       authorizationModel: |
+         model
+           schema 1.1
 
-     type user
+         type user
 
-     type team
-       relations
-         define member: [user]
+         type team
+           relations
+             define member: [user]
 
-     type project
-       relations
-         define parent: [project]
-         define owner: [team#member] or owner from parent
-         define writer: owner or writer from parent
-         define auditor: [user, team#member] or writer or auditor from parent
-         define viewer: [user:*] or auditor or auditor from parent
-         # Add new relations here as needed
+         type project
+           relations
+             define parent: [project]
+             define owner: [team#member] or owner from parent
+             define writer: [user] or owner or writer from parent
+             define auditor: [user, team#member] or executive_director or writer or auditor from parent
+             define viewer: [user:*] or auditor or meeting_coordinator
+             # Add new relations here as needed
    ```
+
+   The version and relations above are illustrative. The authoritative,
+   current model definition lives in
+   `charts/lfx-platform/templates/openfga/model.yaml`.
 
 2. **Redeploy the chart** to apply the changes:
    ```bash
@@ -196,8 +201,12 @@ kubectl run --rm -it fga-cli --namespace lfx --image=openfga/cli --env="FGA_STOR
 Test authorization decisions:
 
 ```bash
-# Check if a user can read a project
-kubectl run --rm -it fga-cli --namespace lfx --image=openfga/cli --env="FGA_STORE_ID=$STORE_ID" --env="FGA_API_URL=http://lfx-platform-openfga:8080" --restart=Never -- check --tuple "user:john@example.com:reader:project:project1"
+# Check if a user can write to a project (a tuple-dependent relation).
+# Note: `project#viewer` is public in the model (`define viewer: [user:*] ...`),
+# so a `viewer` check always returns allowed even with no tuples. Use a
+# restrictive relation like `writer` or `auditor` for a meaningful check that
+# actually validates the tuples you have written.
+kubectl run --rm -it fga-cli --namespace lfx --image=openfga/cli --env="FGA_STORE_ID=$STORE_ID" --env="FGA_API_URL=http://lfx-platform-openfga:8080" --restart=Never -- check --tuple "user:john@example.com:writer:project:project1"
 ```
 
 ## Advanced Topics
