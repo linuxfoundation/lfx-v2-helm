@@ -66,6 +66,18 @@ role assignment.
 
 ---
 
+### Committee Invite
+
+| | *Viewer* | Invitee |
+|---|---|---|
+| View a committee invite | ✅ | ✅ |
+
+#### Permission Inheritance
+
+- ***Viewer***: inherited from Committee Auditor
+
+---
+
 ### Groups.io Service
 
 | | Writer | Auditor | *Everyone* |
@@ -190,7 +202,7 @@ role assignment.
 | View org details, settings & committee seats | ✅ | ✅ | ✅ |
 | View org workspaces & workspace projects | ✅ | ✅ | ✅ |
 | Update org details & access settings | ✅ | ✅ | |
-| Manage org workspace membership & projects | ✅ | ✅ | |
+| Manage membership committee seat assignments | ✅ | ✅ | |
 
 #### Permission Inheritance
 

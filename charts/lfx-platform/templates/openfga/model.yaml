@@ -98,6 +98,7 @@ spec:
             define committee: [committee]
             # The invitee relation identifies the user who was invited to the committee.
             define invitee: [user]
+            # @fgadoc:jtbd View a committee invite
             define viewer: invitee or auditor from committee
 
         # @fgadoc:alias Groups.io Service
@@ -351,7 +352,7 @@ spec:
             define global_org_admin: [team#member]
             define owner: [user]
             # @fgadoc:jtbd Update org details & access settings
-            # @fgadoc:jtbd Manage org workspace membership & projects
+            # @fgadoc:jtbd Manage membership committee seat assignments
             define writer: [user] or owner or global_org_admin
             # auditor cascades transitively up and down the hierarchy via parent/child.
             # writer does NOT cascade — edit scope stays on the directly-assigned org only.
