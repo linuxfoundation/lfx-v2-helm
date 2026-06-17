@@ -111,7 +111,6 @@ spec:
             define committee: [committee]
             # The invitee relation identifies the user who was invited to the committee.
             define invitee: [user]
-            # @fgadoc:jtbd View committee invites
             define viewer: invitee or auditor from committee
 
         # @fgadoc:alias Groups.io Service
