@@ -67,13 +67,15 @@ spec:
             define executive_director: [user]
             # marketing_ops identifies the global LF Marketing Ops team (platform admin UI).
             # Tuples are written on ROOT as team#member, matching the owner relation pattern.
-            # marketing_ops from parent cascades to foundation projects via the project parent
-            # chain so RuleSets can check marketing_* relations on the foundation project
-            # object (same as executive_director). Does not cascade to child object types
-            # (committees, meetings, mailing lists, etc.).
+            # marketing_ops from parent cascades down the entire project parent chain
+            # (ROOT → foundations → sub-projects), same as owner from parent, so RuleSets
+            # can check marketing_* relations on any project in the hierarchy.
+            # Does not cascade to child object types (committees, meetings, mailing lists, etc.).
             define marketing_ops: [team#member] or marketing_ops from parent
-            # Marketing capability relations (Marketing Impact, Campaigns). Kept separate to allow
-            # future permission divergence (e.g. campaign_manager restricted to executive_director).
+            # Marketing capability relations (Marketing Impact, Campaigns). Each evaluates
+            # marketing_ops on the same project object; marketing_ops cascades from ROOT via
+            # the parent chain above. Kept separate to allow future permission divergence
+            # (e.g. campaign_manager restricted to executive_director).
             define marketing_dashboard_viewer: executive_director or marketing_ops
             define campaign_viewer: executive_director or marketing_ops
             define campaign_manager: executive_director or marketing_ops
