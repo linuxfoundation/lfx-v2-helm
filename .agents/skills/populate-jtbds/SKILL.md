@@ -129,24 +129,45 @@ the object type.
 
 ## Step 2b — Discover Query Service authorization from indexer contracts
 
-In parallel with or immediately after Step 2, fetch all indexer contract
-documents from GitHub to discover which `object#relation` pairs are enforced
+In parallel with or immediately after Step 2, fetch per-service indexer
+contracts from GitHub to discover which `object#relation` pairs are enforced
 by the Query Service rather than Heimdall.
 
-**Search for all contracts:**
+> **Important:** Do NOT fetch `lfx-v2-indexer-service/docs/indexer-contract.md`.
+> That file describes the generic indexer envelope API, not per-resource access
+> control configuration. It contains no `object_type` sections and will yield
+> zero results.
 
-```text
-filename:indexer-contract.md org:linuxfoundation
+**Discover which services publish contracts:**
+
+Fetch `docs/indexed-data-types.md` from `lfx-v2-query-service`. It lists every
+active resource type and links to the owning service's `docs/indexer-contract.md`.
+Use it to build the list of service repos to fetch from.
+
+```bash
+gh api repos/linuxfoundation/lfx-v2-query-service/contents/docs/indexed-data-types.md \
+  --jq '.content' | python3 -c "import sys,base64; print(base64.b64decode(sys.stdin.read()).decode())"
 ```
 
-Fetch every result's file contents via the GitHub API in a single parallel
-batch (use the `repo` and `path` from each search result).
+**Fetch all per-service contracts in parallel:**
 
-**Parse each contract** to extract, for every resource type section:
+For each owning service identified above (e.g. `lfx-v2-meeting-service`,
+`lfx-v2-committee-service`, `lfx-v2-project-service`, etc.), fetch
+`docs/indexer-contract.md` via the GitHub API in a single parallel batch:
 
-- `object_type` — from the `**Object type:** \`...\`` line
-- `access_check_object` — from the `Access Control (IndexingConfig)` table row
-- `access_check_relation` — from the same table
+```bash
+gh api repos/linuxfoundation/<service-repo>/contents/docs/indexer-contract.md \
+  --jq '.content' | python3 -c "import sys,base64; print(base64.b64decode(sys.stdin.read()).decode())"
+```
+
+**Parse each contract** to extract per-resource-type access control. Each
+resource type is a `## <Human Name>` top-level section (e.g. `## V1 Past Meeting
+Recording`). Derive `object_type` by lowercasing the heading and replacing
+spaces with underscores (`v1_past_meeting_recording`). Within each section,
+find the `Access Control (IndexingConfig)` table and read:
+
+- `access_check_object` — e.g. `v1_past_meeting:{meeting_and_occurrence_id}`
+- `access_check_relation` — e.g. `viewer`
 
 Strip everything after the first `:` from `access_check_object` to get the
 **delegate type** (e.g., `v1_past_meeting:{meeting_and_occurrence_id}` →

@@ -301,6 +301,24 @@ itself (nothing includes viewer).
 If no relation in the type has `[user:*]` in its define expression, omit the
 Everyone column entirely. The Everyone column is ALWAYS the rightmost.
 
+### 2e — Collect team-suffix annotations
+
+Before writing any output, scan the **existing** `PERMISSIONS.md` for
+`#### Permission Inheritance` bullets that contain one or more "… Team"
+references — i.e. any phrase matching `\b\w[\w\s]*Team\b` within a bullet
+line (e.g. "global LF Staff Team", "global Product Support Team").
+
+For each such bullet, record the **relation name** (the bold or bold-italic
+text at the start of the bullet) and the **full list of "… Team" phrases**
+found in that bullet. Key these by `(<section-heading>, <normalized-relation-name>)`,
+where `<section-heading>` is the nearest preceding `###` heading and
+`<normalized-relation-name>` is the relation display name with all Markdown
+emphasis characters (`*`, `_`) stripped and then lowercased (e.g. `***Owner***`
+→ `owner`, `**Writer**` → `writer`).
+
+This ensures hand-curated global team assignments survive regeneration
+without requiring any special markup in the file.
+
 ## Step 3 — Build Permission Inheritance sections
 
 For each **visible** type, for each **direct-grant relation** (has `[user]`,
@@ -348,6 +366,14 @@ only (e.g. "inherited from Project Writer", "inherited from parent Project").
 
 When multiple direct cross-type sources exist for one relation, list them on
 a single bullet separated by commas.
+
+**Team-phrase lookup:** For each bullet emitted, look up
+`(<section-heading>, <normalized-relation-name>)` in the map collected in
+Step 2e, where `<normalized-relation-name>` is the relation display name with
+`*` and `_` stripped and lowercased. If a match is found, append the preserved
+"… Team" phrases to the bullet text, separated by a comma. If the relation has
+no model-derived sources at all (i.e. the bullet would otherwise be omitted),
+still emit the bullet with only the team phrases as its content.
 
 ## Step 4 — Write PERMISSIONS.md
 
@@ -460,5 +486,6 @@ After writing, re-read `PERMISSIONS.md` and confirm:
 - The H1 `# LFX Self Service Platform Permissions` is present.
 - The `## Object types` heading is used (not `## Objects supporting role assignment` or `## Entities`).
 - The intro block is unchanged (if it existed before).
+- Every "… Team" phrase that appeared in a Permission Inheritance bullet in the previous file is present in the corresponding bullet in the output (same section, same relation).
 
 Report: types rendered, total columns (excluding Everyone), total JTBD rows.
