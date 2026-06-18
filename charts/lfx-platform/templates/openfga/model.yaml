@@ -28,7 +28,7 @@ spec:
     - version:
         major: 14
         minor: 0
-        patch: 0
+        patch: 1
       authorizationModel: |
         model
           schema 1.1
@@ -383,6 +383,6 @@ spec:
             # @fgadoc:jtbd Create, update & delete key contacts
             define writer: writer from b2b_org
             # @fgadoc:jtbd View project membership & key contacts
-            define auditor: auditor from b2b_org or auditor from project
+            define auditor: writer or auditor from b2b_org or auditor from project
             define key_contact: [user]
 {{- end }}

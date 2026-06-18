@@ -214,7 +214,7 @@ role assignment.
 
 | | *Writer* | *Auditor* | Key Contact |
 |---|---|---|---|
-| View project membership & key contacts | | ✅ | |
+| View project membership & key contacts | ✅ | ✅ | |
 | Create, update & delete key contacts | ✅ | | |
 
 #### Permission Inheritance
