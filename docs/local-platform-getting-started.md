@@ -42,13 +42,15 @@ Development".
 
 ## OpenFGA model
 
-The shared OpenFGA authorization model lives at:
+The shared OpenFGA authorization model DSL lives at:
 
 ```text
-charts/lfx-platform/templates/openfga/model.yaml
+charts/lfx-platform/files/model.fga
 ```
 
-After changing it, regenerate `PERMISSIONS.md` via the existing agent skill:
+The Helm template at `charts/lfx-platform/templates/openfga/model.yaml` injects it
+into the Kubernetes `AuthorizationModelRequest`. After editing `model.fga`, bump the
+version in `model.yaml` and regenerate `PERMISSIONS.md` via the existing agent skill:
 
 ```text
 .agents/skills/render-permissions/SKILL.md
