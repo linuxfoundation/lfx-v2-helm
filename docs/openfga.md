@@ -87,11 +87,11 @@ To update the authorization model:
    ```yaml
    instances:
      - version:
-         major: 1
-         minor: 1
-         patch: 3  # Bump this version number
+         major: X      # bump the appropriate component
+         minor: Y
+         patch: Z
        authorizationModel: |
-   {{ .Files.Get "files/model.fga" | indent 8 }}
+{{ .Files.Get "files/model.fga" | indent 8 }}
    ```
    Note: the `{{ .Files.Get ... }}` line starts at column 0 in the template
    file — `indent 8` provides the required indentation for the YAML block scalar.
@@ -101,7 +101,8 @@ To update the authorization model:
 3. **Regenerate `PERMISSIONS.md`** by running the render-permissions agent skill to keep the human-readable permissions reference in sync.
 
 4. **Redeploy the chart** to apply the changes:
-   ```bash   helm upgrade lfx-platform ./charts/lfx-platform -n lfx
+   ```bash
+   helm upgrade lfx-platform ./charts/lfx-platform -n lfx
    ```
 
 The fga-operator will automatically detect the version change and create a new authorization model in OpenFGA while keeping the existing model for backward compatibility.
