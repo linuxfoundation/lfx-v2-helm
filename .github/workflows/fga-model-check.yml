@@ -17,6 +17,7 @@ jobs:
         run: |
           MODEL=charts/lfx-platform/files/model.fga
           TEMPLATE=charts/lfx-platform/templates/openfga/model.yaml
+          git fetch origin "$BASE_REF" --depth=1
           BASE="origin/$BASE_REF"
           # Strip comment lines and blank lines before comparing so that
           # annotation-only changes (@fgadoc:jtbd, @fgadoc:alias, etc.)

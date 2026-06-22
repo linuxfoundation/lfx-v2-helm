@@ -298,10 +298,10 @@ For each confirmed `<object>#<relation>` group:
    immediately above that `define`. Leave all other lines untouched.
 3. The comment format must be:
 
-```yaml
-            # @fgadoc:jtbd <statement one>
-            # @fgadoc:jtbd <statement two>
-            define <relation>: ...
+```text
+    # @fgadoc:jtbd <statement one>
+    # @fgadoc:jtbd <statement two>
+    define <relation>: ...
 ```
 
 Leave unchanged any `define` lines not covered by either source.
