@@ -65,16 +65,10 @@ spec:
             # executive_director identifies a user with the executive director role for a project,
             # as assigned by the project-service. executive_directors are auditors of the project.
             define executive_director: [user]
-
             define marketing_ops: [team#member] or marketing_ops from parent
-
-            # @fgadoc:jtbd View Marketing Impact dashboard
             define marketing_dashboard_viewer: executive_director or marketing_ops
-            # @fgadoc:jtbd View campaigns
             define campaign_viewer: executive_director or marketing_ops
-            # @fgadoc:jtbd Create & manage campaigns
             define campaign_manager: executive_director or marketing_ops
-
             # @fgadoc:jtbd View project details & meeting count
             # @fgadoc:jtbd View project links & folders
             # @fgadoc:jtbd View project documents
