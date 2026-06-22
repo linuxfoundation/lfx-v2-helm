@@ -1,19 +1,15 @@
 ---
 name: render-permissions
-description: Render PERMISSIONS.md from @fgadoc annotations in the OpenFGA model. Use after any change to model.yaml to keep the human-readable permissions reference in sync.
+description: Render PERMISSIONS.md from @fgadoc annotations in the OpenFGA model. Use after any change to model.fga to keep the human-readable permissions reference in sync.
 license: MIT
 ---
 
 Read `@fgadoc` annotations from
-`charts/lfx-platform/templates/openfga/model.yaml` and produce a
+`charts/lfx-platform/files/model.fga` and produce a
 human-readable `PERMISSIONS.md` at the repo root.
 
 ## Gotchas
 
-- `model.yaml` is a Helm template. The authorization model is the block
-  scalar under `authorizationModel: |`. **Ignore everything outside that
-  block** — Helm expressions (`{{- if ... }}`, `{{- end }}`, etc.) must
-  not be parsed or evaluated.
 - `[user:*]` means "every user including anonymous". It produces an
   **Everyone** column in the table — see Step 2.
 - Non-`@fgadoc` comments may appear between an `@fgadoc` annotation block
@@ -41,10 +37,9 @@ they describe:
 # @fgadoc:jtbd     Statement      — one JTBD; multiple lines allowed per relation
 ```
 
-## Step 1 — Parse model.yaml
+## Step 1 — Parse model.fga
 
-Read `charts/lfx-platform/templates/openfga/model.yaml`. Extract the
-`authorizationModel: |` block and parse it as plain text.
+Read `charts/lfx-platform/files/model.fga` and parse it as plain text.
 
 For each `type <name>` block, extract:
 
@@ -119,7 +114,7 @@ in order:
 4. **Child resource creation last.** JTBDs that create child resources of
    another type come last. If creating a child of the **same** type is
    allowed, list that first among the child-creation group. Otherwise order
-   child-creation JTBDs by the order their target types appear in model.yaml.
+   child-creation JTBDs by the order their target types appear in model.fga.
 
 ### 2c — Compute cell values
 
@@ -384,7 +379,7 @@ File structure:
 <!-- SPDX-License-Identifier: MIT -->
 <!-- generated-intro
 This file is generated automatically from
-charts/lfx-platform/templates/openfga/model.yaml
+charts/lfx-platform/files/model.fga
 by the render-permissions agent skill. Do not edit the sections below by hand.
 Run .agents/skills/render-permissions/SKILL.md to regenerate after any model change.
 -->

@@ -1,0 +1,42 @@
+# Copyright The Linux Foundation and each contributor to LFX.
+# SPDX-License-Identifier: MIT
+name: FGA Model Check
+on: [pull_request]
+permissions:
+  contents: read
+jobs:
+  fga-model-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4
+        with:
+          fetch-depth: 0
+      - name: Check version bump when model changes
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          MODEL=charts/lfx-platform/files/model.fga
+          TEMPLATE=charts/lfx-platform/templates/openfga/model.yaml
+          git fetch origin "$BASE_REF" --depth=1
+          BASE="origin/$BASE_REF"
+          # Strip comment lines and blank lines before comparing so that
+          # annotation-only changes (@fgadoc:jtbd, @fgadoc:alias, etc.)
+          # do not trigger a version-bump requirement.
+          strip() { grep -v '^[[:space:]]*#' | sed 's/[[:space:]]\+#.*$//' | grep -v '^[[:space:]]*$' || true; }
+          BASE_DSL=$(git show "$BASE:$MODEL" 2>/dev/null | strip || true)
+          HEAD_DSL=$(git show "HEAD:$MODEL"  | strip)
+          if [ -z "$BASE_DSL" ] && [ -n "$HEAD_DSL" ]; then
+            echo "New model file detected, treating as changed."
+          elif [ "$BASE_DSL" = "$HEAD_DSL" ]; then
+            echo "Model DSL unchanged (comment-only changes), skipping version check."
+            exit 0
+          fi
+          # Note: this check verifies that model.yaml was changed alongside
+          # the model DSL, not that the version numbers were specifically
+          # incremented. It is a heuristic — a comment-only change to
+          # model.yaml would satisfy this check without a true version bump.
+          if git diff "$BASE"...HEAD --quiet -- "$TEMPLATE"; then
+            echo "::error::files/model.fga changed but version in model.yaml was not updated."
+            exit 1
+          fi
+          echo "Model changed and version updated."

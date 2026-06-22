@@ -19,7 +19,7 @@ The fga-operator automates the synchronization between your Kubernetes deploymen
 
 ### 1. Verify the Model Deployed
 
-The LFX Platform includes a pre-configured authorization model that's automatically deployed when you install the chart. The model can be found in `charts/lfx-platform/templates/openfga/model.yaml`. Check that it deployed successfully:
+The LFX Platform includes a pre-configured authorization model that's automatically deployed when you install the chart. The canonical model DSL lives in `charts/lfx-platform/files/model.fga`; the Helm template at `charts/lfx-platform/templates/openfga/model.yaml` injects it along with the versioning metadata. Check that it deployed successfully:
 
 ```bash
 # Check AuthorizationModelRequest status
@@ -79,41 +79,28 @@ kubectl run --rm -it fga-cli --namespace lfx --image=openfga/cli --env="FGA_STOR
 
 ## Updating Authorization Models
 
-To update the authorization model, modify the version and model definition in `charts/lfx-platform/templates/openfga/model.yaml`:
+To update the authorization model:
 
-1. **Increment the version** in the `instances` section. The current version
-   lives in `model.yaml`; bump the appropriate component for the change:
+1. **Edit the model DSL** in `charts/lfx-platform/files/model.fga` — this is the single source of truth.
+
+2. **Increment the version** in `charts/lfx-platform/templates/openfga/model.yaml`:
    ```yaml
    instances:
      - version:
-         major: 13
-         minor: 0
-         patch: 3  # Example patch bump from 13.0.2 (current version in model.yaml)
+         major: X      # bump the appropriate component
+         minor: Y
+         patch: Z
        authorizationModel: |
-         model
-           schema 1.1
-
-         type user
-
-         type team
-           relations
-             define member: [user]
-
-         type project
-           relations
-             define parent: [project]
-             define owner: [team#member] or owner from parent
-             define writer: [user] or owner or writer from parent
-             define auditor: [user, team#member] or executive_director or writer or auditor from parent
-             define viewer: [user:*] or auditor or meeting_coordinator
-             # Add new relations here as needed
+{{ .Files.Get "files/model.fga" | indent 8 }}
    ```
+   Note: the `{{ .Files.Get ... }}` line starts at column 0 in the template
+   file — `indent 8` provides the required indentation for the YAML block scalar.
 
-   The version and relations above are illustrative. The authoritative,
-   current model definition lives in
-   `charts/lfx-platform/templates/openfga/model.yaml`.
+   CI will fail if `files/model.fga` changes without any corresponding change to `model.yaml`. The version bump itself is a social contract — CI verifies the files were edited together, not that the numbers were incremented.
 
-2. **Redeploy the chart** to apply the changes:
+3. **Regenerate `PERMISSIONS.md`** by running the render-permissions agent skill to keep the human-readable permissions reference in sync.
+
+4. **Redeploy the chart** to apply the changes:
    ```bash
    helm upgrade lfx-platform ./charts/lfx-platform -n lfx
    ```

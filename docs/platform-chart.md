@@ -67,15 +67,16 @@ charts/lfx-platform/templates/
 The OpenFGA model is the single most important shared template: every
 service's RuleSet `openfga_check` calls authorize against the types,
 relations, and inheritance defined in
-`charts/lfx-platform/templates/openfga/model.yaml`.
+`charts/lfx-platform/files/model.fga` (injected into the Kubernetes
+`AuthorizationModelRequest` by `charts/lfx-platform/templates/openfga/model.yaml`).
 
 ## OpenFGA model: worked edit
 
 Scenario: add a new relation `auditor` to type `committee`.
 
-1. Edit `charts/lfx-platform/templates/openfga/model.yaml` and add the
-   relation (including any inheritance from `project` per the existing
-   convention).
+1. Edit `charts/lfx-platform/files/model.fga` and add the relation
+   (including any inheritance from `project` per the existing convention).
+   Then bump the version in `charts/lfx-platform/templates/openfga/model.yaml`.
 2. Update `@fgadoc:jtbd` annotations on the new relation so the rendered
    permissions table reflects the actual job-to-be-done.
 3. Re-render `PERMISSIONS.md`:
