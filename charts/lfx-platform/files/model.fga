@@ -39,7 +39,7 @@ type project
     # cascades from parent projects — granting it at ROOT flows down to all
     # sub-projects. The manager role does not cascade from parent; management
     # rights are explicitly scoped to the project on which they are granted.
-    define marketing_auditor: executive_director or marketing_ops or marketing_auditor from parent
+    define marketing_auditor: [team#member] or executive_director or marketing_ops or marketing_auditor from parent
     define campaign_manager: executive_director or marketing_ops
     # @fgadoc:jtbd View project details & meeting count
     # @fgadoc:jtbd View project links & folders
