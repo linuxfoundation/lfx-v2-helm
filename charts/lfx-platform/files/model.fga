@@ -34,8 +34,6 @@ type project
     # as assigned by the project-service. executive_directors are auditors of the project.
     define executive_director: [user]
     define marketing_ops: [team#member] or marketing_ops from parent
-    define marketing_dashboard_viewer: executive_director or marketing_ops
-    define campaign_viewer: executive_director or marketing_ops
     define campaign_manager: executive_director or marketing_ops
     # @fgadoc:jtbd View project details & meeting count
     # @fgadoc:jtbd View project links & folders
