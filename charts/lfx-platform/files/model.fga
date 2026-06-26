@@ -34,8 +34,12 @@ type project
     # as assigned by the project-service. executive_directors are auditors of the project.
     define executive_director: [user]
     define marketing_ops: [team#member] or marketing_ops from parent
-    define marketing_dashboard_viewer: executive_director or marketing_ops
-    define campaign_viewer: executive_director or marketing_ops
+    # marketing_auditor identifies a user with read access to marketing dashboards
+    # and campaigns for a project. Unlike campaign_manager, marketing_auditor
+    # cascades from parent projects — granting it at ROOT flows down to all
+    # sub-projects. The manager role does not cascade from parent; management
+    # rights are explicitly scoped to the project on which they are granted.
+    define marketing_auditor: [team#member] or executive_director or marketing_ops or marketing_auditor from parent
     define campaign_manager: executive_director or marketing_ops
     # @fgadoc:jtbd View project details & meeting count
     # @fgadoc:jtbd View project links & folders
