@@ -10,8 +10,8 @@ name: Release
       - 'v*'
 
 env:
-  COSIGN_VERSION: v2.5.3
-  HELM_VERSION: v3.18.4
+  COSIGN_VERSION: v3.0.2
+  HELM_VERSION: 4.0.1
 
 permissions:
   contents: read
@@ -28,14 +28,14 @@ jobs:
       image_name: ${{ steps.publish-ghcr.outputs.image_name }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4
 
       - name: Prepare versions and chart name
         id: prepare
         run: |
           set -euo pipefail
           CHART_NAME="$(yq '.name' charts/*/Chart.yaml)"
-          CHART_VERSION="$(yq '.version' charts/*/Chart.yaml)"
+          CHART_VERSION=$(echo ${{ github.ref_name }} | sed 's/v//g')
           {
             echo "chart_name=$CHART_NAME"
             echo "chart_version=$CHART_VERSION"
@@ -43,7 +43,8 @@ jobs:
 
       - name: Publish Chart to GHCR
         id: publish-ghcr
-        uses: linuxfoundation/lfx-public-workflows/.github/actions/helm-chart-oci-publisher@e619121ece4ca4b1d6c89ade032f26105505756d
+        uses: >-  # main
+          linuxfoundation/lfx-public-workflows/.github/actions/helm-chart-oci-publisher@17e4144d7ba68f7c3e8c16eece5aed15fd7c2dc8
         with:
           name: ${{ steps.prepare.outputs.chart_name }}
           repository: ${{ github.repository }}/chart
@@ -53,12 +54,12 @@ jobs:
           registry_password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install Cosign
-        uses: sigstore/cosign-installer@d58896d6a1865668819e1d91763c7751a165e159 # v3.9.2
+        uses: sigstore/cosign-installer@faadad0cce49287aee09b3a48701e75088a2c6ad  # v4.0.0
         with:
           cosign-release: "${{ env.COSIGN_VERSION }}"
 
       - name: Login to GitHub
-        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772  # v3.4.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -78,6 +79,9 @@ jobs:
       actions: read
       id-token: write
       packages: write
+    # Note, this action *cannot* be pinned to a ref: see the project's
+    # explanation at "Referencing SLSA builders and generators" in their
+    # README.
     uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@v2.1.0
     with:
       image: ${{ needs.release-helm-chart.outputs.image_name }}

@@ -2,9 +2,22 @@
 # SPDX-License-Identifier: MIT
 ---
 {{- if and .Values.authelia.enabled .Values.authelia_user_generation.enabled }}
+{{- $existingSecret := lookup "v1" "Secret" .Release.Namespace "authelia-users" }}
 {{- $user_pws := dict }}
-{{- range $index, $username := .Values.authelia_user_generation.users }}
-{{- $user_pws = set $user_pws $username (randAlphaNum 20) }}
+{{- range $username := .Values.authelia_user_generation.users }}
+  {{- if $existingSecret }}
+    {{- $existingValue := index $existingSecret.data $username }}
+    {{- if $existingValue }}
+      {{- /* Reuse existing password for this user (decode base64 to plaintext) */ -}}
+      {{- $user_pws = set $user_pws $username ($existingValue | b64dec) }}
+    {{- else }}
+      {{- /* User not found in existing secret, generate new password */ -}}
+      {{- $user_pws = set $user_pws $username (randAlphaNum 20) }}
+    {{- end }}
+  {{- else }}
+    {{- /* No existing secret, generate new password */ -}}
+    {{- $user_pws = set $user_pws $username (randAlphaNum 20) }}
+  {{- end }}
 {{- end }}
 
 apiVersion: v1

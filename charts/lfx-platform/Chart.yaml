@@ -5,7 +5,8 @@ apiVersion: v2
 name: lfx-platform
 description: LFX Platform v2 Helm chart
 type: application
-version: 0.5.3
+# This version should not be incremented, as it is dynamically replaced with the release version during the chart build job.
+version: 0.0.1
 icon: https://github.com/linuxfoundation/lfx-v2-helm/raw/main/img/lfx-logo-color.svg
 dependencies:
   - name: traefik
@@ -18,7 +19,7 @@ dependencies:
     condition: openfga.enabled
   - name: heimdall
     repository: oci://ghcr.io/dadrus/heimdall/chart
-    version: ~0.15.8
+    version: ~0.16.6
     condition: heimdall.enabled
   - name: nats
     repository: https://nats-io.github.io/k8s/helm/charts/
@@ -44,6 +45,10 @@ dependencies:
     repository: https://3schwartz.github.io/fga-operator/
     version: ~1.0.0
     condition: fga-operator.enabled
+  - name: external-secrets
+    repository: https://charts.external-secrets.io
+    version: ~2.1.0
+    condition: external-secrets.enabled
   - name: cert-manager
     repository: https://charts.jetstack.io
     version: ~1.18.2
@@ -54,33 +59,73 @@ dependencies:
     condition: trustManagerEnabled
   - name: lfx-v2-query-service
     repository: oci://ghcr.io/linuxfoundation/lfx-v2-query-service/chart
-    version: ~0.4.6
+    version: ~0.4.12
     condition: lfx-v2-query-service.enabled
   - name: lfx-v2-project-service
     repository: oci://ghcr.io/linuxfoundation/lfx-v2-project-service/chart
-    version: ~0.4.3
+    version: ~0.6.0
     condition: lfx-v2-project-service.enabled
   - name: lfx-v2-fga-sync
     repository: oci://ghcr.io/linuxfoundation/lfx-v2-fga-sync/chart
-    version: ~0.2.3
+    version: ~0.3.0
     condition: lfx-v2-fga-sync.enabled
   - name: lfx-v2-access-check
     repository: oci://ghcr.io/linuxfoundation/lfx-v2-access-check/chart
-    version: ~0.2.3
+    version: ~0.3.1
     condition: lfx-v2-access-check.enabled
   - name: lfx-v2-indexer-service
     repository: oci://ghcr.io/linuxfoundation/lfx-v2-indexer-service/chart
-    version: ~0.4.4
+    version: ~0.4.19
     condition: lfx-v2-indexer-service.enabled
   - name: lfx-v2-committee-service
     repository: oci://ghcr.io/linuxfoundation/lfx-v2-committee-service/chart
-    version: ~0.1.0
+    version: ~0.2.22
     condition: lfx-v2-committee-service.enabled
   - name: lfx-v2-meeting-service
     repository: oci://ghcr.io/linuxfoundation/lfx-v2-meeting-service/chart
-    version: ~0.4.0
+    version: ~0.8.0
     condition: lfx-v2-meeting-service.enabled
+  - name: lfx-v2-mailing-list-service
+    repository: oci://ghcr.io/linuxfoundation/lfx-v2-mailing-list-service/chart
+    version: ~0.4.3
+    condition: lfx-v2-mailing-list-service.enabled
   - name: lfx-v2-auth-service
     repository: oci://ghcr.io/linuxfoundation/lfx-v2-auth-service/chart
-    version: ~0.3.1
+    version: ~0.4.1
     condition: lfx-v2-auth-service.enabled
+  - name: lfx-v2-voting-service
+    repository: oci://ghcr.io/linuxfoundation/lfx-v2-voting-service/chart
+    version: ~0.2.3
+    condition: lfx-v2-voting-service.enabled
+  - name: lfx-v2-survey-service
+    repository: oci://ghcr.io/linuxfoundation/lfx-v2-survey-service/chart
+    version: ~0.2.3
+    condition: lfx-v2-survey-service.enabled
+  - name: lfx-v2-email-service
+    repository: oci://ghcr.io/linuxfoundation/lfx-v2-email-service/chart
+    version: ~0.1.0
+    condition: lfx-v2-email-service.enabled
+  - name: lfx-v2-invite-service
+    repository: oci://ghcr.io/linuxfoundation/lfx-v2-invite-service/chart
+    version: ~0.1.0
+    condition: lfx-v2-invite-service.enabled
+  - name: lfx-v1-sync-helper
+    repository: oci://ghcr.io/linuxfoundation/lfx-v1-sync-helper/chart
+    version: ~0.10.3
+    condition: lfx-v1-sync-helper.enabled
+  - name: lfx-v2-forwards-service
+    repository: oci://ghcr.io/linuxfoundation/lfx-v2-forwards-service/chart
+    version: ~0.1.1
+    condition: lfx-v2-forwards-service.enabled
+  - name: lfx-v2-member-service
+    repository: oci://ghcr.io/linuxfoundation/lfx-v2-member-service/chart
+    version: ~0.8.0
+    condition: lfx-v2-member-service.enabled
+  - name: lfx-v2-newsletter-service
+    repository: oci://ghcr.io/linuxfoundation/lfx-v2-newsletter-service/chart
+    version: ~0.1.13
+    condition: lfx-v2-newsletter-service.enabled
+  - name: lfx-v2-persona-service
+    repository: oci://ghcr.io/linuxfoundation/lfx-v2-persona-service/chart
+    version: ~0.0.9
+    condition: lfx-v2-persona-service.enabled

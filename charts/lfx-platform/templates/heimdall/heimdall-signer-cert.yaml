@@ -1,19 +1,23 @@
 # Copyright The Linux Foundation and each contributor to LFX.
 # SPDX-License-Identifier: MIT
 ---
-{{ if .Values.heimdall.enabled -}}
+{{ if and .Values.heimdall.enabled .Values.lfx.generateHeimdallSignerCert.enabled -}}
 {{/*
-Generate a cert for Heimdall on install of Chart
+Generate a private key & x509 cert for Heimdall on install of Chart
   TODO: Create RBAC rule to limit secret access to heimdall Pods
-  TODO: Update to a 4096 bit key instead of 2048, sort out PS512 vs PS256
 */}}
-{{- $heimdallCert := genCA "foo" 365 }}
+{{- $heimdallCA := "" -}}
+{{- if .Values.lfx.generateHeimdallSignerCert.algorithm -}}
+{{- $heimdallCA = genCAWithKey "heimdall" 365 (genPrivateKey .Values.lfx.generateHeimdallSignerCert.algorithm) -}}
+{{- else -}}
+{{- $heimdallCA = genCA "heimdall" 365 -}}
+{{- end -}}
 
 apiVersion: v1
 kind: Secret
 type: Opaque
 metadata:
-  name: heimdall-signer-cert
+  name: {{ .Values.lfx.generateHeimdallSignerCert.name }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "lfx-platform.labels" . | nindent 4 }}
@@ -23,5 +27,5 @@ metadata:
     helm.sh/hook-weight: "0"
     helm.sh/hook-delete-policy: before-hook-creation
 data:
-  "signer.pem": "{{ $heimdallCert.Key | b64enc }}"
+  "signer.pem": "{{ print $heimdallCA.Key $heimdallCA.Cert | b64enc }}"
 {{- end }}

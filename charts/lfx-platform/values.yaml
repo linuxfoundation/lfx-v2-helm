@@ -17,16 +17,49 @@ lfx:
     name: heimdall-trust-bundle
     configKey: ca-certificates.crt
 
+  # Have Helm generate the heimdall-signer-cert secret
+  # Recommended to disable for production values and manage separately.
+  generateHeimdallSignerCert:
+    enabled: true
+    name: heimdall-signer-cert
+    # algorithm will be passed as the parameter to Sprig's genPrivateKey.
+    # If blank or missing, uses genCA (2048-bit RSA key, PS256 JWT alg).
+    # If set, uses genCAWithKey with the specified algorithm.
+    # Setting "rsa" explicitly will use a 4096-bit key (PS512 JWT alg).
+    # algorithm: ecdsa
+    # algorithm: rsa
+
   whoami:
     enabled: true
+    resources:
+      requests:
+        cpu: "1m"
+        memory: "4Mi"
+      limits:
+        cpu: "10m"
+        memory: "8Mi"
 
   swagger_ui:
     enabled: true
     image: swaggerapi/swagger-ui
     tag: latest
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "64Mi"
+      limits:
+        cpu: "200m"
+        memory: "128Mi"
     merger:
       image: node
       tag: 24-alpine
+      resources:
+        requests:
+          cpu: "100m"
+          memory: "64Mi"
+        limits:
+          cpu: "200m"
+          memory: "128Mi"
     auth:
       enabled: true
       domain: "https://auth.k8s.orb.local"
@@ -36,6 +69,13 @@ lfx:
     specs:
       - "_projects/openapi3.yaml"
       - "_query/openapi3.yaml"
+      - "_committees/openapi3.yaml"
+      - "_meetings/openapi3.yaml"
+      - "_access-check/openapi3.yaml"
+      - "_voting/openapi3.yaml"
+      - "_survey/openapi3.yaml"
+      - "_groupsio/openapi3.yaml"
+      - "_memberships/openapi3.yaml"
 
   # Tells rulesets to use the oidc_contextualizer, needed for
   # local dev with authelia
@@ -53,7 +93,7 @@ fga-operator:
   # Non-chart value
   store: "lfx-core"
   controllerManager:
-    openFgaUrlEnvVar: 'http://lfx-platform-openfga:8080'
+    openFgaUrlEnvVar: "http://lfx-platform-openfga:8080"
     # This value needs to be set in order for the operator to start, but
     # because no auth is required for the openfga API this value will be
     # ignored by openfga
@@ -145,16 +185,29 @@ openfga:
   # Additional OpenFGA configuration
   replicaCount: 1
 
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+    requests:
+      cpu: 500m
+      memory: 256Mi
 # Heimdall configuration
 heimdall:
   enabled: true
 
   image:
-    tag: 0.16.6
-
+    tag: 0.17.6
 
   deployment:
     replicaCount: 1
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
     autoscaling:
       enabled: false
     labels:
@@ -170,8 +223,9 @@ heimdall:
   env:
     # Tracing Configuration
     HEIMDALLCFG_TRACING_ENABLED: "false"
+    HEIMDALLCFG_SECRETS__RELOAD__ENABLED: "true"
     OTEL_PROPAGATORS: jaeger
-    OTEL_TRACE_EXPORTER: otlp
+    OTEL_TRACES_EXPORTER: otlp
     OTEL_EXPORTER_OTLP_TRACES_PROTOCOL: grpc
     OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: "http://jaeger-collector.observability:4317"
     CLIENT_SECRET:
@@ -188,7 +242,14 @@ heimdall:
 
   serve:
     trusted_proxies:
-      - 192.168.0.0/16
+      - "10.0.0.0/8"
+      - "172.16.0.0/12"
+      - "192.168.0.0/16"
+    respond:
+      # Keep verbose: false (the Heimdall default) so that error responses
+      # return a bare HTTP status code with no body, rather than leaking
+      # internal pipeline details (e.g., "expression 1 failed") to clients.
+      verbose: false
 
   mechanisms:
     authenticators:
@@ -217,7 +278,7 @@ heimdall:
             # the client_id. Client IDs can collide with usernames (and GJSON
             # doesn't let us do array concatenation to add a literal prefix), so
             # the `sub` claim should NOT be used downstream.
-            id: '[username,client_id].0'
+            id: "[username,client_id].0"
     contextualizers:
       - id: oidc_contextualizer
         type: generic
@@ -261,7 +322,7 @@ heimdall:
                         "_anonymous"
                         (or
                           .Subject.Attributes.username
-                          (list "clients@" .Subject.Attributes.client_id | join ""))
+                          (list .Subject.Attributes.client_id "@clients" | join ""))
                     )
                   | join "" | quote
                 }},
@@ -272,6 +333,63 @@ heimdall:
           expressions:
             - expression: |
                 Payload.allowed == true
+      - id: openfga_or_check
+        type: remote
+        config:
+          endpoint: "http://lfx-platform-openfga:8080/stores/${OPENFGA_STORE_ID}/batch-check"
+          values:
+            model_id: ${OPENFGA_AUTH_MODEL_ID}
+          payload: |
+            {
+              "authorization_model_id": "{{ .Values.model_id }}",
+              "checks": [
+                {
+                  "tuple_key": {
+                    "user": {{
+                      list
+                        "user:"
+                        (
+                          eq .Subject.ID "_anonymous"
+                          | ternary
+                            "_anonymous"
+                            (or
+                              .Subject.Attributes.username
+                              (list .Subject.Attributes.client_id "@clients" | join ""))
+                        )
+                      | join "" | quote
+                    }},
+                    "relation": "{{ .Values.relation }}",
+                    "object": "{{ .Values.object }}"
+                  },
+                  "correlation_id": "primary_check"
+                }
+                {{- if .Values.or_object }},
+                {
+                  "tuple_key": {
+                    "user": {{
+                      list
+                        "user:"
+                        (
+                          eq .Subject.ID "_anonymous"
+                          | ternary
+                            "_anonymous"
+                            (or
+                              .Subject.Attributes.username
+                              (list .Subject.Attributes.client_id "@clients" | join ""))
+                        )
+                      | join "" | quote
+                    }},
+                    "relation": "{{ or .Values.or_relation .Values.relation }}",
+                    "object": "{{ .Values.or_object }}"
+                  },
+                  "correlation_id": "secondary_check"
+                }
+                {{- end }}
+              ]
+            }
+          expressions:
+            - expression: |
+                Payload.result.primary_check.allowed || ("secondary_check" in Payload.result && Payload.result.secondary_check.allowed)
     finalizers:
       - id: create_jwt
         type: jwt
@@ -280,23 +398,23 @@ heimdall:
             key_store:
               path: /heimdall/cert/signer.pem
           claims: |
-                    {
-                      "principal": {{
-                        eq .Subject.ID "_anonymous"
-                        | ternary
-                          "_anonymous"
-                          (or
-                            .Subject.Attributes.username
-                            (list "clients@" .Subject.Attributes.client_id | join ""))
-                        | quote
-                      }}
-                      {{ if .Outputs.oidc_contextualizer.email -}},
-                      "email": {{ quote .Outputs.oidc_contextualizer.email }}
-                      {{ end -}}
-                      {{ if .Values.aud -}},
-                      "aud": {{ quote .Values.aud }}
-                      {{ end -}}
-                    }
+            {
+              "principal": {{
+                eq .Subject.ID "_anonymous"
+                | ternary
+                  "_anonymous"
+                  (or
+                    .Subject.Attributes.username
+                    (list .Subject.Attributes.client_id "@clients" | join ""))
+                | quote
+              }}
+              {{ if .Outputs.oidc_contextualizer.email -}},
+              "email": {{ quote .Outputs.oidc_contextualizer.email }}
+              {{ end -}}
+              {{ if .Values.aud -}},
+              "aud": {{ quote .Values.aud }}
+              {{ end -}}
+            }
 
   default_rule:
     execute:
@@ -320,20 +438,26 @@ nats:
     natsBox:
       enabled: true
 
-    resources:
-      requests:
-        memory: "256Mi"
-        cpu: "100m"
-      limits:
-        memory: "512Mi"
-        cpu: "500m"
-
     # JetStream configuration
     jetstream:
       enabled: true
       fileStore:
         enabled: true
         size: 1Gi
+  container:
+    env:
+      # Different from k8s units, suffix must be B, KiB, MiB, GiB, or TiB
+      # Should be ~80% of memory limit
+      GOMEMLIMIT: 2GiB
+    merge:
+      # Recommended minimum: at least 2 CPU cores and 8Gi memory for production JetStream clusters
+      resources:
+        requests:
+          cpu: "500m"
+          memory: 1Gi
+        limits:
+          cpu: "1000m"
+          memory: 2Gi
 
 # OpenSearch configuration
 opensearch:
@@ -344,6 +468,13 @@ opensearch:
       value: "true"
     - name: DISABLE_SECURITY_PLUGIN
       value: "true"
+  resources:
+    requests:
+      cpu: 500m
+      memory: 0.5Gi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
 
 # Mailpit configuration
 mailpit:
@@ -409,6 +540,13 @@ authelia:
             algorithm: "RS256"
             key:
               path: /secrets/authelia-jwks-keys/jwks-key-1.pem
+        claims_policies:
+          default:
+            id_token:
+              - email
+              - email_verified
+              - name
+              - preferred_username
         clients:
           - client_id: heimdall
             client_name: Heimdall backend
@@ -468,6 +606,7 @@ authelia:
             grant_types:
               - authorization_code
               - refresh_token
+            claims_policy: default
             authorization_policy: one_factor
             token_endpoint_auth_method: client_secret_basic
           - client_id: docs
@@ -517,6 +656,10 @@ nack:
       url: nats://lfx-platform-nats:4222
     additionalArgs: [--control-loop]
 
+external-secrets:
+  enabled: false
+  installCRDs: true
+
 cert-manager:
   enabled: false
   crds:
@@ -528,21 +671,25 @@ trust-manager:
   namespace: cert-manager
 
 lfx-v2-fga-sync:
+  replicaCount: 1
   enabled: true
   lfx:
     domain: k8s.orb.local
 
 lfx-v2-access-check:
+  replicaCount: 1
   enabled: true
   lfx:
     domain: k8s.orb.local
 
 lfx-v2-indexer-service:
+  replicaCount: 1
   enabled: true
   lfx:
     domain: k8s.orb.local
 
 lfx-v2-query-service:
+  replicaCount: 1
   enabled: true
   lfx:
     domain: k8s.orb.local
@@ -561,21 +708,135 @@ lfx-v2-query-service:
         value: ""
 
 lfx-v2-project-service:
+  replicaCount: 1
   enabled: true
   lfx:
     domain: k8s.orb.local
 
 lfx-v2-committee-service:
+  replicaCount: 1
   enabled: true
   lfx:
     domain: k8s.orb.local
+
+lfx-v2-voting-service:
+  replicaCount: 1
+  enabled: true
+  lfx:
+    domain: k8s.orb.local
+
+  # External Secrets Operator is disabled because we can't get secrets from AWS Secrets Manager in local development.
+  # Instead, create the Kubernetes secret manually. See the chart README for instructions.
+  externalSecretsOperator:
+    enabled: false
+
+  # Enable reloader to restart pods when ConfigMap or Secrets change
+  annotations:
+    reloader.stakater.com/auto: "true"
+
+lfx-v2-survey-service:
+  replicaCount: 1
+  enabled: true
+  lfx:
+    domain: k8s.orb.local
+
+  # External Secrets Operator is disabled because we can't get secrets from AWS Secrets Manager in local development.
+  # Instead, create the Kubernetes secret manually. See the chart README for instructions.
+  externalSecretsOperator:
+    enabled: false
+
+  # Enable reloader to restart pods when ConfigMap or Secrets change
+  annotations:
+    reloader.stakater.com/auto: "true"
 
 lfx-v2-meeting-service:
+  replicaCount: 1
   enabled: true
   lfx:
     domain: k8s.orb.local
 
+  # External Secrets Operator is disabled because we can't get secrets from AWS Secrets Manager in local development.
+  # Instead, create the Kubernetes secret manually. See the chart README for instructions.
+  externalSecretsOperator:
+    enabled: false
+
+  # Enable reloader to restart pods when ConfigMap or Secrets change
+  annotations:
+    reloader.stakater.com/auto: "true"
+
+lfx-v2-mailing-list-service:
+  replicaCount: 1
+  enabled: true
+  lfx:
+    domain: k8s.orb.local
+
+  # External Secrets Operator is disabled because we can't get secrets from AWS Secrets Manager in local development.
+  # Instead, create the Kubernetes secret manually. See the chart README for instructions.
+  externalSecretsOperator:
+    enabled: false
+
+lfx-v2-email-service:
+  replicaCount: 1
+  enabled: true
+  lfx:
+    domain: k8s.orb.local
+
+  # External Secrets Operator is disabled because we can't get secrets from AWS Secrets Manager in local development.
+  # Instead, create the Kubernetes secret manually. See the chart README for instructions.
+  externalSecretsOperator:
+    enabled: false
+
+lfx-v2-invite-service:
+  replicaCount: 1
+  enabled: true
+
+  # External Secrets Operator is disabled because we can't get secrets from AWS Secrets Manager in local development.
+  # Instead, create the Kubernetes secret manually. See the chart README for instructions.
+  externalSecretsOperator:
+    enabled: false
+
+lfx-v1-sync-helper:
+  replicaCount: 1
+  enabled: true
+
+lfx-v2-forwards-service:
+  replicaCount: 1
+  enabled: true
+
+  # External Secrets Operator is disabled because we can't get secrets from AWS Secrets Manager in local development.
+  # Instead, create the Kubernetes secret manually. See the chart README for instructions.
+  externalSecretsOperator:
+    enabled: false
+
+lfx-v2-member-service:
+  replicaCount: 1
+  enabled: true
+  lfx:
+    domain: k8s.orb.local
+
+lfx-v2-newsletter-service:
+  replicaCount: 1
+  enabled: true
+  lfx:
+    domain: k8s.orb.local
+
+  app:
+    # Disable real email dispatch for local development — exercises the
+    # recipient-resolution path without calling email-service.
+    send:
+      fanoutEnabled: false
+
+  # External Secrets Operator is disabled because we can't get secrets from AWS Secrets Manager in local development.
+  # Instead, create the Kubernetes secret manually. See the chart README for instructions.
+  externalSecretsOperator:
+    enabled: false
+
+lfx-v2-persona-service:
+  replicaCount: 1
+  enabled: true
+
 lfx-v2-auth-service:
+  replicaCount: 1
   enabled: true
   lfx:
     domain: k8s.orb.local

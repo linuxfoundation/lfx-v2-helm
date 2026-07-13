@@ -19,7 +19,7 @@ The fga-operator automates the synchronization between your Kubernetes deploymen
 
 ### 1. Verify the Model Deployed
 
-The LFX Platform includes a pre-configured authorization model that's automatically deployed when you install the chart. The model can be found in `charts/lfx-platform/templates/openfga/model.yaml`. Check that it deployed successfully:
+The LFX Platform includes a pre-configured authorization model that's automatically deployed when you install the chart. The canonical model DSL lives in `charts/lfx-platform/files/model.fga`; the Helm template at `charts/lfx-platform/templates/openfga/model.yaml` injects it along with the versioning metadata. Check that it deployed successfully:
 
 ```bash
 # Check AuthorizationModelRequest status
@@ -79,36 +79,28 @@ kubectl run --rm -it fga-cli --namespace lfx --image=openfga/cli --env="FGA_STOR
 
 ## Updating Authorization Models
 
-To update the authorization model, modify the version and model definition in `charts/lfx-platform/templates/openfga/model.yaml`:
+To update the authorization model:
 
-1. **Increment the version** in the `instances` section:
+1. **Edit the model DSL** in `charts/lfx-platform/files/model.fga` — this is the single source of truth.
+
+2. **Increment the version** in `charts/lfx-platform/templates/openfga/model.yaml`:
    ```yaml
    instances:
      - version:
-         major: 1
-         minor: 1
-         patch: 3  # Bump this version number
-   authorizationModel: |
-     model
-       schema 1.1
-
-     type user
-
-     type team
-       relations
-         define member: [user]
-
-     type project
-       relations
-         define parent: [project]
-         define owner: [team#member] or owner from parent
-         define writer: owner or writer from parent
-         define auditor: [user, team#member] or writer or auditor from parent
-         define viewer: [user:*] or auditor or auditor from parent
-         # Add new relations here as needed
+         major: X      # bump the appropriate component
+         minor: Y
+         patch: Z
+       authorizationModel: |
+{{ .Files.Get "files/model.fga" | indent 8 }}
    ```
+   Note: the `{{ .Files.Get ... }}` line starts at column 0 in the template
+   file — `indent 8` provides the required indentation for the YAML block scalar.
 
-2. **Redeploy the chart** to apply the changes:
+   CI will fail if `files/model.fga` changes without any corresponding change to `model.yaml`. The version bump itself is a social contract — CI verifies the files were edited together, not that the numbers were incremented.
+
+3. **Regenerate `PERMISSIONS.md`** by running the render-permissions agent skill to keep the human-readable permissions reference in sync.
+
+4. **Redeploy the chart** to apply the changes:
    ```bash
    helm upgrade lfx-platform ./charts/lfx-platform -n lfx
    ```
@@ -196,8 +188,12 @@ kubectl run --rm -it fga-cli --namespace lfx --image=openfga/cli --env="FGA_STOR
 Test authorization decisions:
 
 ```bash
-# Check if a user can read a project
-kubectl run --rm -it fga-cli --namespace lfx --image=openfga/cli --env="FGA_STORE_ID=$STORE_ID" --env="FGA_API_URL=http://lfx-platform-openfga:8080" --restart=Never -- check --tuple "user:john@example.com:reader:project:project1"
+# Check if a user can write to a project (a tuple-dependent relation).
+# Note: `project#viewer` is public in the model (`define viewer: [user:*] ...`),
+# so a `viewer` check always returns allowed even with no tuples. Use a
+# restrictive relation like `writer` or `auditor` for a meaningful check that
+# actually validates the tuples you have written.
+kubectl run --rm -it fga-cli --namespace lfx --image=openfga/cli --env="FGA_STORE_ID=$STORE_ID" --env="FGA_API_URL=http://lfx-platform-openfga:8080" --restart=Never -- check --tuple "user:john@example.com:writer:project:project1"
 ```
 
 ## Advanced Topics

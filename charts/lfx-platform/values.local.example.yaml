@@ -1,0 +1,115 @@
+# Copyright The Linux Foundation and each contributor to LFX.
+# SPDX-License-Identifier: MIT
+---
+# Local development overrides for lfx-platform.
+#
+# To use this file, copy it to values.local.yaml and fill in the values
+# you want to override.
+#
+# To use the file to install the GHCR chart, run the following command:
+#
+#   helm install -n lfx lfx-platform \
+#     oci://ghcr.io/linuxfoundation/lfx-v2-helm/chart/lfx-platform \
+#     --values charts/lfx-platform/values.local.yaml
+#
+# Or from source:
+#
+#   helm install -n lfx lfx-platform ./charts/lfx-platform \
+#     --values charts/lfx-platform/values.local.yaml
+
+# NATS
+nats:
+  config:
+    cluster:
+      replicas: 3
+
+  container:
+    env:
+      GOMEMLIMIT: 2GiB
+    merge:
+      resources:
+        requests:
+          cpu: "500m"
+          memory: 1Gi
+        limits:
+          cpu: "1000m"
+          memory: 2Gi
+
+# OpenSearch
+opensearch:
+  resources:
+    requests:
+      cpu: 500m
+      memory: 0.5Gi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+# OpenFGA
+openfga:
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+    requests:
+      cpu: 500m
+      memory: 256Mi
+
+# Heimdall
+heimdall:
+  deployment:
+    replicaCount: 1
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+# LFX services
+lfx-v1-sync-helper:
+  replicaCount: 1
+lfx-v2-access-check:
+  replicaCount: 1
+lfx-v2-auth-service:
+  replicaCount: 1
+lfx-v2-committee-service:
+  replicaCount: 1
+lfx-v2-email-service:
+  replicaCount: 1
+lfx-v2-fga-sync:
+  replicaCount: 1
+lfx-v2-forwards-service:
+  replicaCount: 1
+lfx-v2-indexer-service:
+  replicaCount: 1
+lfx-v2-invite-service:
+  replicaCount: 1
+lfx-v2-mailing-list-service:
+  replicaCount: 1
+  externalSecretsOperator:
+    enabled: false
+lfx-v2-meeting-service:
+  replicaCount: 1
+lfx-v2-member-service:
+  replicaCount: 1
+lfx-v2-newsletter-service:
+  replicaCount: 1
+  externalSecretsOperator:
+    enabled: false
+lfx-v2-persona-service:
+  replicaCount: 1
+lfx-v2-project-service:
+  replicaCount: 1
+lfx-v2-query-service:
+  replicaCount: 1
+lfx-v2-survey-service:
+  replicaCount: 1
+  externalSecretsOperator:
+    enabled: false
+lfx-v2-voting-service:
+  replicaCount: 1
+  externalSecretsOperator:
+    enabled: false
