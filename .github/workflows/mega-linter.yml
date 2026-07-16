@@ -47,7 +47,7 @@ jobs:
       - name: MegaLinter
         id: ml
         # Use the Documentation flavor.
-        uses: oxsecurity/megalinter/flavors/documentation@5a91fb06c83d0e69fbd23756d47438aa723b4a5a  # 8.7.0
+        uses: oxsecurity/megalinter/flavors/documentation@ef3e84b8b836d76db562d0f3ed7da61e8fd538bc  # v9.6.0
         env:
           # All available variables are described in documentation
           # https://megalinter.io/configuration/
