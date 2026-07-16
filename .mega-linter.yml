@@ -31,8 +31,9 @@ DISABLE_ERRORS_LINTERS:
   # TBD! Need to work through these.
   - REPOSITORY_TRIVY
   - REPOSITORY_CHECKOV
-  # zizmor artipacked audit requires GitHub API access not available in PR context.
-  - ACTION_ZIZMOR
+# zizmor artipacked audit requires git smart-HTTP access unavailable in PR
+# context; run offline to skip remote tag resolution.
+ACTION_ZIZMOR_ARGUMENTS: --offline
 SPELL_CSPELL_ANALYZE_FILE_NAMES: false
 # Make sure Vale is setup to run with the styles it needs.
 SPELL_VALE_PRE_COMMANDS:
