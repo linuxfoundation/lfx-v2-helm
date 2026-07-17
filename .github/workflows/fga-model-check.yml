@@ -11,6 +11,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Check version bump when model changes
         env:
           BASE_REF: ${{ github.base_ref }}

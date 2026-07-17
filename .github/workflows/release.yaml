@@ -29,13 +29,17 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4
+        with:
+          persist-credentials: false
 
       - name: Prepare versions and chart name
         id: prepare
+        env:
+          REF_NAME: ${{ github.ref_name }}
         run: |
           set -euo pipefail
           CHART_NAME="$(yq '.name' charts/*/Chart.yaml)"
-          CHART_VERSION=$(echo ${{ github.ref_name }} | sed 's/v//g')
+          CHART_VERSION=$(echo "$REF_NAME" | sed 's/v//g')
           {
             echo "chart_name=$CHART_NAME"
             echo "chart_version=$CHART_VERSION"
@@ -68,9 +72,11 @@ jobs:
       - name: Sign the Helm chart in GHCR
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IMAGE_NAME: ${{ steps.publish-ghcr.outputs.image_name }}
+          IMAGE_DIGEST: ${{ steps.publish-ghcr.outputs.digest }}
         run: |
           set -euo pipefail
-          cosign sign --yes '${{ steps.publish-ghcr.outputs.image_name }}@${{ steps.publish-ghcr.outputs.digest }}'
+          cosign sign --yes "${IMAGE_NAME}@${IMAGE_DIGEST}"
 
   create-ghcr-helm-provenance:
     needs:
@@ -79,10 +85,9 @@ jobs:
       actions: read
       id-token: write
       packages: write
-    # Note, this action *cannot* be pinned to a ref: see the project's
-    # explanation at "Referencing SLSA builders and generators" in their
-    # README.
-    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@v2.1.0
+    # Note, this action *cannot* be pinned to a SHA: see the project's
+    # explanation at "Referencing SLSA builders and generators" in their README.
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_container_slsa3.yml@v2.1.0  # zizmor: ignore[unpinned-uses]
     with:
       image: ${{ needs.release-helm-chart.outputs.image_name }}
       digest: ${{ needs.release-helm-chart.outputs.digest }}
