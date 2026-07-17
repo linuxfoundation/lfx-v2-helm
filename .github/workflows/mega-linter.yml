@@ -25,9 +25,10 @@ jobs:
     steps:
       # Git Checkout
       - name: Checkout Code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       # Installs packaged subcharts under charts/*/charts/*.tgz. Also
       # fails if the Chart.lock digest is wrong.
@@ -47,10 +48,13 @@ jobs:
       - name: MegaLinter
         id: ml
         # Use the Documentation flavor.
-        uses: oxsecurity/megalinter/flavors/documentation@5a91fb06c83d0e69fbd23756d47438aa723b4a5a  # 8.7.0
+        uses: oxsecurity/megalinter/flavors/documentation@ef3e84b8b836d76db562d0f3ed7da61e8fd538bc  # v9.6.0
         env:
           # All available variables are described in documentation
           # https://megalinter.io/configuration/
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Allow GITHUB_TOKEN for working around rate limits (aquasecurity/trivy#7668).
           REPOSITORY_TRIVY_UNSECURED_ENV_VARIABLES: GITHUB_TOKEN
+          # Allow GITHUB_TOKEN so zizmor can resolve action tags for the
+          # artipacked audit (online mode).
+          ACTION_ZIZMOR_UNSECURED_ENV_VARIABLES: GITHUB_TOKEN

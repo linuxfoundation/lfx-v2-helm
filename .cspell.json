@@ -57,9 +57,15 @@
     "webauthn",
     "websecure",
     "stakater",
+    "artipacked",
+    "BETTERLEAKS",
     "fgadoc",
     "jtbd",
-    "jtbds"
+    "jtbds",
+    "lockfiles",
+    "TERRASCAN",
+    "zizmor",
+    "ZIZMOR"
   ],
   "flagWords": [
     "abort",
