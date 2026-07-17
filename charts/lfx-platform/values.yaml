@@ -566,7 +566,7 @@ authelia:
             scopes:
               - none
             audience:
-              - "http://lfx-api.k8s.orb.local"
+              - "http://lfx-api.k8s.orb.local/"
             grant_types:
               - client_credentials
             authorization_policy: one_factor
@@ -582,7 +582,7 @@ authelia:
               - profile
               - offline_access
             audience:
-              - "http://lfx-api.k8s.orb.local"
+              - "http://lfx-api.k8s.orb.local/"
             grant_types:
               - authorization_code
               - refresh_token
@@ -601,7 +601,7 @@ authelia:
               - offline_access
               - access:api
             audience:
-              - "http://lfx-api.k8s.orb.local"
+              - "http://lfx-api.k8s.orb.local/"
             grant_types:
               - authorization_code
               - refresh_token
@@ -620,7 +620,7 @@ authelia:
               - profile
               - api:access
             audience:
-              - "http://lfx-api.k8s.orb.local"
+              - "http://lfx-api.k8s.orb.local/"
             grant_types:
               - implicit
             authorization_policy: one_factor
