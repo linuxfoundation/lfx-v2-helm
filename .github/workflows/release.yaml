@@ -28,7 +28,7 @@ jobs:
       image_name: ${{ steps.publish-ghcr.outputs.image_name }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
           persist-credentials: false
 
@@ -39,7 +39,7 @@ jobs:
         run: |
           set -euo pipefail
           CHART_NAME="$(yq '.name' charts/*/Chart.yaml)"
-          CHART_VERSION=$(echo "$REF_NAME" | sed 's/v//g')
+          CHART_VERSION="${REF_NAME#v}"
           {
             echo "chart_name=$CHART_NAME"
             echo "chart_version=$CHART_VERSION"
