@@ -408,7 +408,8 @@ heimdall:
                 | quote
               }}
               {{ if .Outputs.oidc_contextualizer.email -}},
-              "email": {{ quote .Outputs.oidc_contextualizer.email }}
+              "email": {{ quote .Outputs.oidc_contextualizer.email }},
+              "email_verified": {{ .Outputs.oidc_contextualizer.email_verified }}
               {{ end -}}
               {{ if .Values.aud -}},
               "aud": {{ quote .Values.aud }}
