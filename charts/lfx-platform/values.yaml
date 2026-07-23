@@ -408,8 +408,8 @@ heimdall:
                 | quote
               }}
               {{ if .Outputs.oidc_contextualizer.email -}},
-              "email": {{ quote .Outputs.oidc_contextualizer.email }},
-              "email_verified": {{ .Outputs.oidc_contextualizer.email_verified | default false }}
+              {{- if not .Outputs.oidc_contextualizer.email_verified }}{{ fail "request denied: oidc_contextualizer returned unverified email" }}{{ end }}
+              "email": {{ quote .Outputs.oidc_contextualizer.email }}
               {{ end -}}
               {{ if .Values.aud -}},
               "aud": {{ quote .Values.aud }}
