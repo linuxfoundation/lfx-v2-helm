@@ -162,7 +162,7 @@ type past_meeting
     # That means they can update the past meeting details, update the participants, etc.
     define organizer: [user] or meeting_coordinator from project or writer from project or organizer from meeting
     # The host relation identifies a user who was a host of this past meeting.
-    define host: [user] or organizer
+    define host: [user]
     # The invitee relation identifies a participant who was invited to this past meeting.
     define invitee: [user]
     # The attendee relation identifies a participant who attended this past meeting.
@@ -227,7 +227,7 @@ type v1_past_meeting
     # The host relation identifies a user who was a host of this past meeting.
     # It is used to gate conditional access to recordings, transcripts, and AI summaries
     # via the self-referential flag tuples below.
-    define host: [user] or organizer
+    define host: [user]
     define invitee: [user]
     define attendee: [user]
     # @fgadoc:jtbd View a past meeting & attachments
