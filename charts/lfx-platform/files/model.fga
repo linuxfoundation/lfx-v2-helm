@@ -123,7 +123,7 @@ type meeting
     # the user who is hosting the meeting, nor is the host necessarily the one who is
     # organizing the meeting. For example, a host may need to retrieve the Zoom host key
     # but shouldn't be able to update the meeting details.
-    define host: [user] or organizer
+    define host: [user] or auditor
     # The participant relation identifies a user who is a participant in this meeting.
     # This can either mean they are invited to the meeting or they attended the meeting
     # without being invited. In either case, they are a participant of that meeting.
@@ -162,7 +162,7 @@ type past_meeting
     # That means they can update the past meeting details, update the participants, etc.
     define organizer: [user] or meeting_coordinator from project or writer from project or organizer from meeting
     # The host relation identifies a user who was a host of this past meeting.
-    define host: [user] or organizer
+    define host: [user]
     # The invitee relation identifies a participant who was invited to this past meeting.
     define invitee: [user]
     # The attendee relation identifies a participant who attended this past meeting.
@@ -205,7 +205,7 @@ type v1_meeting
     # @fgadoc:jtbd Manage meeting registrants & invitations
     # @fgadoc:jtbd Manage meeting attachments
     define organizer: meeting_coordinator from project or writer from committee or writer from project
-    define host: [user] or organizer
+    define host: [user] or auditor
     define participant: [user] or host
     # @fgadoc:jtbd View a meeting & join link
     # @fgadoc:jtbd Submit a meeting RSVP & download attachments
@@ -224,7 +224,10 @@ type v1_past_meeting
     # @fgadoc:jtbd Update & delete past meetings & summaries
     # @fgadoc:jtbd Manage past meeting participants & attachments
     define organizer: meeting_coordinator from project or writer from project or organizer from meeting
-    define host: [user] or organizer
+    # The host relation identifies a user who was a host of this past meeting.
+    # It is used to gate conditional access to recordings, transcripts, and AI summaries
+    # via the self-referential flag tuples below.
+    define host: [user]
     define invitee: [user]
     define attendee: [user]
     # @fgadoc:jtbd View a past meeting & attachments
