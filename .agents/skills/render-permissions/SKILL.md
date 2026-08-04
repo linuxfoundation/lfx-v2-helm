@@ -75,7 +75,7 @@ For each **visible** type (not hidden), determine two sets of visible columns:
 `[user:*]`, has at least one cross-type `<rel> from <field>` term) **and**
 are not hidden **and** would have at least one ✅ cell (i.e. their reachable
 JTBD pool is non-empty — see Step 2c for how to compute this). These columns
-represent roles that can only be assigned by granting access on a foreign
+represent permissions that can only be reached via a grant on a foreign
 object, not directly on this object. Their header text is **italicized** in
 the Markdown table (wrap the display name in `*...*`).
 
@@ -120,15 +120,15 @@ in order:
 
 **OpenFGA semantics primer:** When relation B's define says `or A` (B
 includes A), it means *anyone who has relation A also satisfies relation B*.
-In other words, A ⊆ B — A is the more privileged role. A writer who is
+In other words, A ⊆ B — A is the more privileged permission. A writer who is
 included in auditor (`auditor: ... or writer`) automatically has auditor
 access too, because writers are a subset of auditors.
 
-**Consequence for columns:** A column represents a role. For direct-grant
-columns, a user is directly assigned to the role. For indirect-only columns,
-a user reaches the role via a foreign object. In both cases, the column
-should show ✅ for every action that role can perform — including actions
-inherited *upward* from any relation that includes this role.
+**Consequence for columns:** A column represents a permission. For direct-grant
+columns, a user is directly granted the permission. For indirect-only columns,
+a user reaches the permission via a grant on a foreign object. In both cases, the column
+should show ✅ for every action that permission allows — including actions
+inherited *upward* from any relation that includes this permission.
 
 For each (JTBD, column) pair:
 
@@ -142,15 +142,15 @@ the upward reachability set. If any of those JTBD lists contains the target
 JTBD, mark ✅.
 
 Do **not** traverse downward (i.e., do not add JTBDs from relations listed
-via `or <peer>` inside this column's own define — those are relations this
-role subsumes, not roles that subsume this role).
+via `or <peer>` inside this column's own define — those are permissions this
+permission subsumes, not permissions that subsume this one).
 
 **Self-referential conditional fields (🟡):**
 
 A relation's define may contain `<rel> from <field>` terms where `<field>` is
 typed as `[<current_type>]` — i.e. the field's declared type is the same type
 currently being rendered. These are self-referential flag tuples set per-object
-to enable conditional access for a particular role. The self-referential type
+to enable conditional access for a particular permission. The self-referential type
 is the sole criterion; no other heuristic (naming pattern, presence of `or`
 terms, etc.) is needed. Examples from `v1_past_meeting`:
 
@@ -248,12 +248,12 @@ viewer:           [user:*] or auditor or auditor from parent
                   JTBDs: View a project, View project meeting count
 ```
 
-Named-role columns: `writer`, `auditor`, `meeting_coordinator`.
+Named-permission columns: `writer`, `auditor`, `meeting_coordinator`.
 Everyone column: yes (`viewer` has `[user:*]`).
 
 **Upward reachability:**
 
-- `writer`: which relations say `or writer`? → `auditor` does. Which say `or auditor`? → `viewer` does (but viewer is not a named-role column). So writer's upward set = {auditor, viewer}.
+- `writer`: which relations say `or writer`? → `auditor` does. Which say `or auditor`? → `viewer` does (but viewer is not a named-permission column). So writer's upward set = {auditor, viewer}.
   Writer column JTBDs = writer's own ∪ auditor's own ∪ viewer's own = all JTBDs.
 
 - `auditor`: which relations say `or auditor`? → `viewer` does. Auditor's upward set = {viewer}.
@@ -435,13 +435,13 @@ the `<!-- generated-intro ... -->` block):
 ```markdown
 This document describes the permissions model for the LFX Self Service
 Platform. Each section below represents an object type that supports direct
-role assignment.
+grant assignment.
 
 ## Legend
 
-- "**Role Name**" column headings are assignable roles for this object type (may also be inherited; see lists below tables)
-- "**_Italicized Role Name_**" headings are implicit or inherited roles (_not_ directly assignable on this object type)
-- ✅ access is granted to this role to all objects of this type
+- "**Permission Name**" column headings are permissions available as directly-assignable grants for this object type (may also be inherited; see lists below tables)
+- "**_Italicized Permission Name_**" headings are permissions only available on this object via inheritance (_not_ directly assignable on this object type)
+- ✅ access is granted to this permission to all objects of this type
 - 🟡 access is conditional on per-object settings
 ```
 
@@ -479,7 +479,7 @@ After writing, re-read `PERMISSIONS.md` and confirm:
 - No verbatim OpenFGA syntax (backtick expressions like `` `writer from project` ``) appears anywhere in the file.
 - The `<!-- generated-intro ... -->` block is present at the top.
 - The H1 `# LFX Self Service Platform Permissions` is present.
-- The `## Object types` heading is used (not `## Objects supporting role assignment` or `## Entities`).
+- The `## Object types` heading is used (not `## Objects supporting grant assignment` or `## Entities`).
 - The intro block is unchanged (if it existed before).
 - Every "… Team" phrase that appeared in a Permission Inheritance bullet in the previous file is present in the corresponding bullet in the output (same section, same relation).
 

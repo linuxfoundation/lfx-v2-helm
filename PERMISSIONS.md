@@ -11,13 +11,13 @@ Run .agents/skills/render-permissions/SKILL.md to regenerate after any model cha
 
 This document describes the permissions model for the LFX Self Service
 Platform. Each section below represents an object type that supports direct
-role assignment.
+grant assignment.
 
 ## Legend
 
-- "**Role Name**" column headings are assignable roles for this object type (may also be inherited; see lists below tables)
-- "**_Italicized Role Name_**" headings are implicit or inherited roles (_not_ directly assignable on this object type)
-- ✅ access is granted to this role to all objects of this type
+- "**Permission Name**" column headings are permissions available as directly-assignable grants for this object type (may also be inherited; see lists below tables)
+- "**_Italicized Permission Name_**" headings are permissions only available on this object via inheritance (_not_ directly assignable on this object type)
+- ✅ access is granted to this permission to all objects of this type
 - 🟡 access is conditional on per-object settings
 
 ## Object types
