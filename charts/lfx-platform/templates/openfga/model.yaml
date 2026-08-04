@@ -27,8 +27,8 @@ spec:
 */}}
     - version:
         major: 14
-        minor: 2
-        patch: 1
+        minor: 3
+        patch: 0
       authorizationModel: |
 {{ .Files.Get "files/model.fga" | indent 8 }}
 {{- end }}
