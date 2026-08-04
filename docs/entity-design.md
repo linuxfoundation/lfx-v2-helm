@@ -25,11 +25,11 @@ Understanding the following core concepts will help you navigate access control 
 
 **Model**: The schema that defines the types of entities and the kinds of relations users and objects can have with each other (e.g., users can be members of teams, teams can own projects, projects have a parent project). The model defines how permissions inherit and traverse. Our model is version-controlled and stored in this repository.
 
-**Grant**: A grant is a direct permission assignment—a fact stored in OpenFGA as a _tuple_—that assigns a specific permission to a user on a specific object. For example: "user:alice is granted writer on project:cncf" or "project:platform is the parent of project:web-app". The v2 platform maintains a live sync that indexes LFX data (projects, committees, etc.) into corresponding grants in real time. (When dealing with OpenFGA internals, the technical term "tuple" may be preferred.)
+**Grant (Tuple)**: A tuple is the fundamental unit of stored data in OpenFGA: a fact of the form "object A has relation R to object B" (e.g., "project:cncf has relation writer to user:alice", or "project:web-app has relation parent to project:platform"). We call a tuple a "grant" when it directly assigns a permission to a user on a specific object—for example, "user:alice is granted writer on project:cncf". Structural facts, like a project's parent relationship, are also stored as tuples, but aren't grants in the everyday, user-facing sense. Outside of this document, when we say "grant", we ordinarily mean a direct user permission assignment; within this document, "grant" and "tuple" are used interchangeably. The v2 platform maintains a live sync that indexes LFX data (projects, committees, etc.) into corresponding tuples in real time.
 
 **Permission**: A permission is the evaluated result of traversing grants across the model. Permissions are transitive: they chain through the model's inheritance rules. For example, if Alice is granted "writer" on project:cncf, and Kubernetes is a child project of CNCF, then Alice has the "writer" permission on project:kubernetes—even without a direct grant on that project. Throughout this document, when we refer to a "permission", we always mean an evaluated, potentially transitive access relationship derived from grants and the model definitions, and we will use the term "grant" when referring to a _direct_ assignment. The v2 platform uses OpenFGA's "batch check" endpoint to evaluate permissions. (When dealing with OpenFGA internals, the technical term "relation" or "relationship" may be preferred.)
 
-**Guard**: A guard defines which permission is required to perform a given action. It's not enough to define a model, store grants, and be able to evaluate permissions: we also need to define _what_ permission is required for each discrete action. For example, a GET request to `/projects/{id}` may require the permission "user:{authenticated_user} is a viewer of project:{id}". Defining guards is not always straightforward. For instance, to implement a user story "the project admin can create child projects", you might have a `/projects/{id}/create_child` endpoint, and define a guard checking the project ID extracted from the URL, just like the previous example. However, for a most RESTful API structure, you should instead define a guard requiring that a POST request to `/projects` checks for a "writer" permission of the authenticated user against the `parent_project` attribute of the **POST payload**. In the v2 platform, guards are defined as Kubernetes RuleSet CRD resources (enforced by Heimdall middleware in the API Gateway). Unlike the model, which is fully centralized, individual services may define their own guards, but the _enforcement_ of the guards is still done centrally, to ensure a consistent, transparent access control paradigm.
+**Guard**: A guard defines which permission is required to perform a given action. It's not enough to define a model, store grants, and be able to evaluate permissions: we also need to define _what_ permission is required for each discrete action. For example, a GET request to `/projects/{id}` may require the permission "user:{authenticated_user} is a viewer of project:{id}". Defining guards is not always straightforward. For instance, to implement a user story "the project admin can create child projects", you might have a `/projects/{id}/create_child` endpoint, and define a guard checking the project ID extracted from the URL, just like the previous example. However, for a more RESTful API structure, you should instead define a guard requiring that a POST request to `/projects` checks for a "writer" permission of the authenticated user against the `parent_project` attribute of the **POST payload**. In the v2 platform, guards are defined as Kubernetes RuleSet CRD resources (enforced by Heimdall middleware in the API Gateway). Unlike the model, which is fully centralized, individual services may define their own guards, but the _enforcement_ of the guards is still done centrally, to ensure a consistent, transparent access control paradigm.
 
 ### GitHub PR example
 
@@ -53,10 +53,10 @@ type repository
   relations
     define organization: [organization]
     define writer: [user] or [team:member] or owner from organization
-    # Unlike writer, we don't inherit readers from organization members, because
+    # Unlike writer, we don't inherit viewers from organization members, because
     # this depends on a "condition": the visibility configuration of the repo.
     # See the "conditional relations" section of this doc for more info.
-    define reader: [user:*] or [user] or [team:member] or writer
+    define viewer: [user:*] or [user] or [team:member] or writer
 
 type pullrequest
   relations
@@ -64,24 +64,24 @@ type pullrequest
     define author: [user]
     define writer: writer from repository
     define closer: author or writer
-    define reader: author or writer or reader from repository
+    define viewer: author or writer or viewer from repository
 ```
 
 Considerations:
-- There is no "singleton" relation definition, for example, that a pull request only may have (or must have) exactly **one** repository relation. These kinds of data constraints are enforced by the system that creates and deletes grants into OpenFGA, not by OpenFGA itself.
-- Ordinarily, "greater" permissions will explicitly cascade into "lesser" permissions (owner → writer → reader), because any given guard should only check a _single_ permission. Rather than "writers or readers can GET this resource", you want "readers can GET this resource", and then you include writers as having the reader permission automatically. This also is why a permission like "closer" is defined in the model: it's just an abstraction over two other permissions, so that the guard can be defined with only a single permission to check.
-- The `[team:member]` syntax means that the grant will point to a team, but when evaluated, it's actually a reference to the "members" permission of that team. The example model not only allows configuring teams as repo readers or writers, but it also allows teams to include other teams (nested teams).
+- There is no "singleton" relation definition, for example, that a pull request only may have (or must have) exactly **one** repository relation. These kinds of data constraints are enforced by the system that creates and deletes grants in OpenFGA, not by OpenFGA itself.
+- Ordinarily, "greater" permissions will explicitly cascade into "lesser" permissions (owner → writer → viewer), because any given guard should only check a _single_ permission. Rather than "writers or viewers can GET this resource", you want "viewers can GET this resource", and then you include writers as having the viewer permission automatically. This also is why a permission like "closer" is defined in the model: it's just an abstraction over two other permissions, so that the guard can be defined with only a single permission to check.
+- The `[team:member]` syntax (viewer/writer relationships) is an automatic dereference: the tuple that is stored will be to a team ID, but the relation is evaluated by passing a user, and the model will dereference connected team to find if user is a member of any them: even recursing across multiple depths of nested teams, supported for by the `[team:member]` tuple type on the `member` relation itself. The example model not only allows configuring teams as repo viewers or writers, but it also allows teams to include other teams (nested teams).
 
 #### Guard definitions
 
 Next, we implement guards defining which permission is required for each API method & endpoint. (The following statements are simplifications of the actual RuleSet DSL.)
 
 ```plain
-# Any repo reader can create a PR.
-POST {"repo_id": {id}, ...} => /pullrequests: <reader on repository:{id}>
+# Any repo viewer can create a PR.
+POST {"repo_id": {id}, ...} => /pullrequests: <viewer on repository:{id}>
 
-# Any reader on the PR can create a comment on it.
-POST {"pullrequest_id": {id}, "body": ...} => /pr_comments: <reader on pullrequest:{id}>
+# Any viewer on the PR can create a comment on it.
+POST {"pullrequest_id": {id}, "body": ...} => /pr_comments: <viewer on pullrequest:{id}>
 
 # Any writer on the PR can merge it.
 POST => /pullrequests/{id}/merge: <writer on pullrequest:{id}>
@@ -103,8 +103,8 @@ user:charlie member organization:linux-foundation
 
 # Repository
 organization:linux-foundation organization repository:lfx-platform
-user:charlie reader repository:lfx-platform
-user:dave reader repository:lfx-platform
+user:charlie viewer repository:lfx-platform
+user:dave viewer repository:lfx-platform
 
 # Pull Request
 repository:lfx-platform repository pullrequest:456
@@ -118,12 +118,12 @@ From these grants, OpenFGA would dynamically evaluate permissions when checked:
 **For pullrequest:456:**
 - `user:alice` has `writer` (owner org:linux-foundation → writer repo:lfx-platform → writer)
 - `user:alice` has `closer` (writer → closer))
-- `user:alice` has `reader` (writer → reader)
+- `user:alice` has `viewer` (writer → viewer)
 - `user:bob` has NO relations (org members have no implicit repo relations)
 - `user:charlie` does NOT have `writer`
 - `user:charlie` has `closer` (author → closer)
-- `user:charlie` has `reader` (author → reader OR reader repo:lfx-platform → reader)
-- `user:dave` has only `reader` (reader repo:lfx-platform → reader)
+- `user:charlie` has `viewer` (author → viewer OR viewer repo:lfx-platform → viewer)
+- `user:dave` has only `viewer` (viewer repo:lfx-platform → viewer)
 
 ## Entity type design
 
@@ -163,7 +163,7 @@ See the "Best practices" section for naming conventions for these non-OpenFGA ty
 
 We refer to a relation as "conditional" when whether or not a relation will be present must depend on the state of the object. For example, to return to our GitHub PR example from above: a repository might have a "visibility" setting that can be "public", "private", or "internal".
 
-If the repository is public, then we can store this as a tuple `user:* has reader on repo:456`—provided the special `[user:*]` relation is allowed, as it was in the model above.
+If the repository is public, then we can store this as a tuple `user:* has viewer on repo:456`—provided the special `[user:*]` relation is allowed, as it was in the model above.
 
 If the repository is "private", then we'd expect that all access grants would be directly defined against this repo, like "charlie" and "dave" were, or how we'd expect teams to have been authorized, if we had included tuples for those.
 
@@ -177,10 +177,10 @@ This solution keeps the same model we saw originally:
 type repository
   relations
     # ...
-    define reader: [user:*] or [user] or [team:member] or writer
+    define viewer: [user:*] or [user] or [team:member] or writer
 ```
 
-The code responsible for syncing data into OpenFGA, that is, creating and deleting grants when repos are created or updated, could evaluate the visibility setting of the repository, and if it is "internal", then it could fetch all members of the organization, and create "viewer" grants against the repository for _each of these users_, giving them the reader permission on the repository. There are several downsides to this approach:
+The code responsible for syncing data into OpenFGA, that is, creating and deleting grants when repos are created or updated, could evaluate the visibility setting of the repository, and if it is "internal", then it could fetch all members of the organization, and create "viewer" grants against the repository for _each of these users_, giving them the viewer permission on the repository. There are several downsides to this approach:
 
 - **Lots** of extra grants to store in OpenFGA. If the organization has 1000 members, each new internal repository adds 1000 more grants that OpenFGA must process.
 - We need a way to propagate data changes from a single object which affect the grants for _multiple_ objects. A change to the organization to add a member would need to either now be responsible for also updating the grants for every internal repository, or, the code responsible for mapping repository data to repository grants needs to monitor organization changes.
@@ -195,7 +195,7 @@ type repository
   relations
     define organization: [organization]
     # ...
-    define reader: [user:*] or [user] or [team:member] or writer ↩
+    define viewer: [user:*] or [user] or [team:member] or writer ↩
       or [organization:member with is_internal_visibility]
 
   condition is_internal_visibility(visibility: string) {
@@ -203,7 +203,7 @@ type repository
   }
 ```
 
-In this case, two grants are *always* created for the organization: one for the "organization" permission, and another for the "reader" permission: though the latter doesn't evaluate to the organization itself, but rather to its members (see "team" explanations above). However, any time the "reader" permission on some repository is being checked for a given user, the client making the API call to OpenFGA *must* pass the actual value of "visibility" for *that repository* as "context" in the check request. This adds complexity and latency, because our Heimdall authorization pipelines would actually need to fetch objects over the REST API _first_, in order to have the current data values, to provide the necessary inputs to the OpenFGA permission check. Also, Heimdall isn't our only OpenFGA client: we have both the "can I access" access-check API (for end users) and the Query Service which also need to make access decisions independently from Heimdall, and would have to provide the `visibility` context for the individual repo being accessed.
+In this case, two grants are *always* created for the organization: one for the "organization" permission, and another for the "viewer" permission: though the latter doesn't evaluate to the organization itself, but rather to its members (see "team" explanations above). However, any time the "viewer" permission on some repository is being checked for a given user, the client making the API call to OpenFGA *must* pass the actual value of "visibility" for *that repository* as "context" in the check request. This adds complexity and latency, because our Heimdall authorization pipelines would actually need to fetch objects over the REST API _first_, in order to have the current data values, to provide the necessary inputs to the OpenFGA permission check. Also, Heimdall isn't our only OpenFGA client: we have both the "can I access" access-check API (for end users) and the Query Service which also need to make access decisions independently from Heimdall, and would have to provide the `visibility` context for the individual repo being accessed.
 
 ### Conditional "from" relation grants (preferred)
 
@@ -215,13 +215,13 @@ type repository
     define organization: [organization]
     define organization_for_internal_visibility: [organization]
     # ...
-    define reader: [user:*] or [user] or [team:member] or writer or ↩
+    define viewer: [user:*] or [user] or [team:member] or writer or ↩
       member from organization_for_internal_visibility
 ```
 
-Now, instead of duplicating every member grant to "reader" directly (option 1), or always creating two organization grants, but where one is dependent on passing context in the query (option 2), our code that is responsible for data-mapping into OpenFGA will _conditionally_ create a second grant to the repo's organization _only when the visibility is set to internal_. If that grant is in place, then "reader" will follow it to find its members. This also helps avoid data changes needing to cascade grant changes across multiple objects: the repo type is responsible for creating or deleting the "organization_for_internal_visibility" grant _based on an attribute of the repo itself_, and the org only needs to update its own member grants without propagating them as direct grants on other entities.
+Now, instead of duplicating every member grant to "viewer" directly (option 1), or always creating two organization grants, but where one is dependent on passing context in the query (option 2), our code that is responsible for data-mapping into OpenFGA will _conditionally_ create a second grant to the repo's organization _only when the visibility is set to internal_. If that grant is in place, then "viewer" will follow it to find its members. This also helps avoid data changes needing to cascade grant changes across multiple objects: the repo type is responsible for creating or deleting the "organization_for_internal_visibility" grant _based on an attribute of the repo itself_, and the org only needs to update its own member grants without propagating them as direct grants on other entities.
 
-Note, this strategy can work *even when the conditional permission is self-referential*. For example, if there is a permission "repo_creator" on the organization, and it always includes owners, but whether it includes org members depends on a setting of that organization: then the organization type can have a conditionally-set grant _pointing to itself_: `repo_creators: owners or members from organization_for_members_can_create_repos`.
+Note, this strategy can work *even when the conditional relation is a self-loop*: a tuple whose object and target are the same instance, rather than two different objects. For example, if there is a permission "repo_creator" on the organization, and it always includes owners, but whether it includes org members depends on a setting of that organization: then the organization type can have a conditionally-set grant _from an organization to that same organization_: `repo_creators: owners or members from organization_for_members_can_create_repos`, where the `organization_for_members_can_create_repos` tuple for `organization:X` points back at `organization:X` itself.
 
 ## Best practices
 
@@ -252,7 +252,7 @@ If these related/attached resources have their own OpenFGA _type_, meaning they 
 **In-Resource Arrays**:
 - **API Design**: Data sets stored as arrays within the main resource: `GET /widget/{id}` returns `{"colors": ["red", "blue"], ...}`. Changes to the collection are made with a PUT to `/widget/{id} containing all properties, including any new/changed set of colors to save.
 - **Use Case**: Best for size-constrained lists with infrequent changes.
-- **OpenFGA Impact**: As they are attributes within a larger object, they will share permissions with the entire object (except by moving to a different "attribute set"; see below). While individual items in the set might be mapped to OpenFGA permissions (e.g. project writers), these individual items cannot map to uniquely-referenced objects in OpenFGA grants (see "When to create OpenFGA types" section).
+- **OpenFGA Impact**: As they are attributes within a larger object, they will share permissions with the entire object (except by moving to a different "attribute set"; see below). While individual items in the set might be mapped to OpenFGA grants (e.g. project writers), these individual items cannot map to uniquely-referenceable OpenFGA types (see "When to create OpenFGA types" section).
 - **Query Service**: Auditing of changes to the collection or set is on the object (or attribute set), rather than an audit log of each entry.
 
 **Collection Endpoints**:
@@ -292,13 +292,15 @@ It is imperative that our API contract aligns the payload for reads and writes; 
 
 Following are some example of type naming in the v2 platform. In this table, the type will be shown as a full "object reference"—composed of both the type name and its ID—to help show how the type corresponds to its API path.
 
+A guard is ordinarily implemented as a Heimdall RuleSet checking the API path, but the same permission check is also implemented in the UI (to hide or disable actions the user can't perform), and independently in the Query Service, where the permission required to view an indexed item is stored as an attribute on that item itself.
+
 | Use case                             | Naming convention                | Type usage              | API path                                        | Notes                                                                                                                                                              |
 |--------------------------------------|----------------------------------|-------------------------|-------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | 1. OpenFGA types                     | `project:{id}`                   | OpenFGA & Query Service | `/projects/{id}`                                | Any OpenFGA type is served from the root of the LFX API path. The type name is verbatim between the OpenFGA model and the Query Service.                           |
-| 2. Attribute sets of an OpenFGA type | `project_settings:{id}`          | Query Service           | `/projects/{id}/settings`                       | This is indexed as a `project_settings` type; guard (API path & Query Service) checks a permission against the `project` OpenFGA type.                             |
+| 2. Attribute sets of an OpenFGA type | `project_settings:{id}`          | Query Service           | `/projects/{id}/settings`                       | This is indexed as a `project_settings` type; the API path guard and Query Service each independently check a permission against the `project` OpenFGA type.                             |
 | 3. In-resource arrays (value sets)   | N/A                              |                         |                                                 | In-resource arrays (like project writers) are not indexed as distinct objects and so have NO distinct type (OpenFGA or Query Service).                             |
-| 4. Sub-collections                   | `committee_member:{mbr_id}`      | Query Service           | `/committees/{id}/` `members/{mbr_id}`          | Indexed as `committee_member` - guard (API path & Query Service) checks a permission against the `committee` OpenFGA type.                                         |
-| 5. Attribute sets of sub-collections | `committee_member_priv:{mbr_id}` | Query Service           | `/committees/{id}/` `members/{mbr_id}/priv`     | Indexed as `committee_member_priv` - guard (API path & Query Service) checks a permission against the `committee` OpenFGA type.                                    |
+| 4. Sub-collections                   | `committee_member:{mbr_id}`      | Query Service           | `/committees/{id}/` `members/{mbr_id}`          | Indexed as `committee_member` - the API path guard and Query Service each independently check a permission against the `committee` OpenFGA type.                                         |
+| 5. Attribute sets of sub-collections | `committee_member_priv:{mbr_id}` | Query Service           | `/committees/{id}/` `members/{mbr_id}/priv`     | Indexed as `committee_member_priv` - the API path guard and Query Service each independently check a permission against the `committee` OpenFGA type.                                    |
 | 6. Sub-collections (distinct type)   | `domain:{dom_id}`                | Query Service           | `/projects/{id}/` `domains/{dom_id}`            | Functionally identical to a "sub-collection", including needing the OpenFGA type as an API path prefix, but dropping the prefix from our indexer type for brevity. |
 | 7. Attribute sets of #6              | `domain_restricted:{dom_id}`     | Query Service           | `/projects/{id}/` `domains/{dom_id}/restricted` | Functionally identical to #5, but with the leading type dropped as with #6.                                                                                        |
 

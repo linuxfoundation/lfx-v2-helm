@@ -17,7 +17,7 @@ grant assignment.
 
 - "**Permission Name**" column headings are permissions available as directly-assignable grants for this object type (may also be inherited; see lists below tables)
 - "**_Italicized Permission Name_**" headings are permissions only available on this object via inheritance (_not_ directly assignable on this object type)
-- ✅ access is granted to this permission to all objects of this type
+- ✅ this permission allows the action in this row, for all objects of this type
 - 🟡 access is conditional on per-object settings
 
 ## Object types

@@ -441,7 +441,7 @@ grant assignment.
 
 - "**Permission Name**" column headings are permissions available as directly-assignable grants for this object type (may also be inherited; see lists below tables)
 - "**_Italicized Permission Name_**" headings are permissions only available on this object via inheritance (_not_ directly assignable on this object type)
-- ✅ access is granted to this permission to all objects of this type
+- ✅ this permission allows the action in this row, for all objects of this type
 - 🟡 access is conditional on per-object settings
 ```
 
@@ -473,7 +473,7 @@ After writing, re-read `PERMISSIONS.md` and confirm:
 - The *Everyone* column is always rightmost.
 - Writer columns show ✅ for auditor JTBDs (because auditor includes writer, so writers have auditor access).
 - Auditor columns do NOT show ✅ for writer-only JTBDs (auditors are not writers).
-- The *Everyone* column shows 🟡 only for JTBDs from the `[user:*]` relation's own upward reachability set (not from privileged roles that the [user:*] relation happens to include downward).
+- The *Everyone* column shows 🟡 only for JTBDs from the `[user:*]` relation's own upward reachability set (not from privileged permissions that the [user:*] relation happens to include downward).
 - The table header first cell is blank (no "Job to Be Done" text).
 - No same-type peer relations appear in Permission Inheritance bullets.
 - No verbatim OpenFGA syntax (backtick expressions like `` `writer from project` ``) appears anywhere in the file.
