@@ -24,22 +24,31 @@ grant assignment.
 
 ### Project
 
-| | *Owner* | Writer | Auditor | Meeting Coordinator | Executive Director | *Everyone* |
-|---|---|---|---|---|---|---|
-| View project details & meeting count | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
-| View project links & folders | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
-| View project documents | ✅ | ✅ | ✅ | ✅ | ✅ | 🟡 |
-| View project settings | ✅ | ✅ | ✅ | | ✅ | |
-| Create & update a project | ✅ | ✅ | | | | |
-| Manage project links, folders & documents | ✅ | ✅ | | | | |
-| Delete a project | ✅ | | | | | |
-| Create project committees & Groups.io services | ✅ | ✅ | | | | |
-| Create a vote poll | ✅ | ✅ | | | | |
-| Create meetings & past meetings | ✅ | ✅ | | ✅ | | |
+| | *Owner* | *Marketing Ops* | Writer | Auditor | Meeting Coordinator | Executive Director | *Everyone* |
+|---|---|---|---|---|---|---|---|
+| View project details & meeting count | ✅ | | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View project links & folders | ✅ | | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View project documents | ✅ | | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View project settings | ✅ | | ✅ | ✅ | | ✅ | |
+| Create & update a project | ✅ | | ✅ | | | | |
+| Manage project links, folders & documents | ✅ | | ✅ | | | | |
+| Delete a project | ✅ | | | | | | |
+| Create project committees & Groups.io services | ✅ | | ✅ | | | | |
+| Create a vote poll | ✅ | | ✅ | | | | |
+| Create meetings & past meetings | ✅ | | ✅ | | ✅ | | |
+| Connect & manage ad platform accounts | | ✅ | | | | ✅ | |
+| Test & rotate ad platform credentials | | ✅ | | | | ✅ | |
+| Create & manage campaign briefs | | ✅ | | | | ✅ | |
+| Approve a brief for campaign creation | | ✅ | | | | ✅ | |
+| Manage brief target audiences | | ✅ | | | | ✅ | |
+| Launch campaigns across ad platforms | | ✅ | | | | ✅ | |
+| Pause & resume a campaign | | ✅ | | | | ✅ | |
+| Track campaign creation job status | | ✅ | | | | ✅ | |
 
 #### Permission Inheritance
 
 - ***Owner***: inherited from parent Project, global Product Support Team, global Formation Team
+- ***Marketing Ops***: inherited from parent Project, global Marketing Ops Team
 - **Writer**: inherited from parent Project
 - **Auditor**: inherited from parent Project, global LF Staff Team, global LF Contractor Team
 

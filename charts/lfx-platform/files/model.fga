@@ -40,6 +40,14 @@ type project
     # sub-projects. The manager role does not cascade from parent; management
     # rights are explicitly scoped to the project on which they are granted.
     define marketing_auditor: [team#member] or executive_director or marketing_ops or marketing_auditor from parent
+    # @fgadoc:jtbd Connect & manage ad platform accounts
+    # @fgadoc:jtbd Test & rotate ad platform credentials
+    # @fgadoc:jtbd Create & manage campaign briefs
+    # @fgadoc:jtbd Approve a brief for campaign creation
+    # @fgadoc:jtbd Manage brief target audiences
+    # @fgadoc:jtbd Launch campaigns across ad platforms
+    # @fgadoc:jtbd Pause & resume a campaign
+    # @fgadoc:jtbd Track campaign creation job status
     define campaign_manager: executive_director or marketing_ops
     # @fgadoc:jtbd View project details & meeting count
     # @fgadoc:jtbd View project links & folders
