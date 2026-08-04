@@ -58,6 +58,8 @@ type committee
     define writer: [user] or writer from project
     # @fgadoc:jtbd View committee settings
     define auditor: [user, team#member] or writer or auditor from project or meeting_coordinator from project
+    # @fgadoc:jtbd Invite a user to join a committee
+    define inviter: member or auditor
     # @fgadoc:jtbd View committee details & weekly brief
     # @fgadoc:jtbd View committee members, invites & applications
     # @fgadoc:jtbd View committee links, folders & documents

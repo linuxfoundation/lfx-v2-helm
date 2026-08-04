@@ -57,6 +57,7 @@ role assignment.
 | Manage committee members, invites & applications | ✅ | | | |
 | Manage committee links, folders & documents | ✅ | | | |
 | Generate & edit the committee weekly brief | ✅ | | | |
+| Invite a user to join a committee | ✅ | ✅ | ✅ | |
 | Create a committee survey | ✅ | | | |
 
 #### Permission Inheritance
