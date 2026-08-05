@@ -60,7 +60,7 @@ For each `define <relation>:` line, extract:
 | Define expression | Everything after `:` on the `define` line |
 | Direct user grant? | One of the type restrictions in `[...]` is exactly `user` (e.g. `[user]` or `[user, team#member]`), as opposed to `user:*` |
 | Public wildcard? | `[user:*]` appears as one of the type restrictions in `[...]` |
-| Indirect-only? | None of the type restrictions in `[...]` is `user` or `user:*`, AND has at least one `<rel> from <field>` term where `<field>` resolves to a different type |
+| Indirect-only? | None of the type restrictions in `[...]` is `user` or `user:*`, AND has at least one indirect source: either a `<type>#<relation>` userset type restriction in `[...]` (e.g. `[team#member]`), or a `<rel> from <field>` term where `<field>` resolves to a different type |
 
 ## Step 2 — Build the JTBD × relation matrix
 
@@ -73,10 +73,11 @@ For each **visible** type (not hidden), determine two sets of visible columns:
 `[user:*]`) **and** the relation is not hidden.
 
 **Indirect-only columns** — relations that are indirect-only (no `[user]` or
-`[user:*]`, has at least one cross-type `<rel> from <field>` term) **and**
+`[user:*]`, but has at least one `<type>#<relation>` userset type restriction
+like `[team#member]`, or a cross-type `<rel> from <field>` term) **and**
 are not hidden **and** would have at least one ✅ cell (i.e. their reachable
 JTBD pool is non-empty — see Step 2c for how to compute this). These columns
-represent permissions that can only be reached via a grant on a foreign
+represent roles that can only be assigned by granting access on a foreign
 object, not directly on this object. Their header text is **italicized** in
 the Markdown table (wrap the display name in `*...*`).
 
@@ -318,12 +319,14 @@ without requiring any special markup in the file.
 ## Step 3 — Build Permission Inheritance sections
 
 For each **visible** type, for each **direct-grant relation** (has `[user]`,
-not hidden) **and each indirect-only column**, emit a bullet only when the
-relation's own define expression contains one or more **direct**
-`<rel> from <field>` terms where `<field>` resolves to a **different** type
-(i.e. a field whose type annotation is not the current type).
+not hidden) **and each indirect-only column**, emit a bullet when the
+relation's own define expression contains one or more indirect sources:
+a **direct** `<rel> from <field>` term where `<field>` resolves to a
+**different** type (i.e. a field whose type annotation is not the current
+type), and/or a `<type>#<relation>` userset type restriction in `[...]`
+(e.g. `[team#member]`).
 
-Indirect-only columns always have at least one cross-type source by
+Indirect-only columns always have at least one such indirect source by
 definition, so they will always produce a bullet. Their bullet uses the same
 format as direct-grant bullets — italicize the relation display name to match
 the italicized column header:
@@ -465,7 +468,7 @@ After writing, re-read `PERMISSIONS.md` and confirm:
 - Indirect-only columns appear leftmost, before all direct-grant columns, in file order among themselves.
 - Indirect-only column headers are italicized (e.g. `*Writer*`, `*Auditor*`).
 - Indirect-only columns with zero ✅ cells are omitted entirely.
-- Permission Inheritance bullets appear for both direct-grant relations (has `[user]`, not hidden) and indirect-only columns, when they have direct cross-type `<rel> from <field>` terms in their own define — no peer-chain traversal.
+- Permission Inheritance bullets appear for both direct-grant relations (has `[user]`, not hidden) and indirect-only columns, when they have direct cross-type `<rel> from <field>` terms and/or `<type>#<relation>` userset type restrictions in their own define — no peer-chain traversal.
 - Indirect-only bullets use bold-italic name (e.g. `- ***Auditor***: inherited from ...`); direct-grant bullets use bold name (e.g. `- **Writer**: inherited from ...`).
 - JTBD rows within each table follow the semantic ordering rule: base object first, settings next, attributes in Read → Update → Delete order, child resource creation last.
 - ALL JTBDs from ALL relations of a type appear as rows (including viewer/public JTBDs).
