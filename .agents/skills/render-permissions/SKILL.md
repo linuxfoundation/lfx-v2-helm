@@ -12,6 +12,10 @@ human-readable `PERMISSIONS.md` at the repo root.
 
 - `[user:*]` means "every user including anonymous". It produces an
   **Everyone** column in the table — see Step 2.
+- Throughout this document, `[user]` means the type restriction list
+  contains `user` as one of its entries — not necessarily the only entry.
+  For example, `[user, team#member]` satisfies `[user]`. The distinct
+  restriction `[user:*]` (wildcard) does **not** satisfy `[user]`.
 - Non-`@fgadoc` comments may appear between an `@fgadoc` annotation block
   and the `type`/`define` line it annotates (e.g. descriptive prose already
   in the file). Collect all consecutive `# @fgadoc:*` lines before a
@@ -58,9 +62,10 @@ For each `define <relation>:` line, extract:
 | Hidden? | `@fgadoc:hide` in preceding annotation block |
 | JTBD list | All `@fgadoc:jtbd` lines in preceding annotation block |
 | Define expression | Everything after `:` on the `define` line |
-| Direct user grant? | One of the type restrictions in `[...]` is exactly `user` (e.g. `[user]` or `[user, team#member]`), as opposed to `user:*` |
+| Direct user grant? | Has `[user]` (see Gotchas for what this means) |
 | Public wildcard? | `[user:*]` appears as one of the type restrictions in `[...]` |
-| Indirect-only? | None of the type restrictions in `[...]` is `user` or `user:*`, AND has at least one indirect source: either a `<type>#<relation>` userset type restriction in `[...]` (e.g. `[team#member]`), or a `<rel> from <field>` term where `<field>` resolves to a different type |
+| Indirect? | Does not have `[user]` — the relation cannot be granted directly to a user on this object |
+| Column-worthy? | A relation that is indirect AND has at least one non-peer source in its own define expression: a `<rel> from <field>` term where `<field>` resolves to a different type, or any type restriction in `[...]` other than `user`/`user:*`. Relations that are purely unions of same-type peers (e.g. `writer or meeting_coordinator`) are already represented by their constituent columns and are not shown separately. |
 
 ## Step 2 — Build the JTBD × relation matrix
 
@@ -68,17 +73,15 @@ For each `define <relation>:` line, extract:
 
 For each **visible** type (not hidden), determine two sets of visible columns:
 
-**Direct-grant columns** — relations where one of the type restrictions in
-`[...]` is exactly `user` (e.g. `[user]` or `[user, team#member]`, but not
-`[user:*]`) **and** the relation is not hidden.
+**Direct-grant columns** — relations that have `[user]` and are not hidden.
 
-**Indirect-only columns** — relations that are indirect-only (no `[user]` or
-`[user:*]`, but has at least one `<type>#<relation>` userset type restriction
-like `[team#member]`, or a cross-type `<rel> from <field>` term) **and**
-are not hidden **and** would have at least one ✅ cell (i.e. their reachable
-JTBD pool is non-empty — see Step 2c for how to compute this). These columns
-represent permissions that can only be assigned by granting access on a
-foreign object, not directly on this object. Their header text is **italicized** in
+**Indirect-only columns** — relations that are indirect (no `[user]`) **and**
+column-worthy (have at least one non-peer source — a cross-type
+`<rel> from <field>` term or any type restriction other than
+`user`/`user:*`) **and** are not hidden **and** would have at least one ✅
+cell (i.e. their reachable JTBD pool is non-empty — see Step 2c for how to
+compute this). These columns represent permissions that cannot be granted
+directly to a user on this object. Their header text is **italicized** in
 the Markdown table (wrap the display name in `*...*`).
 
 Additionally, if **any** relation in the type has `[user:*]` in its define
@@ -320,13 +323,12 @@ without requiring any special markup in the file.
 
 For each **visible** type, for each **direct-grant relation** (has `[user]`,
 not hidden) **and each indirect-only column**, emit a bullet when the
-relation's own define expression contains one or more indirect sources:
+relation's own define expression contains one or more non-peer sources:
 a **direct** `<rel> from <field>` term where `<field>` resolves to a
 **different** type (i.e. a field whose type annotation is not the current
-type), and/or a `<type>#<relation>` userset type restriction in `[...]`
-(e.g. `[team#member]`).
+type), and/or any type restriction in `[...]` other than `user`/`user:*`.
 
-Indirect-only columns always have at least one such indirect source by
+Indirect-only columns always have at least one such non-peer source by
 definition, so they will always produce a bullet. Their bullet uses the same
 format as direct-grant bullets — italicize the relation display name to match
 the italicized column header:
@@ -438,8 +440,7 @@ the `<!-- generated-intro ... -->` block):
 
 ```markdown
 This document describes the permissions model for the LFX Self Service
-Platform. Each section below represents an object type that supports direct
-grant assignment.
+Platform. Each section below represents an object type and its permissions.
 
 ## Legend
 
@@ -465,10 +466,10 @@ After writing, re-read `PERMISSIONS.md` and confirm:
 - No `[user:*]`-only relation appears as a direct-grant or indirect-only column.
 - Every type with at least one `[user:*]` relation has an *Everyone* column (italicized header).
 - Every relation with `[user:*]` in its define does NOT get a public-access bullet (the Everyone column covers this).
-- Indirect-only columns appear leftmost, before all direct-grant columns, in file order among themselves.
+- Indirect-only columns appear leftmost, before all direct-grant columns, in descending privilege order (owner → writer → organizer → auditor → remaining in file order).
 - Indirect-only column headers are italicized (e.g. `*Writer*`, `*Auditor*`).
 - Indirect-only columns with zero ✅ cells are omitted entirely.
-- Permission Inheritance bullets appear for both direct-grant relations (has `[user]`, not hidden) and indirect-only columns, when they have direct cross-type `<rel> from <field>` terms and/or `<type>#<relation>` userset type restrictions in their own define — no peer-chain traversal.
+- Permission Inheritance bullets appear for both direct-grant relations (has `[user]`, not hidden) and indirect-only columns, when they have direct cross-type `<rel> from <field>` terms and/or non-`user`/`user:*` type restrictions in their own define — no peer-chain traversal.
 - Indirect-only bullets use bold-italic name (e.g. `- ***Auditor***: inherited from ...`); direct-grant bullets use bold name (e.g. `- **Writer**: inherited from ...`).
 - JTBD rows within each table follow the semantic ordering rule: base object first, settings next, attributes in Read → Update → Delete order, child resource creation last.
 - ALL JTBDs from ALL relations of a type appear as rows (including viewer/public JTBDs).
