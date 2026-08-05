@@ -58,9 +58,9 @@ For each `define <relation>:` line, extract:
 | Hidden? | `@fgadoc:hide` in preceding annotation block |
 | JTBD list | All `@fgadoc:jtbd` lines in preceding annotation block |
 | Define expression | Everything after `:` on the `define` line |
-| Direct user grant? | `[user]` appears literally (not `[user:*]`) in define expression |
-| Public wildcard? | `[user:*]` appears in the define expression |
-| Indirect-only? | Does NOT have `[user]` or `[user:*]`, AND has at least one `<rel> from <field>` term where `<field>` resolves to a different type |
+| Direct user grant? | One of the type restrictions in `[...]` is exactly `user` (e.g. `[user]` or `[user, team#member]`), as opposed to `user:*` |
+| Public wildcard? | `[user:*]` appears as one of the type restrictions in `[...]` |
+| Indirect-only? | None of the type restrictions in `[...]` is `user` or `user:*`, AND has at least one `<rel> from <field>` term where `<field>` resolves to a different type |
 
 ## Step 2 — Build the JTBD × relation matrix
 
@@ -68,8 +68,9 @@ For each `define <relation>:` line, extract:
 
 For each **visible** type (not hidden), determine two sets of visible columns:
 
-**Direct-grant columns** — relations where `[user]` appears literally (not
-`[user:*]`) in the define expression **and** the relation is not hidden.
+**Direct-grant columns** — relations where one of the type restrictions in
+`[...]` is exactly `user` (e.g. `[user]` or `[user, team#member]`, but not
+`[user:*]`) **and** the relation is not hidden.
 
 **Indirect-only columns** — relations that are indirect-only (no `[user]` or
 `[user:*]`, has at least one cross-type `<rel> from <field>` term) **and**

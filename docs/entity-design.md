@@ -47,16 +47,16 @@ type organization
 
 type team
   relations
-    define member: [user] or [team:member]
+    define member: [user] or [team#member]
 
 type repository
   relations
     define organization: [organization]
-    define writer: [user] or [team:member] or owner from organization
+    define writer: [user] or [team#member] or owner from organization
     # Unlike writer, we don't inherit viewers from organization members, because
     # this depends on a "condition": the visibility configuration of the repo.
     # See the "conditional relations" section of this doc for more info.
-    define viewer: [user:*] or [user] or [team:member] or writer
+    define viewer: [user:*] or [user] or [team#member] or writer
 
 type pullrequest
   relations
@@ -70,7 +70,7 @@ type pullrequest
 Considerations:
 - There is no "singleton" relation definition, for example, that a pull request only may have (or must have) exactly **one** repository relation. These kinds of data constraints are enforced by the system that creates and deletes grants in OpenFGA, not by OpenFGA itself.
 - Ordinarily, "greater" permissions will explicitly cascade into "lesser" permissions (owner → writer → viewer), because any given guard should only check a _single_ permission. Rather than "writers or viewers can GET this resource", you want "viewers can GET this resource", and then you include writers as having the viewer permission automatically. This also is why a permission like "closer" is defined in the model: it's just an abstraction over two other permissions, so that the guard can be defined with only a single permission to check.
-- The `[team:member]` syntax (viewer/writer relationships) is an automatic dereference: the tuple that is stored will be to a team ID, but the relation is evaluated by passing a user, and the model will dereference connected team to find if user is a member of any them: even recursing across multiple depths of nested teams, supported for by the `[team:member]` tuple type on the `member` relation itself. The example model not only allows configuring teams as repo viewers or writers, but it also allows teams to include other teams (nested teams).
+- The `[team#member]` syntax (viewer/writer relationships) is an automatic dereference: the tuple that is stored will be to a team ID, but the relation is evaluated by passing a user, and the model will dereference connected team to find if user is a member of any them: even recursing across multiple depths of nested teams, supported for by the `[team#member]` tuple type on the `member` relation itself. The example model not only allows configuring teams as repo viewers or writers, but it also allows teams to include other teams (nested teams).
 
 #### Guard definitions
 
@@ -117,7 +117,7 @@ From these grants, OpenFGA would dynamically evaluate permissions when checked:
 
 **For pullrequest:456:**
 - `user:alice` has `writer` (owner org:linux-foundation → writer repo:lfx-platform → writer)
-- `user:alice` has `closer` (writer → closer))
+- `user:alice` has `closer` (writer → closer)
 - `user:alice` has `viewer` (writer → viewer)
 - `user:bob` has NO relations (org members have no implicit repo relations)
 - `user:charlie` does NOT have `writer`
@@ -177,7 +177,7 @@ This solution keeps the same model we saw originally:
 type repository
   relations
     # ...
-    define viewer: [user:*] or [user] or [team:member] or writer
+    define viewer: [user:*] or [user] or [team#member] or writer
 ```
 
 The code responsible for syncing data into OpenFGA, that is, creating and deleting grants when repos are created or updated, could evaluate the visibility setting of the repository, and if it is "internal", then it could fetch all members of the organization, and create "viewer" grants against the repository for _each of these users_, giving them the viewer permission on the repository. There are several downsides to this approach:
@@ -195,8 +195,8 @@ type repository
   relations
     define organization: [organization]
     # ...
-    define viewer: [user:*] or [user] or [team:member] or writer ↩
-      or [organization:member with is_internal_visibility]
+    define viewer: [user:*] or [user] or [team#member] or writer ↩
+      or [organization#member with is_internal_visibility]
 
   condition is_internal_visibility(visibility: string) {
     visibility == "internal"
@@ -215,7 +215,7 @@ type repository
     define organization: [organization]
     define organization_for_internal_visibility: [organization]
     # ...
-    define viewer: [user:*] or [user] or [team:member] or writer or ↩
+    define viewer: [user:*] or [user] or [team#member] or writer or ↩
       member from organization_for_internal_visibility
 ```
 
@@ -280,11 +280,11 @@ Complex business entities like projects often contain sensitive information that
 - **`PUT /projects/{id}/legal`**: requires `owner` permission to update formation details
 - **`PUT /projects/{id}/settings`**: requires `writer` permission to update non-formation sensitive data
 
-In this example, there are *3 attributes sets*:
+In this example, there are *3 attribute sets*:
 
 - **Formation details**: readable by viewer (includes everyone, for active projects), writable by owner (formation team only)
-- **Non-sensitive, non-formation-related metadata**: readably by viewer (everyone, for active projects), writable by writer (any admin)
-- **Sensitive, non-formation-related setting**: readably by auditor, writable by writer
+- **Non-sensitive, non-formation-related metadata**: readable by viewer (everyone, for active projects), writable by writer (any admin)
+- **Sensitive, non-formation-related setting**: readable by auditor, writable by writer
 
 It is imperative that our API contract aligns the payload for reads and writes; therefore, number of sets is determined by the number of distinct "permission X can read and permission Y can write" statements. To illustrate: if business requirements introduce an attribute that must be writable only by owners, and readable only by auditors (_not_ by viewer, as in the above "formation details" set), *it means introducing a new API endpoint to serve a new "attribute set" from*.
 
