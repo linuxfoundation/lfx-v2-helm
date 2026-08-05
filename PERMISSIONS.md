@@ -15,10 +15,10 @@ grant assignment.
 
 ## Legend
 
-- "**Permission Name**" column headings are permissions available as directly-assignable grants for this object type (may also be inherited; see lists below tables)
-- "**_Italicized Permission Name_**" headings are permissions only available on this object via inheritance (_not_ directly assignable on this object type)
-- ✅ this permission allows the action in this row, for all objects of this type
-- 🟡 access is conditional on per-object settings
+- "**Permission Name**" column headings are permissions available as directly-assignable grants per object of this type (may also be inherited; see lists below tables)
+- "**_Italicized Permission Name_**" headings are permissions only available per object via inheritance (_not_ directly assignable)
+- ✅ this permission unconditionally allows the action in this row on that object
+- 🟡 access is conditional (depends on data/settings stored in the object itself)
 
 ## Object types
 
