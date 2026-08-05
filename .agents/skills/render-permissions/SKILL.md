@@ -77,8 +77,8 @@ For each **visible** type (not hidden), determine two sets of visible columns:
 like `[team#member]`, or a cross-type `<rel> from <field>` term) **and**
 are not hidden **and** would have at least one ✅ cell (i.e. their reachable
 JTBD pool is non-empty — see Step 2c for how to compute this). These columns
-represent roles that can only be assigned by granting access on a foreign
-object, not directly on this object. Their header text is **italicized** in
+represent permissions that can only be assigned by granting access on a
+foreign object, not directly on this object. Their header text is **italicized** in
 the Markdown table (wrap the display name in `*...*`).
 
 Additionally, if **any** relation in the type has `[user:*]` in its define
