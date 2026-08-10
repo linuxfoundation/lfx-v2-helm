@@ -38,7 +38,6 @@ dependencies:
 - name: lfx-v2-query-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-query-service/chart
   version: 0.4.24
-  version: 0.4.24
 - name: lfx-v2-project-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-project-service/chart
   version: 0.6.11
@@ -60,24 +59,35 @@ dependencies:
 - name: lfx-v2-mailing-list-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-mailing-list-service/chart
   version: 0.4.14
-  version: 0.4.14
 - name: lfx-v2-auth-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-auth-service/chart
   version: 0.4.5
 - name: lfx-v2-voting-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-voting-service/chart
   version: 0.2.14
-  version: 0.2.14
 - name: lfx-v2-survey-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-survey-service/chart
-  version: 0.2.12
   version: 0.2.12
 - name: lfx-v2-email-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-email-service/chart
   version: 0.1.8
-  version: 0.1.8
 - name: lfx-v2-invite-service
   repository: oci://ghcr.io/linuxfoundation/lfx-v2-invite-service/chart
   version: 0.1.10
-digest: sha256:c2d3c3006e6896b6136db8232b4cc567dd013f8d83eefd693ad2cd9593fb91de
-generated: "2026-08-10T16:33:54.851483-04:00"
+- name: lfx-v1-sync-helper
+  repository: oci://ghcr.io/linuxfoundation/lfx-v1-sync-helper/chart
+  version: 0.10.3
+- name: lfx-v2-forwards-service
+  repository: oci://ghcr.io/linuxfoundation/lfx-v2-forwards-service/chart
+  version: 0.1.4
+- name: lfx-v2-member-service
+  repository: oci://ghcr.io/linuxfoundation/lfx-v2-member-service/chart
+  version: 0.8.0
+- name: lfx-v2-newsletter-service
+  repository: oci://ghcr.io/linuxfoundation/lfx-v2-newsletter-service/chart
+  version: 0.1.28
+- name: lfx-v2-persona-service
+  repository: oci://ghcr.io/linuxfoundation/lfx-v2-persona-service/chart
+  version: 0.0.9
+digest: sha256:4582cb99febd30f15e47a55243afdce0d2f23addaf180da107be932fac752b4c
+generated: "2026-08-10T16:40:27.612175-04:00"
