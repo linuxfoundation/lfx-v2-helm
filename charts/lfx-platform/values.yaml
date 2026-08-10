@@ -617,18 +617,24 @@ lfx-v2-fga-sync:
   enabled: true
   lfx:
     domain: k8s.orb.local
+  annotations:
+    reloader.stakater.com/auto: "true"
 
 lfx-v2-access-check:
   replicaCount: 1
   enabled: true
   lfx:
     domain: k8s.orb.local
+  annotations:
+    reloader.stakater.com/auto: "true"
 
 lfx-v2-indexer-service:
   replicaCount: 1
   enabled: true
   lfx:
     domain: k8s.orb.local
+  annotations:
+    reloader.stakater.com/auto: "true"
 
 lfx-v2-query-service:
   replicaCount: 1
