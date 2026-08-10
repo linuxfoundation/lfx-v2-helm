@@ -16,6 +16,12 @@ DISABLE_LINTERS:
   - SPELL_LYCHEE
   # yamllint is sufficient for us.
   - YAML_PRETTIER
+  # No lockfiles, manifests, or SBOMs in this repo for osv-scanner to scan.
+  - REPOSITORY_OSV_SCANNER
+  # Deprecated in v9 (superseded by REPOSITORY_BETTERLEAKS).
+  - REPOSITORY_GITLEAKS
+  # Deprecated in v9 (repo archived).
+  - TERRAFORM_TERRASCAN
 DISABLE_ERRORS_LINTERS:
   # Include grammar checks only as warnings.
   - SPELL_PROSELINT

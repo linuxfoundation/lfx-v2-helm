@@ -6,7 +6,7 @@ compatibility: Requires kubectl configured against the LFX v2 platform developme
 ---
 
 Populate `@fgadoc:jtbd` annotations in
-`charts/lfx-platform/templates/openfga/model.yaml` by reading live API
+`charts/lfx-platform/files/model.fga` by reading live API
 authorization rules from the dev cluster and synthesizing them into
 short, action-oriented Job-to-Be-Done (JTBD) statements.
 
@@ -32,9 +32,9 @@ the JTBD annotations need to be refreshed from real API usage.
   object type (e.g., a recording delegates its `viewer` check to the parent
   `v1_past_meeting`). These relations will have zero RuleSet entries; their
   JTBDs are synthesized from indexer contracts in Step 2b.
-- An indexed object type may not appear in `model.yaml` at all (e.g.,
+- An indexed object type may not appear in `model.fga` at all (e.g.,
   `v1_meeting_registrant`). Step 2b writes JTBDs onto the **delegate type**'s
-  relation in `model.yaml` — that is, `access_check_object` with everything
+  relation in `model.fga` — that is, `access_check_object` with everything
   after the first `:` stripped (e.g. `v1_past_meeting:{meeting_and_occurrence_id}`
   → `v1_past_meeting`) — **not** onto the source `object_type` itself.
 
@@ -66,7 +66,7 @@ rule.
 update/delete route (PUT/PATCH/DELETE) are present in that exact group.
 A single POST does not justify "manage"; a single PUT does not justify "create".
 
-## Step 1 — Fetch RuleSets AND read model.yaml in parallel
+## Step 1 — Fetch RuleSets AND read model.fga in parallel
 
 Issue both commands simultaneously:
 
@@ -75,7 +75,7 @@ Issue both commands simultaneously:
 kubectl get rulesets --all-namespaces -o json > /tmp/rulesets.json
 ```
 
-Also read `charts/lfx-platform/templates/openfga/model.yaml` at the same time
+Also read `charts/lfx-platform/files/model.fga` at the same time
 so you have the current JTBD state before any writes.
 
 ## Step 2 — Extract OpenFGA checks AND OpenAPI paths in one pass
@@ -129,24 +129,45 @@ the object type.
 
 ## Step 2b — Discover Query Service authorization from indexer contracts
 
-In parallel with or immediately after Step 2, fetch all indexer contract
-documents from GitHub to discover which `object#relation` pairs are enforced
+In parallel with or immediately after Step 2, fetch per-service indexer
+contracts from GitHub to discover which `object#relation` pairs are enforced
 by the Query Service rather than Heimdall.
 
-**Search for all contracts:**
+> **Important:** Do NOT fetch `lfx-v2-indexer-service/docs/indexer-contract.md`.
+> That file describes the generic indexer envelope API, not per-resource access
+> control configuration. It contains no `object_type` sections and will yield
+> zero results.
 
-```text
-filename:indexer-contract.md org:linuxfoundation
+**Discover which services publish contracts:**
+
+Fetch `docs/indexed-data-types.md` from `lfx-v2-query-service`. It lists every
+active resource type and links to the owning service's `docs/indexer-contract.md`.
+Use it to build the list of service repos to fetch from.
+
+```bash
+gh api repos/linuxfoundation/lfx-v2-query-service/contents/docs/indexed-data-types.md \
+  --jq '.content' | python3 -c "import sys,base64; print(base64.b64decode(sys.stdin.read()).decode())"
 ```
 
-Fetch every result's file contents via the GitHub API in a single parallel
-batch (use the `repo` and `path` from each search result).
+**Fetch all per-service contracts in parallel:**
 
-**Parse each contract** to extract, for every resource type section:
+For each owning service identified above (e.g. `lfx-v2-meeting-service`,
+`lfx-v2-committee-service`, `lfx-v2-project-service`, etc.), fetch
+`docs/indexer-contract.md` via the GitHub API in a single parallel batch:
 
-- `object_type` — from the `**Object type:** \`...\`` line
-- `access_check_object` — from the `Access Control (IndexingConfig)` table row
-- `access_check_relation` — from the same table
+```bash
+gh api repos/linuxfoundation/<service-repo>/contents/docs/indexer-contract.md \
+  --jq '.content' | python3 -c "import sys,base64; print(base64.b64decode(sys.stdin.read()).decode())"
+```
+
+**Parse each contract** to extract per-resource-type access control. Each
+resource type is a `## <Human Name>` top-level section (e.g. `## V1 Past Meeting
+Recording`). Derive `object_type` by lowercasing the heading and replacing
+spaces with underscores (`v1_past_meeting_recording`). Within each section,
+find the `Access Control (IndexingConfig)` table and read:
+
+- `access_check_object` — e.g. `v1_past_meeting:{meeting_and_occurrence_id}`
+- `access_check_relation` — e.g. `viewer`
 
 Strip everything after the first `:` from `access_check_object` to get the
 **delegate type** (e.g., `v1_past_meeting:{meeting_and_occurrence_id}` →
@@ -216,7 +237,7 @@ Fall back to `summary` only if no `description` is present.
 
 For each `<object>#<relation>` group you now have a set of API operation
 descriptions (from RuleSets) and/or a list of indexed child types (from indexer
-contracts). The existing `@fgadoc:jtbd` lines already in `model.yaml` are the
+contracts). The existing `@fgadoc:jtbd` lines already in `model.fga` are the
 canonical style reference — match their grammar, verb choices, and phrasing
 when writing new statements.
 
@@ -244,7 +265,7 @@ statements first, then Query Service statements.
 
 ## Step 5 — Propose changes before writing
 
-Before editing `model.yaml`, print a summary table of the proposed changes:
+Before editing `model.fga`, print a summary table of the proposed changes:
 
 ```
 object#relation         | proposed JTBDs
@@ -263,7 +284,7 @@ For any relation where no OpenAPI description was found, flag it:
 Ask for confirmation before proceeding. If running non-interactively, proceed
 automatically but include the summary in the final report.
 
-## Step 6 — Write `@fgadoc:jtbd` macros into model.yaml
+## Step 6 — Write `@fgadoc:jtbd` macros into model.fga
 
 For each confirmed `<object>#<relation>` group:
 
@@ -272,15 +293,15 @@ For each confirmed `<object>#<relation>` group:
    - For Query Service-sourced groups, `<object>` is the **delegate type**
      (e.g., `v1_past_meeting`), not the source `object_type`. Write onto the
      delegate type's relation block even if the `object_type` also exists in
-     `model.yaml`.
+     `model.fga`.
 2. **Replace** only the `# @fgadoc:jtbd` lines in the comment block
    immediately above that `define`. Leave all other lines untouched.
 3. The comment format must be:
 
-```yaml
-            # @fgadoc:jtbd <statement one>
-            # @fgadoc:jtbd <statement two>
-            define <relation>: ...
+```text
+    # @fgadoc:jtbd <statement one>
+    # @fgadoc:jtbd <statement two>
+    define <relation>: ...
 ```
 
 Leave unchanged any `define` lines not covered by either source.
@@ -289,27 +310,26 @@ Leave unchanged any `define` lines not covered by either source.
 
 After writing JTBDs, scan every `# @fgadoc:` comment and `define` line in the
 file for indentation consistency within each `type` block. All relation-level
-lines must use the same indent (12 spaces inside the `authorizationModel`
-literal block). Any line with a different number of leading spaces — whether
-introduced by this run or pre-existing — must be corrected to match its
-siblings.
+lines must use 4 spaces of indentation. Any line with a different number of
+leading spaces — whether introduced by this run or pre-existing — must be
+corrected to match its siblings.
 
 Use ripgrep to detect outliers:
 
 ```bash
-rg -n "^ *# @fgadoc:|^ *define " charts/lfx-platform/templates/openfga/model.yaml \
-  | rg -v "^[0-9]+:            [^ ]|^[0-9]+:        [^ ]"
+rg -n "^ *# @fgadoc:|^ *define " charts/lfx-platform/files/model.fga \
+  | rg -v "^[0-9]+:    [^ ]|^[0-9]+:# @fgadoc:"
 ```
 
 No output means all lines are correctly aligned.
 
 ## Step 8 — Verify
 
-Re-read `model.yaml` and confirm:
+Re-read `model.fga` and confirm:
 
 - Count of `@fgadoc:jtbd` lines has changed only for the affected relations.
 - No `@fgadoc:alias` or `@fgadoc:hide` lines were removed or altered.
-- `git diff --name-only` shows only `model.yaml` changed.
+- `git diff --name-only` shows only `model.fga` changed (and `PERMISSIONS.md` if annotations were updated — regenerate it with the render-permissions skill).
 
 If any of these checks fail, revert and report the issue.
 

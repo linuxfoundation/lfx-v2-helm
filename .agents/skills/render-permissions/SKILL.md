@@ -1,19 +1,15 @@
 ---
 name: render-permissions
-description: Render PERMISSIONS.md from @fgadoc annotations in the OpenFGA model. Use after any change to model.yaml to keep the human-readable permissions reference in sync.
+description: Render PERMISSIONS.md from @fgadoc annotations in the OpenFGA model. Use after any change to model.fga to keep the human-readable permissions reference in sync.
 license: MIT
 ---
 
 Read `@fgadoc` annotations from
-`charts/lfx-platform/templates/openfga/model.yaml` and produce a
+`charts/lfx-platform/files/model.fga` and produce a
 human-readable `PERMISSIONS.md` at the repo root.
 
 ## Gotchas
 
-- `model.yaml` is a Helm template. The authorization model is the block
-  scalar under `authorizationModel: |`. **Ignore everything outside that
-  block** — Helm expressions (`{{- if ... }}`, `{{- end }}`, etc.) must
-  not be parsed or evaluated.
 - `[user:*]` means "every user including anonymous". It produces an
   **Everyone** column in the table — see Step 2.
 - Non-`@fgadoc` comments may appear between an `@fgadoc` annotation block
@@ -41,10 +37,9 @@ they describe:
 # @fgadoc:jtbd     Statement      — one JTBD; multiple lines allowed per relation
 ```
 
-## Step 1 — Parse model.yaml
+## Step 1 — Parse model.fga
 
-Read `charts/lfx-platform/templates/openfga/model.yaml`. Extract the
-`authorizationModel: |` block and parse it as plain text.
+Read `charts/lfx-platform/files/model.fga` and parse it as plain text.
 
 For each `type <name>` block, extract:
 
@@ -119,7 +114,7 @@ in order:
 4. **Child resource creation last.** JTBDs that create child resources of
    another type come last. If creating a child of the **same** type is
    allowed, list that first among the child-creation group. Otherwise order
-   child-creation JTBDs by the order their target types appear in model.yaml.
+   child-creation JTBDs by the order their target types appear in model.fga.
 
 ### 2c — Compute cell values
 
@@ -301,6 +296,24 @@ itself (nothing includes viewer).
 If no relation in the type has `[user:*]` in its define expression, omit the
 Everyone column entirely. The Everyone column is ALWAYS the rightmost.
 
+### 2e — Collect team-suffix annotations
+
+Before writing any output, scan the **existing** `PERMISSIONS.md` for
+`#### Permission Inheritance` bullets that contain one or more "… Team"
+references — i.e. any phrase matching `\b\w[\w\s]*Team\b` within a bullet
+line (e.g. "global LF Staff Team", "global Product Support Team").
+
+For each such bullet, record the **relation name** (the bold or bold-italic
+text at the start of the bullet) and the **full list of "… Team" phrases**
+found in that bullet. Key these by `(<section-heading>, <normalized-relation-name>)`,
+where `<section-heading>` is the nearest preceding `###` heading and
+`<normalized-relation-name>` is the relation display name with all Markdown
+emphasis characters (`*`, `_`) stripped and then lowercased (e.g. `***Owner***`
+→ `owner`, `**Writer**` → `writer`).
+
+This ensures hand-curated global team assignments survive regeneration
+without requiring any special markup in the file.
+
 ## Step 3 — Build Permission Inheritance sections
 
 For each **visible** type, for each **direct-grant relation** (has `[user]`,
@@ -349,6 +362,14 @@ only (e.g. "inherited from Project Writer", "inherited from parent Project").
 When multiple direct cross-type sources exist for one relation, list them on
 a single bullet separated by commas.
 
+**Team-phrase lookup:** For each bullet emitted, look up
+`(<section-heading>, <normalized-relation-name>)` in the map collected in
+Step 2e, where `<normalized-relation-name>` is the relation display name with
+`*` and `_` stripped and lowercased. If a match is found, append the preserved
+"… Team" phrases to the bullet text, separated by a comma. If the relation has
+no model-derived sources at all (i.e. the bullet would otherwise be omitted),
+still emit the bullet with only the team phrases as its content.
+
 ## Step 4 — Write PERMISSIONS.md
 
 File structure:
@@ -358,7 +379,7 @@ File structure:
 <!-- SPDX-License-Identifier: MIT -->
 <!-- generated-intro
 This file is generated automatically from
-charts/lfx-platform/templates/openfga/model.yaml
+charts/lfx-platform/files/model.fga
 by the render-permissions agent skill. Do not edit the sections below by hand.
 Run .agents/skills/render-permissions/SKILL.md to regenerate after any model change.
 -->
@@ -460,5 +481,6 @@ After writing, re-read `PERMISSIONS.md` and confirm:
 - The H1 `# LFX Self Service Platform Permissions` is present.
 - The `## Object types` heading is used (not `## Objects supporting role assignment` or `## Entities`).
 - The intro block is unchanged (if it existed before).
+- Every "… Team" phrase that appeared in a Permission Inheritance bullet in the previous file is present in the corresponding bullet in the output (same section, same relation).
 
 Report: types rendered, total columns (excluding Everyone), total JTBD rows.
