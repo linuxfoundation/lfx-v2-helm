@@ -225,25 +225,37 @@ provision or change a global tuple through them.
    service/namespace).
 2. Write the tuple:
    ```bash
-   kubectl run --rm -it fga-cli --namespace <ns> --image=openfga/cli \
+   kubectl run --rm -it fga-cli --namespace <ns> --image=openfga/cli:v0.4.5 \
      --env="FGA_STORE_ID=$STORE_ID" \
      --env="FGA_API_URL=http://lfx-platform-openfga:8080" \
      --restart=Never -- tuple write \
-     --tuple "team:<teamID>#member:marketing_ops:project:ROOT"
+     "team:<teamID>#member" "marketing_ops" "project:ROOT"
    ```
-3. Verify it took effect with a `check` call against a relation that
-   actually depends on it (not `viewer` — see the note above about
-   `viewer` being public):
+3. Verify the tuple was written by reading it back:
    ```bash
-   kubectl run --rm -it fga-cli --namespace <ns> --image=openfga/cli \
+   kubectl run --rm -it fga-cli --namespace <ns> --image=openfga/cli:v0.4.5 \
      --env="FGA_STORE_ID=$STORE_ID" \
      --env="FGA_API_URL=http://lfx-platform-openfga:8080" \
-     --restart=Never -- check \
-     --tuple "user:<a-team-member>@example.com:marketing_auditor:project:<any-sub-project>"
+     --restart=Never -- tuple read \
+     --user "team:<teamID>#member" \
+     --relation "marketing_ops" \
+     --object "project:ROOT"
    ```
-   A successful check confirms both that the tuple was written and that it
-   cascades as expected.
-4. Record what you wrote in the table below, in the same PR/change that
+   If found, the tuple was successfully written.
+4. Verify cascade behavior with a `check` call against a relation that
+   actually depends on it (not `viewer` — see the note above about
+   `viewer` being public). This confirms the inheritance chain works as
+   expected but does not prove the ROOT tuple itself exists — use step 3
+   for that confirmation:
+   ```bash
+   kubectl run --rm -it fga-cli --namespace <ns> --image=openfga/cli:v0.4.5 \
+     --env="FGA_STORE_ID=$STORE_ID" \
+     --env="FGA_API_URL=http://lfx-platform-openfga:8080" \
+     --restart=Never -- query check \
+     "user:<a-team-member>@example.com" "marketing_auditor" "project:<any-sub-project>"
+   ```
+   A successful check confirms that the cascade behaves as expected.
+5. Record what you wrote in the table below, in the same PR/change that
    requested it, so this stays the source of truth for "what global tuples
    exist in which environment."
 
@@ -251,7 +263,7 @@ provision or change a global tuple through them.
 
 | Tuple | Environment(s) | Purpose | Provisioned by / date |
 | --- | --- | --- | --- |
-| `team:<marketing-ops-teamID>#member:marketing_ops:project:ROOT` | dev | Grants the LF Marketing Ops team `marketing_auditor`/`campaign_manager` on every project via cascade (LFXV2-2231) | _Not yet confirmed written to any environment as of 2026-08-17 — verify before relying on it; update this row once confirmed._ |
+| `team:<marketing-ops-teamID>#member:marketing_ops:project:ROOT` | (unconfirmed) | Grants the LF Marketing Ops team `marketing_auditor`/`campaign_manager` on every project via cascade (LFXV2-2231) | _Not yet confirmed written to any environment as of 2026-08-17 — verify before relying on it; update this row once confirmed._ |
 
 ## Advanced Topics
 
