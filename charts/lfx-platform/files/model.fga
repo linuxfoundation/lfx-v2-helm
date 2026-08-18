@@ -35,8 +35,14 @@ type project
     define executive_director: [user]
     define marketing_ops: [team#member] or marketing_ops from parent
     # marketing_auditor identifies a user with read access to marketing dashboards
-    # and campaigns for a project. It cascades from parent projects — granting
-    # it at ROOT flows down to all sub-projects.
+    # and campaigns for a project. The relation itself cascades from parent
+    # projects via "marketing_auditor from parent" — so it doesn't matter
+    # whether a user reaches marketing_auditor by direct grant, by being an
+    # executive_director, or by being marketing_ops, nor at what level of the
+    # project hierarchy that happens: however/wherever they got it, they also
+    # have it on every descendant of that project. Contrast this with
+    # campaign_manager below, where an executive_director's access does not
+    # cascade.
     define marketing_auditor: [team#member] or executive_director or marketing_ops or marketing_auditor from parent
     # @fgadoc:jtbd Connect & manage ad platform accounts
     # @fgadoc:jtbd Test & rotate ad platform credentials
@@ -48,9 +54,11 @@ type project
     # @fgadoc:jtbd Track campaign creation job status
     # campaign_manager is intentionally the same population as marketing_ops
     # (plus executive_director) — there is no separate campaign-manager grant
-    # path. It therefore also cascades from parent projects via marketing_ops:
-    # granting marketing_ops at ROOT makes that team campaign_manager on every
-    # descendant project.
+    # path. The campaign_manager relation itself does not cascade (we don't
+    # want an executive_director grant on a project to flow down to its
+    # sub-projects), but marketing_ops, included above, does cascade in its
+    # own right — so a marketing_ops grant at ROOT still flows down to every
+    # descendant project, making that team campaign_manager there too.
     define campaign_manager: executive_director or marketing_ops
     # @fgadoc:jtbd View project details & meeting count
     # @fgadoc:jtbd View project links & folders
