@@ -196,6 +196,77 @@ Test authorization decisions:
 kubectl run --rm -it fga-cli --namespace lfx --image=openfga/cli --env="FGA_STORE_ID=$STORE_ID" --env="FGA_API_URL=http://lfx-platform-openfga:8080" --restart=Never -- check --tuple "user:john@example.com:writer:project:project1"
 ```
 
+## Provisioning Manually-Managed Global Tuples
+
+Some tuples are global/ROOT-scoped and have no owning service to write them
+automatically — they're seeded once by hand and rely on `... from parent`
+cascades in the model to apply everywhere. The Marketing Ops role added in
+LFXV2-2231 is the first example: `marketing_ops` is granted on
+`project:ROOT` and cascades to every project via
+`marketing_ops from parent` (which `marketing_auditor` and
+`campaign_manager` both resolve through).
+
+There is currently no admin UI for this (tracked separately as LFXV2-1760)
+and no service syncs these tuples from project-service or fga-sync
+(LFXV2-2233 was cancelled, LFXV2-2234 is not started) — manual `tuple write`
+via the OpenFGA CLI, as shown above, is the only path today. That makes two
+things easy to get wrong during an incident: nobody owns re-checking that a
+global tuple still exists, and there's no record to consult to rule out "was
+it ever written" as a cause.
+
+**Owner:** LF Staff Support (per the LFXV2-2231 epic's decision to defer
+manual tuple management there until LFXV2-1760 ships). Route requests to
+provision or change a global tuple through them.
+
+**Runbook:**
+
+1. Identify the target store for the environment in question (`STORE_ID`
+   lookup as shown above, against that environment's `lfx-platform-openfga`
+   service/namespace).
+2. Write the tuple:
+   ```bash
+   kubectl run --rm -it fga-cli --namespace <ns> --image=openfga/cli:v0.4.5 \
+     --env="FGA_STORE_ID=$STORE_ID" \
+     --env="FGA_API_URL=http://lfx-platform-openfga:8080" \
+     --restart=Never -- tuple write \
+     "team:<teamID>#member" "marketing_ops" "project:ROOT"
+   ```
+3. Verify the tuple was written by reading it back:
+   ```bash
+   kubectl run --rm -it fga-cli --namespace <ns> --image=openfga/cli:v0.4.5 \
+     --env="FGA_STORE_ID=$STORE_ID" \
+     --env="FGA_API_URL=http://lfx-platform-openfga:8080" \
+     --restart=Never -- tuple read \
+     --consistency HIGHER_CONSISTENCY \
+     --user "team:<teamID>#member" \
+     --relation "marketing_ops" \
+     --object "project:ROOT"
+   ```
+   If found, the tuple was successfully written. This step uses `HIGHER_CONSISTENCY` to ensure fresh data, preventing false negatives from stale caches immediately after provisioning.
+4. Verify cascade behavior with a `check` call against a relation that
+   actually depends on it (not `viewer` — see the note above about
+   `viewer` being public). This confirms the inheritance chain works as
+   expected but does not prove the ROOT tuple itself exists — use step 3
+   for that confirmation:
+   ```bash
+   kubectl run --rm -it fga-cli --namespace <ns> --image=openfga/cli:v0.4.5 \
+     --env="FGA_STORE_ID=$STORE_ID" \
+     --env="FGA_API_URL=http://lfx-platform-openfga:8080" \
+     --restart=Never -- query check \
+     --consistency HIGHER_CONSISTENCY \
+     "user:<a-team-member>@example.com" "marketing_auditor" "project:<any-sub-project>"
+   ```
+   A successful check (returned `"allowed": true`) confirms that the cascade behaves as expected. Note that the CLI always exits with code 0 even when `allowed: false`, so you must inspect the response body to verify success.
+5. Record what you wrote in the table below, in the same PR/change that
+   requested it, so this stays the source of truth for "what global tuples
+   exist in which environment."
+
+**Currently provisioned manual tuples:**
+
+| Tuple | Environment(s) | Purpose | Provisioned by / date |
+| --- | --- | --- | --- |
+| `team:<marketing-ops-teamID>#member:marketing_ops:project:ROOT` | (unconfirmed) | Grants the LF Marketing Ops team `marketing_auditor`/`campaign_manager` on every project via cascade (LFXV2-2231) | _Not yet confirmed written to any environment as of 2026-08-17 — verify before relying on it; update this row once confirmed._ |
+
 ## Advanced Topics
 
 ### Events and Monitoring

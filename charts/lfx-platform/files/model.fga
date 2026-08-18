@@ -35,13 +35,8 @@ type project
     define executive_director: [user]
     define marketing_ops: [team#member] or marketing_ops from parent
     # marketing_auditor identifies a user with read access to marketing dashboards
-    # and campaigns for a project. Unlike campaign_manager, marketing_auditor
-    # cascades from parent projects — granting it at ROOT flows down to all
-    # sub-projects. The campaign_manager relation itself does not cascade: an
-    # executive_director granted directly on a project is not campaign_manager
-    # on its sub-projects. (marketing_ops, included above, does cascade in its
-    # own right, so a marketing_ops grant at ROOT still flows down to
-    # sub-projects as campaign_manager.)
+    # and campaigns for a project. It cascades from parent projects — granting
+    # it at ROOT flows down to all sub-projects.
     define marketing_auditor: [team#member] or executive_director or marketing_ops or marketing_auditor from parent
     # @fgadoc:jtbd Connect & manage ad platform accounts
     # @fgadoc:jtbd Test & rotate ad platform credentials
@@ -51,6 +46,11 @@ type project
     # @fgadoc:jtbd Launch campaigns across ad platforms
     # @fgadoc:jtbd Pause & resume a campaign
     # @fgadoc:jtbd Track campaign creation job status
+    # campaign_manager is intentionally the same population as marketing_ops
+    # (plus executive_director) — there is no separate campaign-manager grant
+    # path. It therefore also cascades from parent projects via marketing_ops:
+    # granting marketing_ops at ROOT makes that team campaign_manager on every
+    # descendant project.
     define campaign_manager: executive_director or marketing_ops
     # @fgadoc:jtbd View project details & meeting count
     # @fgadoc:jtbd View project links & folders
