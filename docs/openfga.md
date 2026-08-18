@@ -237,11 +237,12 @@ provision or change a global tuple through them.
      --env="FGA_STORE_ID=$STORE_ID" \
      --env="FGA_API_URL=http://lfx-platform-openfga:8080" \
      --restart=Never -- tuple read \
+     --consistency HIGHER_CONSISTENCY \
      --user "team:<teamID>#member" \
      --relation "marketing_ops" \
      --object "project:ROOT"
    ```
-   If found, the tuple was successfully written.
+   If found, the tuple was successfully written. This step uses `HIGHER_CONSISTENCY` to ensure fresh data, preventing false negatives from stale caches immediately after provisioning.
 4. Verify cascade behavior with a `check` call against a relation that
    actually depends on it (not `viewer` — see the note above about
    `viewer` being public). This confirms the inheritance chain works as
@@ -252,9 +253,10 @@ provision or change a global tuple through them.
      --env="FGA_STORE_ID=$STORE_ID" \
      --env="FGA_API_URL=http://lfx-platform-openfga:8080" \
      --restart=Never -- query check \
+     --consistency HIGHER_CONSISTENCY \
      "user:<a-team-member>@example.com" "marketing_auditor" "project:<any-sub-project>"
    ```
-   A successful check confirms that the cascade behaves as expected.
+   A successful check (returned `"allowed": true`) confirms that the cascade behaves as expected. Note that the CLI always exits with code 0 even when `allowed: false`, so you must inspect the response body to verify success.
 5. Record what you wrote in the table below, in the same PR/change that
    requested it, so this stays the source of truth for "what global tuples
    exist in which environment."
