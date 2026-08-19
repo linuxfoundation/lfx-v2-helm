@@ -12,6 +12,10 @@ human-readable `PERMISSIONS.md` at the repo root.
 
 - `[user:*]` means "every user including anonymous". It produces an
   **Everyone** column in the table — see Step 2.
+- Throughout this document, `[user]` means the type restriction list
+  contains `user` as one of its entries — not necessarily the only entry.
+  For example, `[user, team#member]` satisfies `[user]`. The distinct
+  restriction `[user:*]` (wildcard) does **not** satisfy `[user]`.
 - Non-`@fgadoc` comments may appear between an `@fgadoc` annotation block
   and the `type`/`define` line it annotates (e.g. descriptive prose already
   in the file). Collect all consecutive `# @fgadoc:*` lines before a
@@ -58,9 +62,10 @@ For each `define <relation>:` line, extract:
 | Hidden? | `@fgadoc:hide` in preceding annotation block |
 | JTBD list | All `@fgadoc:jtbd` lines in preceding annotation block |
 | Define expression | Everything after `:` on the `define` line |
-| Direct user grant? | `[user]` appears literally (not `[user:*]`) in define expression |
-| Public wildcard? | `[user:*]` appears in the define expression |
-| Indirect-only? | Does NOT have `[user]` or `[user:*]`, AND has at least one `<rel> from <field>` term where `<field>` resolves to a different type |
+| Direct user grant? | Has `[user]` (see Gotchas for what this means) |
+| Public wildcard? | `[user:*]` appears as one of the type restrictions in `[...]` |
+| Indirect? | Does not have `[user]` — the relation cannot be granted directly to a user on this object |
+| Column-worthy? | A relation that is indirect AND has at least one non-peer source in its own define expression: a `<rel> from <field>` term where `<field>` resolves to a different type, or any type restriction in `[...]` other than `user`/`user:*`. Relations that are purely unions of same-type peers (e.g. `writer or meeting_coordinator`) are already represented by their constituent columns and are not shown separately. |
 
 ## Step 2 — Build the JTBD × relation matrix
 
@@ -68,15 +73,15 @@ For each `define <relation>:` line, extract:
 
 For each **visible** type (not hidden), determine two sets of visible columns:
 
-**Direct-grant columns** — relations where `[user]` appears literally (not
-`[user:*]`) in the define expression **and** the relation is not hidden.
+**Direct-grant columns** — relations that have `[user]` and are not hidden.
 
-**Indirect-only columns** — relations that are indirect-only (no `[user]` or
-`[user:*]`, has at least one cross-type `<rel> from <field>` term) **and**
-are not hidden **and** would have at least one ✅ cell (i.e. their reachable
-JTBD pool is non-empty — see Step 2c for how to compute this). These columns
-represent roles that can only be assigned by granting access on a foreign
-object, not directly on this object. Their header text is **italicized** in
+**Indirect-only columns** — relations that are indirect (no `[user]`) **and**
+column-worthy (have at least one non-peer source — a cross-type
+`<rel> from <field>` term or any type restriction other than
+`user`/`user:*`) **and** are not hidden **and** would have at least one ✅
+cell (i.e. their reachable JTBD pool is non-empty — see Step 2c for how to
+compute this). These columns represent permissions that cannot be granted
+directly to a user on this object. Their header text is **italicized** in
 the Markdown table (wrap the display name in `*...*`).
 
 Additionally, if **any** relation in the type has `[user:*]` in its define
@@ -120,15 +125,15 @@ in order:
 
 **OpenFGA semantics primer:** When relation B's define says `or A` (B
 includes A), it means *anyone who has relation A also satisfies relation B*.
-In other words, A ⊆ B — A is the more privileged role. A writer who is
+In other words, A ⊆ B — A is the more privileged permission. A writer who is
 included in auditor (`auditor: ... or writer`) automatically has auditor
 access too, because writers are a subset of auditors.
 
-**Consequence for columns:** A column represents a role. For direct-grant
-columns, a user is directly assigned to the role. For indirect-only columns,
-a user reaches the role via a foreign object. In both cases, the column
-should show ✅ for every action that role can perform — including actions
-inherited *upward* from any relation that includes this role.
+**Consequence for columns:** A column represents a permission. For direct-grant
+columns, a user is directly granted the permission. For indirect-only columns,
+a user reaches the permission via a grant on a foreign object. In both cases, the column
+should show ✅ for every action that permission allows — including actions
+inherited *upward* from any relation that includes this permission.
 
 For each (JTBD, column) pair:
 
@@ -142,15 +147,15 @@ the upward reachability set. If any of those JTBD lists contains the target
 JTBD, mark ✅.
 
 Do **not** traverse downward (i.e., do not add JTBDs from relations listed
-via `or <peer>` inside this column's own define — those are relations this
-role subsumes, not roles that subsume this role).
+via `or <peer>` inside this column's own define — those are permissions this
+permission subsumes, not permissions that subsume this one).
 
 **Self-referential conditional fields (🟡):**
 
 A relation's define may contain `<rel> from <field>` terms where `<field>` is
 typed as `[<current_type>]` — i.e. the field's declared type is the same type
 currently being rendered. These are self-referential flag tuples set per-object
-to enable conditional access for a particular role. The self-referential type
+to enable conditional access for a particular permission. The self-referential type
 is the sole criterion; no other heuristic (naming pattern, presence of `or`
 terms, etc.) is needed. Examples from `v1_past_meeting`:
 
@@ -248,12 +253,12 @@ viewer:           [user:*] or auditor or auditor from parent
                   JTBDs: View a project, View project meeting count
 ```
 
-Named-role columns: `writer`, `auditor`, `meeting_coordinator`.
+Named-permission columns: `writer`, `auditor`, `meeting_coordinator`.
 Everyone column: yes (`viewer` has `[user:*]`).
 
 **Upward reachability:**
 
-- `writer`: which relations say `or writer`? → `auditor` does. Which say `or auditor`? → `viewer` does (but viewer is not a named-role column). So writer's upward set = {auditor, viewer}.
+- `writer`: which relations say `or writer`? → `auditor` does. Which say `or auditor`? → `viewer` does (but viewer is not a named-permission column). So writer's upward set = {auditor, viewer}.
   Writer column JTBDs = writer's own ∪ auditor's own ∪ viewer's own = all JTBDs.
 
 - `auditor`: which relations say `or auditor`? → `viewer` does. Auditor's upward set = {viewer}.
@@ -317,12 +322,13 @@ without requiring any special markup in the file.
 ## Step 3 — Build Permission Inheritance sections
 
 For each **visible** type, for each **direct-grant relation** (has `[user]`,
-not hidden) **and each indirect-only column**, emit a bullet only when the
-relation's own define expression contains one or more **direct**
-`<rel> from <field>` terms where `<field>` resolves to a **different** type
-(i.e. a field whose type annotation is not the current type).
+not hidden) **and each indirect-only column**, emit a bullet when the
+relation's own define expression contains one or more non-peer sources:
+a **direct** `<rel> from <field>` term where `<field>` resolves to a
+**different** type (i.e. a field whose type annotation is not the current
+type), and/or any type restriction in `[...]` other than `user`/`user:*`.
 
-Indirect-only columns always have at least one cross-type source by
+Indirect-only columns always have at least one such non-peer source by
 definition, so they will always produce a bullet. Their bullet uses the same
 format as direct-grant bullets — italicize the relation display name to match
 the italicized column header:
@@ -434,15 +440,14 @@ the `<!-- generated-intro ... -->` block):
 
 ```markdown
 This document describes the permissions model for the LFX Self Service
-Platform. Each section below represents an object type that supports direct
-role assignment.
+Platform. Each section below represents an object type and its permissions.
 
 ## Legend
 
-- "**Role Name**" column headings are assignable roles for this object type (may also be inherited; see lists below tables)
-- "**_Italicized Role Name_**" headings are implicit or inherited roles (_not_ directly assignable on this object type)
-- ✅ access is granted to this role to all objects of this type
-- 🟡 access is conditional on per-object settings
+- "**Permission Name**" column headings are permissions available as directly-assignable grants per object of this type (may also be inherited; see lists below tables)
+- "**_Italicized Permission Name_**" headings are permissions only available per object via inheritance (_not_ directly assignable)
+- ✅ this permission unconditionally allows the action in this row on that object
+- 🟡 access is conditional (depends on data/settings stored in the object itself)
 ```
 
 **Preserving the intro:** The `<!-- generated-intro ... -->` comment block and
@@ -461,10 +466,10 @@ After writing, re-read `PERMISSIONS.md` and confirm:
 - No `[user:*]`-only relation appears as a direct-grant or indirect-only column.
 - Every type with at least one `[user:*]` relation has an *Everyone* column (italicized header).
 - Every relation with `[user:*]` in its define does NOT get a public-access bullet (the Everyone column covers this).
-- Indirect-only columns appear leftmost, before all direct-grant columns, in file order among themselves.
+- Indirect-only columns appear leftmost, before all direct-grant columns, in descending privilege order (owner → writer → organizer → auditor → remaining in file order).
 - Indirect-only column headers are italicized (e.g. `*Writer*`, `*Auditor*`).
 - Indirect-only columns with zero ✅ cells are omitted entirely.
-- Permission Inheritance bullets appear for both direct-grant relations (has `[user]`, not hidden) and indirect-only columns, when they have direct cross-type `<rel> from <field>` terms in their own define — no peer-chain traversal.
+- Permission Inheritance bullets appear for both direct-grant relations (has `[user]`, not hidden) and indirect-only columns, when they have direct cross-type `<rel> from <field>` terms and/or non-`user`/`user:*` type restrictions in their own define — no peer-chain traversal.
 - Indirect-only bullets use bold-italic name (e.g. `- ***Auditor***: inherited from ...`); direct-grant bullets use bold name (e.g. `- **Writer**: inherited from ...`).
 - JTBD rows within each table follow the semantic ordering rule: base object first, settings next, attributes in Read → Update → Delete order, child resource creation last.
 - ALL JTBDs from ALL relations of a type appear as rows (including viewer/public JTBDs).
@@ -473,13 +478,13 @@ After writing, re-read `PERMISSIONS.md` and confirm:
 - The *Everyone* column is always rightmost.
 - Writer columns show ✅ for auditor JTBDs (because auditor includes writer, so writers have auditor access).
 - Auditor columns do NOT show ✅ for writer-only JTBDs (auditors are not writers).
-- The *Everyone* column shows 🟡 only for JTBDs from the `[user:*]` relation's own upward reachability set (not from privileged roles that the [user:*] relation happens to include downward).
+- The *Everyone* column shows 🟡 only for JTBDs from the `[user:*]` relation's own upward reachability set (not from privileged permissions that the [user:*] relation happens to include downward).
 - The table header first cell is blank (no "Job to Be Done" text).
 - No same-type peer relations appear in Permission Inheritance bullets.
 - No verbatim OpenFGA syntax (backtick expressions like `` `writer from project` ``) appears anywhere in the file.
 - The `<!-- generated-intro ... -->` block is present at the top.
 - The H1 `# LFX Self Service Platform Permissions` is present.
-- The `## Object types` heading is used (not `## Objects supporting role assignment` or `## Entities`).
+- The `## Object types` heading is used (not `## Objects supporting grant assignment` or `## Entities`).
 - The intro block is unchanged (if it existed before).
 - Every "… Team" phrase that appeared in a Permission Inheritance bullet in the previous file is present in the corresponding bullet in the output (same section, same relation).
 

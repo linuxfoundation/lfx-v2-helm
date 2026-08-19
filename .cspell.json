@@ -53,6 +53,8 @@
     "swaggerapi",
     "tcsh",
     "totp",
+    "userset",
+    "usersets",
     "tracecontext",
     "traefik",
     "webauthn",
