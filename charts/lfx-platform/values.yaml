@@ -290,6 +290,23 @@ heimdall:
           # Continuing on error is needed if this contextualizer is used in any
           # rulesets that support anonymous access.
           continue_pipeline_on_error: true
+      # Resolves a project slug (from a RuleSet-supplied "slug" value) to its
+      # canonical project UID via project-service's own NATS-backed lookup,
+      # exposed over HTTP for this purpose. Needed because some services
+      # (e.g. lfx-v2-campaign-service) receive project slugs on the wire,
+      # while OpenFGA tuples are keyed on project UID — LFXV2-3324 (LFXV2-2231
+      # gap G7). continue_pipeline_on_error is false: a failed resolution
+      # must deny the request, not silently authorize against an
+      # unresolved/empty object.
+      - id: project_slug_resolver_contextualizer
+        type: generic
+        config:
+          endpoint:
+            url: http://lfx-v2-project-service:8080/projects/slug-to-uid/{{ .Values.slug }}
+            method: GET
+          forward_headers:
+            - Authorization
+          continue_pipeline_on_error: false
     authorizers:
       - id: allow_all
         type: allow
