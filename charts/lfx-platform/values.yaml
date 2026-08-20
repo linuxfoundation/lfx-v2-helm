@@ -290,6 +290,34 @@ heimdall:
           # Continuing on error is needed if this contextualizer is used in any
           # rulesets that support anonymous access.
           continue_pipeline_on_error: true
+      # Resolves a project slug (from a RuleSet-supplied "slug" value) to its
+      # canonical project UID via project-service's own NATS-backed lookup,
+      # exposed over HTTP for this purpose. Needed because some services
+      # (e.g. lfx-v2-campaign-service) receive project slugs on the wire,
+      # while OpenFGA tuples are keyed on project UID — LFXV2-3324 (LFXV2-2231
+      # gap G7). continue_pipeline_on_error is false: a failed resolution
+      # must deny the request, not silently authorize against an
+      # unresolved/empty object.
+      #
+      # The endpoint MUST be the shared Gateway hostname, not project-service's
+      # ClusterIP — same reason oidc_contextualizer above targets
+      # auth.k8s.orb.local rather than Authelia's ClusterIP. A direct ClusterIP
+      # call bypasses project-service's own Heimdall RuleSet entirely, so the
+      # forwarded raw Authorization header (a caller's OAuth token) would hit
+      # the app directly; project-service's JWT check only accepts a
+      # Heimdall-minted JWT (validated against Heimdall's own JWKS), which is
+      # exactly what routing through the Gateway produces via project-service's
+      # oidc authenticator + create_jwt finalizer. Do not change this back to
+      # the ClusterIP address.
+      - id: project_slug_resolver_contextualizer
+        type: generic
+        config:
+          endpoint:
+            url: http://lfx-api.k8s.orb.local/projects/slug-to-uid/{{ .Values.slug }}
+            method: GET
+          forward_headers:
+            - Authorization
+          continue_pipeline_on_error: false
     authorizers:
       - id: allow_all
         type: allow
