@@ -22,7 +22,7 @@ type project
     # @fgadoc:jtbd Manage project links, folders & documents
     # @fgadoc:jtbd Create project committees & Groups.io services
     # @fgadoc:jtbd Create a vote poll
-    define writer: [user] or owner or writer from parent
+    define writer: [user, team#member] or owner or writer from parent
     # @fgadoc:jtbd View project settings
     define auditor: [user, team#member] or executive_director or writer or auditor from parent
     # The meeting_coordinator relation identifies a user who can manage any meeting
