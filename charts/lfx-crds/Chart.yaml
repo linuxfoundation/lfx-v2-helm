@@ -1,0 +1,20 @@
+# Copyright The Linux Foundation and each contributor to LFX.
+# SPDX-License-Identifier: MIT
+---
+apiVersion: v2
+name: lfx-crds
+description: >-
+  Operator and CRD-providing charts for the LFX v2 platform, installed
+  separately from lfx-platform so their CRDs can be established before the
+  umbrella chart's own resources (Cluster, Database, etc.) are rendered.
+  Local development only; deployed environments (dev/staging/prod) do not
+  install this chart.
+type: application
+# This version should not be incremented, as it is dynamically replaced with the release version during the chart build job.
+version: 0.0.1
+icon: https://github.com/linuxfoundation/lfx-v2-helm/raw/main/img/lfx-logo-color.svg
+dependencies:
+  - name: cloudnative-pg
+    repository: https://cloudnative-pg.github.io/charts
+    version: ~0.29.0
+    condition: cloudnative-pg.enabled

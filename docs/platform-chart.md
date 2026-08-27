@@ -5,7 +5,8 @@
 
 This file documents the platform/umbrella chart composition that this repo
 owns. For local bring-up commands see `local-platform-getting-started.md`.
-For service-local chart conventions see `service-chart-patterns.md`.
+For service-local chart conventions see `service-chart-patterns.md`. For the
+separate `charts/lfx-crds` chart, see "Second chart: `charts/lfx-crds`" below.
 
 ## Chart composition
 
@@ -69,6 +70,44 @@ service's RuleSet `openfga_check` calls authorize against the types,
 relations, and inheritance defined in
 `charts/lfx-platform/files/model.fga` (injected into the Kubernetes
 `AuthorizationModelRequest` by `charts/lfx-platform/templates/openfga/model.yaml`).
+
+`charts/lfx-platform/templates/cloudnativepg/cluster.yaml` renders a
+CloudNativePG `Cluster` custom resource (gated by `cloudNativePG.enabled`,
+default `true`) -- the shared local-development Postgres cluster that
+per-service charts' "database" mode targets via a CloudNativePG `Database`
+CR. This is a plain CR template, not a subchart: the CloudNativePG operator
+and its CRDs live in the separate `charts/lfx-crds` chart below, and must
+be installed first.
+
+## Second chart: `charts/lfx-crds`
+
+`charts/lfx-crds` is a second, independent chart in this repo (not a
+dependency of `lfx-platform`) that installs operators and their CRDs --
+starting with the CloudNativePG operator. It exists as a separate chart
+because Helm can't install a chart dependency's CRDs and render a custom
+resource that depends on them in the same `helm install`/`upgrade` call.
+
+**Local-development only.** Deployed environments (dev/staging/prod) do not
+install this chart; see `lfx-v2-argocd`'s environment values for how
+`cloudNativePG.enabled` is set to `false` there instead.
+
+Install order for a fresh local cluster:
+
+```bash
+helm dependency update charts/lfx-crds
+helm install -n lfx lfx-crds ./charts/lfx-crds
+
+helm dependency update charts/lfx-platform
+helm install -n lfx lfx-platform ./charts/lfx-platform
+```
+
+`charts/lfx-crds` must land first: `lfx-platform`'s CloudNativePG `Cluster`
+resource assumes the operator (and its CRDs) it installs already exist.
+
+Releasing `charts/lfx-crds` uses its own tag prefix,
+`lfx-crds-vX.Y.Z` -- bare `vX.Y.Z` tags continue to mean `lfx-platform`,
+matching this repo's tagging convention from before `charts/lfx-crds`
+existed. See `.github/workflows/release.yaml`.
 
 ## OpenFGA model: worked edit
 

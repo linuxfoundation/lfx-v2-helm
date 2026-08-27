@@ -6,6 +6,8 @@
     "aquasecurity",
     "authelia",
     "clearbit",
+    "cloudnative",
+    "cloudnativepg",
     "contextualizer",
     "contextualizers",
     "crds",

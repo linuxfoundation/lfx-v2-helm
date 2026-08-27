@@ -20,6 +20,7 @@ in `lfx-v2-argocd`.
 | Task | See |
 | --- | --- |
 | First-time local bring-up | `docs/local-platform-getting-started.md` |
+| Install/update the CloudNativePG operator (`charts/lfx-crds`) | `charts/lfx-crds/README.md` + `docs/platform-chart.md` |
 | Edit the OpenFGA model + re-render `PERMISSIONS.md` | `docs/platform-chart.md` + `.agents/skills/render-permissions/SKILL.md` |
 | Update / bump platform subchart dependencies | `docs/platform-chart.md` |
 | Debug `helm dependency update` failures | `docs/platform-chart.md` "Failure modes" |
@@ -31,6 +32,13 @@ in `lfx-v2-argocd`.
 
    ```bash
    kubectl create namespace lfx
+
+   # First: the CloudNativePG operator + CRDs, from the separate lfx-crds
+   # chart. lfx-platform's own CloudNativePG Cluster resource assumes the
+   # operator already exists.
+   helm dependency update charts/lfx-crds
+   helm install -n lfx lfx-crds ./charts/lfx-crds
+
    helm dependency update charts/lfx-platform
    cp charts/lfx-platform/values.local.example.yaml charts/lfx-platform/values.local.yaml
    # fill in local secrets per chart README + 1Password "LFX V2" vault

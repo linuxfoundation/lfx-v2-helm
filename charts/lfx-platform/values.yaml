@@ -148,6 +148,20 @@ gateway:
         namespaces:
           from: Same
 
+# CloudNativePG Cluster (local development only): the shared Postgres
+# cluster per-service charts' "database" mode targets. The operator and
+# CRDs themselves come from a separate chart -- see charts/lfx-crds and
+# docs/platform-chart.md for install order. Deployed environments
+# (dev/staging/prod) set this to false and use external RDS instead.
+cloudNativePG:
+  enabled: true
+  cluster:
+    name: lfx-postgres
+    instances: 1
+    storage:
+      size: 1Gi
+      storageClass: ""
+
 # OpenFGA configuration
 openfga:
   enabled: true
