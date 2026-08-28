@@ -6,12 +6,22 @@
 Operator and CRD-providing charts for the LFX v2 platform, kept in a
 separate chart from `charts/lfx-platform` so their CRDs can be established
 before the umbrella chart's own resources (for example its CloudNativePG
-`Cluster`) are rendered. Helm cannot install CRDs from a chart dependency
-and then immediately render a CR from that same `helm install` in one
-shot, so this chart must be installed first, standalone.
+`Cluster`) are rendered. Helm's built-in `crds/`-directory handling (install
+first, wait for the CRD to be established) does not apply to the pinned
+`cloudnative-pg` dependency (`~0.29.0`): that chart defines its CRDs as
+regular templates under `templates/crds/`, not in a `crds/` directory, so
+Helm treats them like any other templated resource and does not wait for
+them to be established before returning. That is why this operator must be
+installed standalone, ahead of `lfx-platform`, rather than relying on
+Helm's dependency-CRD ordering.
 
 **Local development only.** Deployed environments (dev/staging/prod) do
 not install this chart -- see `docs/platform-chart.md`.
+
+**Kubernetes 1.29+ required.** The pinned `cloudnative-pg` dependency
+(`~0.29.0`) declares `kubeVersion: ">=1.29.0-0"`; that requirement is
+propagated to this chart's own `Chart.yaml` so `helm install` fails fast on
+an unsupported cluster instead of erroring later.
 
 ## Installing
 
@@ -19,7 +29,10 @@ not install this chart -- see `docs/platform-chart.md`.
 kubectl create namespace lfx  # if not already created
 
 helm dependency update charts/lfx-crds
-helm install -n lfx lfx-crds ./charts/lfx-crds
+# --wait ensures the operator Deployment (and its admission webhooks) is
+# ready before you install lfx-platform, whose CloudNativePG Cluster
+# resource depends on it.
+helm install -n lfx lfx-crds ./charts/lfx-crds --wait
 ```
 
 Then bring up `charts/lfx-platform` as usual (its CloudNativePG `Cluster`

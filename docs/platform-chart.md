@@ -84,8 +84,12 @@ be installed first.
 `charts/lfx-crds` is a second, independent chart in this repo (not a
 dependency of `lfx-platform`) that installs operators and their CRDs --
 starting with the CloudNativePG operator. It exists as a separate chart
-because Helm can't install a chart dependency's CRDs and render a custom
-resource that depends on them in the same `helm install`/`upgrade` call.
+because the pinned `cloudnative-pg` dependency (`~0.29.0`) defines its CRDs
+as regular templates under `templates/crds/` rather than in a `crds/`
+directory, so Helm does not apply its built-in "install CRDs first and wait
+for them to be established" handling here. The operator (and its CRDs)
+must therefore be installed standalone, ahead of `lfx-platform`, instead of
+relying on Helm's dependency-CRD ordering.
 
 **Local-development only.** Deployed environments (dev/staging/prod) do not
 install this chart; see `lfx-v2-argocd`'s environment values for how
@@ -94,8 +98,13 @@ install this chart; see `lfx-v2-argocd`'s environment values for how
 Install order for a fresh local cluster:
 
 ```bash
+kubectl create namespace lfx
+
 helm dependency update charts/lfx-crds
-helm install -n lfx lfx-crds ./charts/lfx-crds
+# --wait ensures the operator Deployment (and its admission webhooks) is
+# ready before the lfx-platform install below, whose CloudNativePG
+# Cluster resource depends on it.
+helm install -n lfx lfx-crds ./charts/lfx-crds --wait
 
 helm dependency update charts/lfx-platform
 helm install -n lfx lfx-platform ./charts/lfx-platform

@@ -18,6 +18,21 @@ First, create the namespace (recommended):
 kubectl create namespace lfx
 ```
 
+> **Local development only:** this chart's CloudNativePG `Cluster` resource
+> (`cloudNativePG.enabled`, default `true`) requires the CloudNativePG
+> operator and its CRDs, which live in the separate `charts/lfx-crds`
+> chart. Install it first, or the `Cluster` resource will fail to render
+> for lack of its CRD:
+>
+> ```bash
+> helm dependency update charts/lfx-crds
+> helm install -n lfx lfx-crds ./charts/lfx-crds --wait
+> ```
+>
+> See `charts/lfx-crds/README.md` and `docs/platform-chart.md` for details.
+> Deployed environments (dev/staging/prod) do not install `lfx-crds`; they
+> set `cloudNativePG.enabled: false` instead (see `lfx-v2-argocd`).
+
 ### Installing via the OCI registry
 
 ```bash
