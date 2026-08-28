@@ -20,23 +20,19 @@ kubectl create namespace lfx
 
 > **Local development only:** this chart's CloudNativePG `Cluster` resource
 > (`cloudNativePG.enabled`, default `true`) requires the CloudNativePG
-> operator and its CRDs, which live in the separate `charts/lfx-crds`
-> chart. Install it first, or the `Cluster` resource will fail to render
-> for lack of its CRD:
->
-> ```bash
-> helm dependency update charts/lfx-crds
-> helm install -n lfx lfx-crds ./charts/lfx-crds --wait
-> ```
->
-> See `charts/lfx-crds/README.md` and `docs/platform-chart.md` for details.
-> Deployed environments (dev/staging/prod) do not install `lfx-crds`; they
-> set `cloudNativePG.enabled: false` instead (see `lfx-v2-argocd`).
+> operator and its CRDs, installed first from the separate `charts/lfx-crds`
+> chart -- see each install method below. Deployed environments
+> (dev/staging/prod) do not install `lfx-crds`; they set
+> `cloudNativePG.enabled: false` instead.
 
 ### Installing via the OCI registry
 
 ```bash
-# Install the latest version of the chart.
+# First: the CloudNativePG operator + CRDs (local dev only; see note above).
+helm install -n lfx lfx-crds \
+  oci://ghcr.io/linuxfoundation/lfx-v2-helm/chart/lfx-crds --wait
+
+# Then: the platform chart itself.
 helm install -n lfx lfx-platform \
   oci://ghcr.io/linuxfoundation/lfx-v2-helm/chart/lfx-platform
 ```
@@ -56,10 +52,12 @@ Clone the repository before running the following commands from the root of the
 working directory.
 
 ```bash
-# Pull down chart dependencies.
-helm dependency update charts/lfx-platform
+# First: the CloudNativePG operator + CRDs (local dev only; see note above).
+helm dependency update charts/lfx-crds
+helm install -n lfx lfx-crds ./charts/lfx-crds --wait
 
-# Install the chart.
+# Then: the platform chart itself.
+helm dependency update charts/lfx-platform
 helm install -n lfx lfx-platform \
     ./charts/lfx-platform
 ```
