@@ -79,6 +79,21 @@ CR. This is a plain CR template, not a subchart: the CloudNativePG operator
 and its CRDs live in the separate `charts/lfx-crds` chart below, and must
 be installed first.
 
+OpenFGA is the first consumer of the shared cluster: rather than patching
+the OpenFGA chart's own bundled `postgresql.*` (Bitnami) values, its
+`values.yaml` entry disables that subchart (`postgresql.enabled: false`)
+and integrates via OpenFGA's `extraObjects` escape hatch, rendering a
+CloudNativePG `Database` CR against the shared cluster. The connection
+string is built in `extraEnvVars` from the CloudNativePG operator's
+generated `<clusterName>-app` secret (`PGHOST`/`PGPORT`/`PGUSER`/
+`PGPASSWORD` composed into `OPENFGA_DATASTORE_URI`) rather than via
+`datastore.uri`/`uriSecret`/`existingSecret`, since splitting the
+connection across `OPENFGA_DATASTORE_URI`/`USERNAME`/`PASSWORD` hits a
+known regression in the `openfga migrate` CLI used by the migration
+initContainer (openfga/openfga#2493). Deployed environments override all
+of `datastore`, `extraEnvVars`, and `extraObjects` to keep using external
+RDS -- see `lfx-v2-argocd`'s `values/global/lfx-platform.yaml`.
+
 ## Second chart: `charts/lfx-crds`
 
 `charts/lfx-crds` is a second, independent chart in this repo (not a

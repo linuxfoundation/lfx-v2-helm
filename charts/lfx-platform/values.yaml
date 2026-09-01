@@ -170,20 +170,70 @@ openfga:
   playground:
     enabled: false
 
-  # Use PostgreSQL
+  # Use PostgreSQL, connecting to the shared CloudNativePG-managed cluster
+  # (see cloudNativePG.* above) instead of OpenFGA's own bundled Bitnami
+  # postgresql subchart (disabled below). OPENFGA_DATASTORE_URI is built in
+  # extraEnvVars from the CloudNativePG operator-generated
+  # "<cloudNativePG.cluster.name>-app" secret, rather than via
+  # datastore.uri/uriSecret/existingSecret, so the full connection string
+  # (with embedded credentials) stays in one env var instead of being split
+  # across OPENFGA_DATASTORE_URI/USERNAME/PASSWORD -- the latter had a known
+  # regression for the `openfga migrate` CLI used by the migration
+  # initContainer below (openfga/openfga#2493).
   datastore:
     engine: postgres
-    # Must override uriSecret if setting postgresql.enabled to false.
-    uriSecret: openfga-postgresql-client
     migrationType: initContainer
 
-  # PostgreSQL subchart configuration
+  # The bundled Bitnami postgresql subchart is disabled in favor of the
+  # shared CloudNativePG cluster (see cloudNativePG.* above and
+  # extraObjects/extraEnvVars below).
   postgresql:
-    enabled: true
-    auth:
-      username: openfga
-      database: openfga
-      existingSecret: openfga-postgresql-server
+    enabled: false
+
+  # Renders a CloudNativePG Database custom resource against the shared,
+  # umbrella-provisioned Cluster (cloudNativePG.cluster.name above):
+  # integrate via this extraObjects escape hatch rather than by patching
+  # OpenFGA's own postgresql.* values. "owner: app" uses the cluster's
+  # default bootstrap role (see cloudNativePG.cluster.name -- the
+  # cluster.name here must match).
+  extraObjects:
+    - apiVersion: postgresql.cnpg.io/v1
+      kind: Database
+      metadata:
+        name: openfga
+      spec:
+        name: openfga
+        owner: app
+        cluster:
+          name: lfx-postgres
+
+  # Builds OPENFGA_DATASTORE_URI from the CloudNativePG operator-generated
+  # "lfx-postgres-app" secret (host/port/username/password), pointed at the
+  # "openfga" database created by the Database CR above. The secret name
+  # here must match cloudNativePG.cluster.name + "-app".
+  extraEnvVars:
+    - name: PGHOST
+      valueFrom:
+        secretKeyRef:
+          name: lfx-postgres-app
+          key: host
+    - name: PGPORT
+      valueFrom:
+        secretKeyRef:
+          name: lfx-postgres-app
+          key: port
+    - name: PGUSER
+      valueFrom:
+        secretKeyRef:
+          name: lfx-postgres-app
+          key: username
+    - name: PGPASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: lfx-postgres-app
+          key: password
+    - name: OPENFGA_DATASTORE_URI
+      value: "postgres://$(PGUSER):$(PGPASSWORD)@$(PGHOST):$(PGPORT)/openfga?sslmode=disable"
 
   # Tracing configuration
   telemetry:
