@@ -353,9 +353,11 @@ type b2b_org
     define owner: [user]
     # @fgadoc:jtbd Update org details & access settings
     # @fgadoc:jtbd Manage membership committee seat assignments
-    define writer: [user] or owner or global_org_admin
-    # auditor cascades transitively up and down the hierarchy via parent/child.
-    # writer does NOT cascade — edit scope stays on the directly-assigned org only.
+    define writer: [user] or owner or global_org_admin or writer from parent or writer from child
+    # writer and auditor both cascade transitively up and down the hierarchy via
+    # parent/child (LFXV2-3029) — an editor on any organization in a connected
+    # parent-child-sibling group is an editor on every member of that group,
+    # matching the auditor traversal below.
     # @fgadoc:jtbd View org details, settings & committee seats
     # @fgadoc:jtbd View org workspaces & workspace projects
     define auditor: [user, team#member] or writer or auditor from parent or auditor from child or key_contact from membership
