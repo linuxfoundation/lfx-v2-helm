@@ -1,12 +1,27 @@
 model
   schema 1.1
 
+# Each change to this authorization model should be accompanied by a version
+# bump in charts/lfx-platform/templates/openfga/model.yaml. Recommended
+# versioning guidelines:
+#   - major: Modifications, deletions, or additions of type
+#   - minor: Additions or deletions of relations
+#   - patch: Modifications of define
+#
+# Changes to @fgadoc:jtbd, @fgadoc:alias, or @fgadoc:hide annotations are
+# documentation only and do NOT require a version bump.
+#
+# Do NOT add @fgadoc:jtbd lines manually. These are updated by the
+# `populate-jtbds` skill by analyzing live RuleSets and API docs.
+# @fgadoc:hide and @fgadoc:alias tags are managed manually.
+
 # @fgadoc:hide
 type user
 
 # @fgadoc:hide
 type team
   relations
+    # @fgadoc:jtbd Accept, reject & reopen formation checklist items
     # @fgadoc:jtbd Create a B2B organization
     # @fgadoc:jtbd Manage survey exclusions & validate email templates
     # @fgadoc:jtbd Trigger a data reindex
@@ -22,8 +37,10 @@ type project
     # @fgadoc:jtbd Manage project links, folders & documents
     # @fgadoc:jtbd Create project committees & Groups.io services
     # @fgadoc:jtbd Create a vote poll
+    # @fgadoc:jtbd Update formation checklist items
     define writer: [user] or owner or writer from parent
     # @fgadoc:jtbd View project settings
+    # @fgadoc:jtbd View formation checklist & activity feed
     define auditor: [user, team#member] or executive_director or writer or auditor from parent
     # The meeting_coordinator relation identifies a user who can manage any meeting
     # for a given project.
@@ -49,8 +66,13 @@ type project
     # @fgadoc:jtbd Create & manage campaign briefs
     # @fgadoc:jtbd Approve a brief for campaign creation
     # @fgadoc:jtbd Manage brief target audiences
+    # @fgadoc:jtbd Prefill a brief from an event URL
+    # @fgadoc:jtbd Generate AI-written email copy for a brief
+    # @fgadoc:jtbd Upload creative assets for ad campaigns
     # @fgadoc:jtbd Launch campaigns across ad platforms
     # @fgadoc:jtbd Pause & resume a campaign
+    # @fgadoc:jtbd Pause or remove Google Ads keywords
+    # @fgadoc:jtbd View live campaign & keyword performance metrics
     # @fgadoc:jtbd Track campaign creation job status
     # campaign_manager is intentionally the same population as marketing_ops
     # (plus executive_director) — there is no separate campaign-manager grant
@@ -230,6 +252,7 @@ type v1_meeting
     define participant: [user] or host
     # @fgadoc:jtbd View a meeting & join link
     # @fgadoc:jtbd Submit a meeting RSVP & download attachments
+    # @fgadoc:jtbd Register for a public meeting
     # @fgadoc:jtbd View meeting registrants & RSVPs
     define viewer: [user:*] or participant or organizer or auditor
 
@@ -353,6 +376,7 @@ type b2b_org
     define owner: [user]
     # @fgadoc:jtbd Update org details & access settings
     # @fgadoc:jtbd Manage membership committee seat assignments
+    # @fgadoc:jtbd Manage org workspaces & workspace projects
     define writer: [user] or owner or global_org_admin
     # auditor cascades transitively up and down the hierarchy via parent/child.
     # writer does NOT cascade — edit scope stays on the directly-assigned org only.
