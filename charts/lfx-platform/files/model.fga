@@ -402,6 +402,7 @@ type crowdfunding_initiative
     # exclusive attribution; personal initiatives have neither
     define project: [project]
     define b2b_org: [b2b_org]
+    # @fgadoc:alias Creator
     define owner: [user]
     define writer: owner or writer from project or writer from b2b_org
     define viewer: [user:*] or writer
