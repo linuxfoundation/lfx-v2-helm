@@ -233,11 +233,18 @@ cascades it to every project (`auditor from parent`), and the
 every 10 minutes and grants each team blanket `auditor` on every `b2b_org`,
 which the project cascade cannot reach (`b2b_org#parent` is another
 `b2b_org`). `user:` subjects and ROOT `owner`/`writer` teams are ignored.
-Consequences when you edit this table: adding a team here extends Org Lens
-read access to every organization within ~10 minutes; removing a team stops
-*new* per-org grants but revokes nothing already written: the reconciler is
-write-only, and fga-sync never deletes a tuple whose *subject* is a
-`team:<name>#member` reference (the per-org grants). Team *membership* tuples
+The reconciler is not the only writer of those per-org grants: member-service
+publishes the same `team:<name>#member → auditor → b2b_org:<uid>` tuples on
+every org write, driven by its own `LF_STAFF_TEAM_NAME` /
+`LF_CONTRACTOR_TEAM_NAME` chart values (see member-service
+`docs/lf-team-auditor-grants.md`). The two are meant to agree, but they are
+configured independently. Consequences when you edit this table: adding a
+team here extends Org Lens read access to every organization within ~10
+minutes; removing a team stops the *reconciler's* new per-org grants only —
+member-service keeps emitting for a team until its chart value is cleared —
+and revokes nothing already written: the reconciler is write-only, and
+fga-sync never deletes a tuple whose *subject* is a `team:<name>#member`
+reference (the per-org grants). Team *membership* tuples
 — `user:<lfid>` subjects on a `team:` object — are a different thing: the
 `sync-global-groups` CronJob itself adds and removes them (`syncGroup`, a
 direct OpenFGA `/write`, not the fga-sync service — the Application name
@@ -257,6 +264,8 @@ provision or change a global tuple through them.
    lookup as shown above, against that environment's `lfx-platform-openfga`
    service/namespace), and the environment's root project ID:
    ```bash
+   # Run from an lfx-v2-argocd checkout — the values files live there, not in
+   # this repo.
    ROOT_PROJECT_ID=$(yq -r '.app.rootProjectId' values/<env>/lfid-management.yaml)
    ```
 2. Write the tuple:
