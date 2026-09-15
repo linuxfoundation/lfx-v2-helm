@@ -238,9 +238,12 @@ read access to every organization within ~10 minutes; removing a team stops
 *new* per-org grants but revokes nothing already written: the reconciler is
 write-only, and fga-sync never deletes a tuple whose *subject* is a
 `team:<name>#member` reference (the per-org grants). Team *membership* tuples
-— `user:<lfid>` subjects on a `team:` object — are unaffected by that guard
-and are still removed by LDAP member sync on offboarding. Revoking the per-org
-grants is member-service's `scripts/revoke-lf-teams-auditor-openfga.sh`. If no team
+— `user:<lfid>` subjects on a `team:` object — are a different thing: the
+`sync-global-groups` CronJob itself adds and removes them (`syncGroup`, a
+direct OpenFGA `/write`, not the fga-sync service — the Application name
+conflates the two), so LDAP offboarding still drops a member's `team:`
+membership. Revoking the per-org grants is member-service's
+`scripts/revoke-lf-teams-auditor-openfga.sh`. If no team
 holds ROOT `auditor` in an environment, the reconcile step fails closed and
 logs `org reconcile failed`; LDAP member sync is unaffected.
 
