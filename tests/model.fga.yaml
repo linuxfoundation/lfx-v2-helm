@@ -7,11 +7,12 @@
 #   fga model test --tests "tests/*.fga.yaml"
 #
 # These assert which relations reach a child project and which deliberately do
-# not, because that is what makes a global grant withholdable from one project.
+# not, because that is what makes it possible to withhold a global grant from one
+# project.
 #
 # Reading a relation's own definition is not sufficient to tell. A relation with
 # no "from parent" of its own still reaches descendants if it composes into a
-# relation that has one — which is how the marketing behaviour below was found.
+# relation that has one — which is how the marketing behavior below was found.
 #
 # Team and user names here are fixtures. They intentionally do not name any real
 # team, so these tests assert the model's shape rather than any deployment's
@@ -54,6 +55,18 @@ tuples:
   - user: project:parent
     relation: project
     object: v1_meeting:m1
+
+  - user: project:parent
+    relation: project
+    object: meeting:mt1
+
+  - user: project:parent
+    relation: project
+    object: past_meeting:pm2
+
+  - user: project:parent
+    relation: project
+    object: v1_past_meeting:vp1
 
   - user: project:parent
     relation: project
@@ -141,7 +154,7 @@ tests:
   # global_marketing_ops carries no "from parent" itself. It reaches descendants
   # because it composes into marketing_auditor, and marketing_auditor cascades
   # in its own right. Unlike the ownership fallback above, that cascade is not
-  # part of the migration and is not scheduled for removal, so this behaviour is
+  # part of the migration and is not scheduled for removal, so this behavior is
   # permanent rather than a rollout window.
   #
   # It also is not new: marketing_ops already cascades today, and the comment on
@@ -232,6 +245,61 @@ tests:
         assertions:
           organizer: true
           auditor: true
+      - user: user:teamster
+        object: meeting:mt1
+        assertions:
+          organizer: true
+          auditor: true
+      - user: user:teamster
+        object: past_meeting:pm2
+        assertions:
+          organizer: true
+          auditor: true
+      - user: user:teamster
+        object: v1_past_meeting:vp1
+        assertions:
+          organizer: true
+          auditor: true
+
+  # A global write grant confers write, and not read of the project object
+  # itself. This is deliberate, and asserted so it reads as a decision rather
+  # than an oversight.
+  #
+  # The project's own `auditor` composes the bare `writer` grant, not
+  # `writer_guard`, so global_writer does not arrive at `auditor`, and therefore
+  # not at `auditor_guard`, `viewer`, or `project_membership` — whose read side
+  # is reached only through `auditor_guard from project`. A *directly* granted
+  # writer does get all of those, so the two differ on purpose.
+  #
+  # Nothing is lost by this. No team holds a `writer` grant today: `writer` is
+  # `[user]` only, so the project relations a team can be granted are `owner`
+  # and `auditor`, and both keep every surface when swapped for their global
+  # counterpart. A team that needs write *and* read is granted global_writer and
+  # global_auditor, exactly as `owner` and `auditor` are granted separately now.
+  - name: a global write grant does not confer read of the project itself
+    tuples:
+      - user: team:global-team#member
+        relation: global_writer
+        object: project:parent
+    check:
+      - user: user:teamster
+        object: project:parent
+        assertions:
+          writer_guard: true
+          auditor: false
+          auditor_guard: false
+          viewer: false
+      - user: user:teamster
+        object: project_membership:pm1
+        assertions:
+          auditor: false
+      # The child types are unaffected: each composes its own writer into its
+      # own auditor, so write access still carries read of the sub-resource.
+      - user: user:teamster
+        object: committee:c1
+        assertions:
+          writer: true
+          auditor: true
 
   - name: a global read grant reaches the read side of every child type
     tuples:
@@ -257,6 +325,18 @@ tests:
           auditor: true
       - user: user:teamster
         object: v1_meeting:m1
+        assertions:
+          auditor: true
+      - user: user:teamster
+        object: meeting:mt1
+        assertions:
+          auditor: true
+      - user: user:teamster
+        object: past_meeting:pm2
+        assertions:
+          auditor: true
+      - user: user:teamster
+        object: v1_past_meeting:vp1
         assertions:
           auditor: true
       - user: user:teamster

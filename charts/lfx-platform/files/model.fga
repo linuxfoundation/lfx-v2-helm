@@ -18,8 +18,12 @@ type project
     define parent: [project]
     # global_* tuples are written to every eligible project to quickly check
     # global permissions without traversing the project hierarchy to ROOT.
-    # Deliberately no "from parent": these relations must be withholdable from
-    # an individual project, which is exactly what cascading would prevent.
+    # Deliberately no "from parent", because cascading would prevent
+    # withholding a grant from an individual project. That withholding is only
+    # actually achieved for global_writer and global_auditor, though. The other
+    # two reach descendants by other routes and cannot be withheld: global_owner
+    # through the writer cascade it feeds, and global_marketing_ops through
+    # marketing_auditor. Both are explained where they are defined below.
     #
     # The global_ prefix is load-bearing, not descriptive. fga-sync preserves
     # team subjects from deletion for every other relation, so a relation that
@@ -34,7 +38,7 @@ type project
     define global_writer: [team#member]
     # @fgadoc:hide
     define global_auditor: [team#member]
-    # Unlike the three above, this one is not withholdable, and is not intended
+    # Unlike the three above, this one cannot be withheld, and is not intended
     # to be. It has no "from parent" of its own, but it composes into
     # marketing_auditor, which cascades in its own right — so it reaches every
     # descendant of any project it is written to. That matches the cascade
@@ -59,7 +63,7 @@ type project
     # Dropping `owner from parent` closes the `owner` cascade but not the write
     # and read access it confers: `owner` feeds `writer`, and a direct `writer`
     # grant is deliberately allowed to cascade. So `global_owner`, like
-    # `global_marketing_ops`, is not withholdable from an individual project
+    # `global_marketing_ops`, cannot be withheld from an individual project
     # even after the migration. tests/model.fga.yaml asserts that a global
     # ownership grant on a parent reaches the child's write and read guards, the
     # part that survives dropping the fallback.
