@@ -215,9 +215,13 @@ That makes two things easy to get wrong during an incident: nobody owns
 re-checking that a global tuple still exists, and there's no record to
 consult to rule out "was it ever written" as a cause.
 
-`project:ROOT` in this section is shorthand: the object is
-`project:<rootProjectId>`, and the ID differs per environment (argocd
-`values/<env>/lfid-management.yaml`, key `rootProjectId`).
+`project:ROOT` in the prose below is shorthand for the tenant root project.
+OpenFGA has no such object: the real object is `project:<rootProjectId>`, a
+UUID that differs per environment (argocd `values/<env>/lfid-management.yaml`,
+key `rootProjectId`). Never pass the literal `project:ROOT` to `tuple write`
+or `tuple read` — it would create or look up a disconnected tuple that
+nothing cascades from. The runbook commands below read the ID into
+`ROOT_PROJECT_ID` first and use `project:$ROOT_PROJECT_ID`.
 
 **Global auditor rule (spec 044 / ADR-0041).** The ROOT `auditor` relation
 is load-bearing for a job, not only for the model cascade. Every
@@ -231,9 +235,12 @@ which the project cascade cannot reach (`b2b_org#parent` is another
 `b2b_org`). `user:` subjects and ROOT `owner`/`writer` teams are ignored.
 Consequences when you edit this table: adding a team here extends Org Lens
 read access to every organization within ~10 minutes; removing a team stops
-*new* per-org grants but revokes nothing already written (fga-sync never
-deletes a `team:` tuple and the reconciler is write-only) — revocation is
-member-service's `scripts/revoke-lf-teams-auditor-openfga.sh`. If no team
+*new* per-org grants but revokes nothing already written: the reconciler is
+write-only, and fga-sync never deletes a tuple whose *subject* is a
+`team:<name>#member` reference (the per-org grants). Team *membership* tuples
+— `user:<lfid>` subjects on a `team:` object — are unaffected by that guard
+and are still removed by LDAP member sync on offboarding. Revoking the per-org
+grants is member-service's `scripts/revoke-lf-teams-auditor-openfga.sh`. If no team
 holds ROOT `auditor` in an environment, the reconcile step fails closed and
 logs `org reconcile failed`; LDAP member sync is unaffected.
 
@@ -245,14 +252,17 @@ provision or change a global tuple through them.
 
 1. Identify the target store for the environment in question (`STORE_ID`
    lookup as shown above, against that environment's `lfx-platform-openfga`
-   service/namespace).
+   service/namespace), and the environment's root project ID:
+   ```bash
+   ROOT_PROJECT_ID=$(yq -r '.app.rootProjectId' values/<env>/lfid-management.yaml)
+   ```
 2. Write the tuple:
    ```bash
    kubectl run --rm -it fga-cli --namespace <ns> --image=openfga/cli:v0.4.5 \
      --env="FGA_STORE_ID=$STORE_ID" \
      --env="FGA_API_URL=http://lfx-platform-openfga:8080" \
      --restart=Never -- tuple write \
-     "team:<teamID>#member" "marketing_ops" "project:ROOT"
+     "team:<teamID>#member" "marketing_ops" "project:$ROOT_PROJECT_ID"
    ```
 3. Verify the tuple was written by reading it back:
    ```bash
@@ -263,7 +273,7 @@ provision or change a global tuple through them.
      --consistency HIGHER_CONSISTENCY \
      --user "team:<teamID>#member" \
      --relation "marketing_ops" \
-     --object "project:ROOT"
+     --object "project:$ROOT_PROJECT_ID"
    ```
    If found, the tuple was successfully written. This step uses `HIGHER_CONSISTENCY` to ensure fresh data, preventing false negatives from stale caches immediately after provisioning.
 4. Verify cascade behavior with a `check` call against a relation that
@@ -288,7 +298,7 @@ provision or change a global tuple through them.
 
 | Tuple | Environment(s) | Purpose | Provisioned by / date |
 | --- | --- | --- | --- |
-| `team:<marketing-ops-teamID>#member:marketing_ops:project:ROOT` | (unconfirmed) | Grants the LF Marketing Ops team `marketing_auditor`/`campaign_manager` on every project via cascade (LFXV2-2231) | _Not yet confirmed written to any environment as of 2026-08-17 — verify before relying on it; update this row once confirmed._ |
+| `team:<marketing-ops-teamID>#member:marketing_ops:project:<rootProjectId>` | (unconfirmed) | Grants the LF Marketing Ops team `marketing_auditor`/`campaign_manager` on every project via cascade (LFXV2-2231) | _Not yet confirmed written to any environment as of 2026-08-17 — verify before relying on it; update this row once confirmed._ |
 | `team:lf-staff#member:auditor:project:<rootProjectId>` | dev, prod. **Not staging** (no team subjects on `project:4c540182-…#auditor`, verified 2026-09-15) | Global auditor population: cascades to every project (`auditor from parent`); read by the `sync-global-groups` reconciler, which grants `auditor` on every `b2b_org` (spec 044, LFXV2-3071) | Staff Support — dev 2026-06-22, prod 2026-05-04 |
 | `team:lf-contractor#member:auditor:project:<rootProjectId>` | dev, prod. **Not staging** (same check) | Same population rule. LFXV2-3071 ratified staff/contractor parity (a population, not a role), so this tuple is the source both the project cascade and the `b2b_org` reconciler derive contractor read access from | Staff Support — dev 2026-06-22, prod 2026-05-04 |
 
