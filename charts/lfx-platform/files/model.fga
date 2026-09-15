@@ -385,3 +385,23 @@ type project_membership
     # @fgadoc:jtbd View project membership & key contacts
     define auditor: writer or auditor from b2b_org or auditor from project
     define key_contact: [user]
+
+# The crowdfunding_initiative type models Crowdfunding's whole authorization
+# surface: an initiative may hang off a project or a b2b_org (exclusive
+# attribution; a personal initiative has neither), and writers there can
+# manage it. See lfx-crowdfunding's
+# backend/docs/rewrite/12-fga-authorization-model.md for the full design and
+# lfx-crowdfunding#269 for the accepted-decision record.
+# // Hide this from PERMISSIONS.md until CF sits behind Heimdall and
+# RuleSets referencing these relations exist for the populate-jtbds skill to
+# read — see doc 12's "Architecture feedback" section on why @fgadoc:jtbd
+# lines must never be hand-authored ahead of a RuleSet.
+# @fgadoc:hide
+type crowdfunding_initiative
+  relations
+    # exclusive attribution; personal initiatives have neither
+    define project: [project]
+    define b2b_org: [b2b_org]
+    define owner: [user]
+    define writer: owner or writer from project or writer from b2b_org
+    define viewer: [user:*] or writer
