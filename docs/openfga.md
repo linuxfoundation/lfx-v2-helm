@@ -207,12 +207,35 @@ LFXV2-2231 is the first example: `marketing_ops` is granted on
 `campaign_manager` both resolve through).
 
 There is currently no admin UI for this (tracked separately as LFXV2-1760)
-and no service syncs these tuples from project-service or fga-sync
-(LFXV2-2233 was cancelled, LFXV2-2234 is not started) — manual `tuple write`
-via the OpenFGA CLI, as shown above, is the only path today. That makes two
-things easy to get wrong during an incident: nobody owns re-checking that a
-global tuple still exists, and there's no record to consult to rule out "was
-it ever written" as a cause.
+and no service writes these tuples — not project-service (its
+`root-project-setup` is create-once and accepts `user:` subjects only) and
+not fga-sync (LFXV2-2233 was cancelled, LFXV2-2234 is not started) — manual
+`tuple write` via the OpenFGA CLI, as shown above, is the only path today.
+That makes two things easy to get wrong during an incident: nobody owns
+re-checking that a global tuple still exists, and there's no record to
+consult to rule out "was it ever written" as a cause.
+
+`project:ROOT` in this section is shorthand: the object is
+`project:<rootProjectId>`, and the ID differs per environment (argocd
+`values/<env>/lfid-management.yaml`, key `rootProjectId`).
+
+**Global auditor rule (spec 044 / ADR-0041).** The ROOT `auditor` relation
+is load-bearing for a job, not only for the model cascade. Every
+`team:<name>#member` subject holding a *direct* `auditor` tuple on
+`project:ROOT` is, by definition, a global-auditor population: the model
+cascades it to every project (`auditor from parent`), and the
+`sync-global-groups` CronJob (argocd
+`custom-resources/lfx-v2-fga-sync-global-groups`) reads those team subjects
+every 10 minutes and grants each team blanket `auditor` on every `b2b_org`,
+which the project cascade cannot reach (`b2b_org#parent` is another
+`b2b_org`). `user:` subjects and ROOT `owner`/`writer` teams are ignored.
+Consequences when you edit this table: adding a team here extends Org Lens
+read access to every organization within ~10 minutes; removing a team stops
+*new* per-org grants but revokes nothing already written (fga-sync never
+deletes a `team:` tuple and the reconciler is write-only) — revocation is
+member-service's `scripts/revoke-lf-teams-auditor-openfga.sh`. If no team
+holds ROOT `auditor` in an environment, the reconcile step fails closed and
+logs `org reconcile failed`; LDAP member sync is unaffected.
 
 **Owner:** LF Staff Support (per the LFXV2-2231 epic's decision to defer
 manual tuple management there until LFXV2-1760 ships). Route requests to
@@ -266,6 +289,8 @@ provision or change a global tuple through them.
 | Tuple | Environment(s) | Purpose | Provisioned by / date |
 | --- | --- | --- | --- |
 | `team:<marketing-ops-teamID>#member:marketing_ops:project:ROOT` | (unconfirmed) | Grants the LF Marketing Ops team `marketing_auditor`/`campaign_manager` on every project via cascade (LFXV2-2231) | _Not yet confirmed written to any environment as of 2026-08-17 — verify before relying on it; update this row once confirmed._ |
+| `team:lf-staff#member:auditor:project:<rootProjectId>` | dev, prod. **Not staging** (no team subjects on `project:4c540182-…#auditor`, verified 2026-09-15) | Global auditor population: cascades to every project (`auditor from parent`); read by the `sync-global-groups` reconciler, which grants `auditor` on every `b2b_org` (spec 044, LFXV2-3071) | Staff Support — dev 2026-06-22, prod 2026-05-04 |
+| `team:lf-contractor#member:auditor:project:<rootProjectId>` | dev, prod. **Not staging** (same check) | Same population rule. LFXV2-3071 ratified staff/contractor parity (a population, not a role), so this tuple is the source both the project cascade and the `b2b_org` reconciler derive contractor read access from | Staff Support — dev 2026-06-22, prod 2026-05-04 |
 
 ## Advanced Topics
 
