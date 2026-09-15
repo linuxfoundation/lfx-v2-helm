@@ -238,9 +238,12 @@ publishes the same `team:<name>#member → auditor → b2b_org:<uid>` tuples on
 every org write, driven by its own `LF_STAFF_TEAM_NAME` /
 `LF_CONTRACTOR_TEAM_NAME` chart values (see member-service
 `docs/lf-team-auditor-grants.md`). The two are meant to agree, but they are
-configured independently. Consequences when you edit this table: adding a
-team here extends Org Lens read access to every organization within ~10
-minutes; removing a team stops the *reconciler's* new per-org grants only —
+configured independently. The table below is a registry, not a control:
+editing a row changes nothing in OpenFGA. The consequences attach to the ROOT
+tuple itself. Writing a `team:<name>#member → auditor → project:<rootProjectId>`
+tuple extends Org Lens read access to every organization within ~10 minutes
+(record the row afterwards); deleting that tuple stops the *reconciler's* new
+per-org grants only —
 member-service keeps emitting for a team until its chart value is cleared —
 and revokes nothing already written: the reconciler is write-only, and
 fga-sync never deletes a tuple whose *subject* is a `team:<name>#member`
@@ -262,11 +265,16 @@ provision or change a global tuple through them.
 
 1. Identify the target store for the environment in question (`STORE_ID`
    lookup as shown above, against that environment's `lfx-platform-openfga`
-   service/namespace), and the environment's root project ID:
+   service/namespace), the environment's root project ID, and the relation
+   you are provisioning — `auditor` for a global-auditor team (the registry
+   rows for `lf-staff` / `lf-contractor`), `marketing_ops` for the Marketing
+   Ops team. Steps 2–4 use the same `RELATION` throughout so you cannot write
+   one relation and verify another:
    ```bash
    # Run from an lfx-v2-argocd checkout — the values files live there, not in
    # this repo.
    ROOT_PROJECT_ID=$(yq -r '.app.rootProjectId' values/<env>/lfid-management.yaml)
+   RELATION=auditor   # or marketing_ops
    ```
 2. Write the tuple:
    ```bash
@@ -274,7 +282,7 @@ provision or change a global tuple through them.
      --env="FGA_STORE_ID=$STORE_ID" \
      --env="FGA_API_URL=http://lfx-platform-openfga:8080" \
      --restart=Never -- tuple write \
-     "team:<teamID>#member" "marketing_ops" "project:$ROOT_PROJECT_ID"
+     "team:<teamID>#member" "$RELATION" "project:$ROOT_PROJECT_ID"
    ```
 3. Verify the tuple was written by reading it back:
    ```bash
@@ -284,13 +292,15 @@ provision or change a global tuple through them.
      --restart=Never -- tuple read \
      --consistency HIGHER_CONSISTENCY \
      --user "team:<teamID>#member" \
-     --relation "marketing_ops" \
+     --relation "$RELATION" \
      --object "project:$ROOT_PROJECT_ID"
    ```
    If found, the tuple was successfully written. This step uses `HIGHER_CONSISTENCY` to ensure fresh data, preventing false negatives from stale caches immediately after provisioning.
 4. Verify cascade behavior with a `check` call against a relation that
    actually depends on it (not `viewer` — see the note above about
-   `viewer` being public). This confirms the inheritance chain works as
+   `viewer` being public): `auditor` on a sub-project for the `auditor`
+   ROOT tuple (it cascades via `auditor from parent`), `marketing_auditor`
+   for the `marketing_ops` one. This confirms the inheritance chain works as
    expected but does not prove the ROOT tuple itself exists — use step 3
    for that confirmation:
    ```bash
@@ -299,7 +309,7 @@ provision or change a global tuple through them.
      --env="FGA_API_URL=http://lfx-platform-openfga:8080" \
      --restart=Never -- query check \
      --consistency HIGHER_CONSISTENCY \
-     "user:<a-team-member>@example.com" "marketing_auditor" "project:<any-sub-project>"
+     "user:<a-team-member>" "auditor" "project:<any-sub-project>"   # marketing_auditor for marketing_ops
    ```
    A successful check (returned `"allowed": true`) confirms that the cascade behaves as expected. Note that the CLI always exits with code 0 even when `allowed: false`, so you must inspect the response body to verify success.
 5. Record what you wrote in the table below, in the same PR/change that
