@@ -17,38 +17,26 @@ type project
   relations
     define parent: [project]
     # global_* tuples are written to every eligible project to quickly check
-    # global permissions without traversing the project hierarchy to ROOT.
+    # global permissions without traversing the project hierarchy.
     # Deliberately no "from parent", because cascading would prevent
     # withholding a grant from an individual project. That withholding is only
-    # actually achieved for global_writer and global_auditor, though. The other
-    # two reach descendants by other routes and cannot be withheld: global_owner
-    # through the writer cascade it feeds, and global_marketing_ops through
-    # marketing_auditor. Both are explained where they are defined below.
+    # actually achieved for global_writer and global_auditor; global_owner and
+    # global_marketing_ops reach descendants by other routes, explained where
+    # they are defined below.
     #
-    # The global_ prefix is load-bearing, not descriptive. fga-sync preserves
-    # team subjects from deletion for every other relation, so a relation that
-    # must be fully reconcilable — added *and* removed as a project's
-    # eligibility changes — is identified by this prefix alone. Renaming one of
-    # these relations without the prefix silently makes its grants permanent.
-    # Any future object type wanting the same non-cascading, reconcilable
-    # team-grant pattern should reuse the prefix rather than invent a mechanism.
-    # @fgadoc:hide
+    # The global_ prefix is load-bearing: it is what marks a relation's team
+    # grants as fully reconcilable, so renaming one without the prefix would
+    # silently make its grants permanent. See lfx-v2-fga-sync
+    # (docs/fga-sync-contract.md) for the reconcile behavior itself.
     define global_owner: [team#member]
-    # @fgadoc:hide
     define global_writer: [team#member]
-    # @fgadoc:hide
     define global_auditor: [team#member]
-    # Unlike the three above, this one cannot be withheld, and is not intended
-    # to be. It has no "from parent" of its own, but it composes into
-    # marketing_auditor, which cascades in its own right — so it reaches every
-    # descendant of any project it is written to. That matches the cascade
-    # marketing_ops already has (see campaign_manager below) rather than adding
-    # one, but it does mean withholding it from an individual project would not
-    # take effect. It must therefore be exempt from whatever rule decides which
-    # projects a global grant is withheld from; if marketing ever needs to be
-    # withheld, it needs a guard relation first, like writer and auditor have.
-    # The cascade itself is asserted in tests/model.fga.yaml.
-    # @fgadoc:hide
+    # Named global_ so its team grants can be reconciled, not for the
+    # non-cascading behavior the other three have: it composes into
+    # marketing_auditor, which cascades, so it reaches every descendant of any
+    # project it is written to and cannot be withheld — the rollout must treat
+    # it as exempt. Withholding it later would need a guard relation first, as
+    # writer and auditor have. The cascade is asserted in tests/model.fga.yaml.
     define global_marketing_ops: [team#member]
     # `[team#member]` and `or owner from parent` can both be removed once all
     # global teams have been rolled out to `global_owner`. Sequence the
@@ -86,9 +74,7 @@ type project
     # the auditor/writer relations that are granted to users. For the purpose
     # of render-permissions, consider this a single, direct-grant column
     # shared with the non-_guard suffix.
-    # @fgadoc:alias Writer
     define writer_guard: writer or global_writer
-    # @fgadoc:alias Auditor
     define auditor_guard: auditor or global_auditor
     # The meeting_coordinator relation identifies a user who can manage any meeting
     # for a given project.
