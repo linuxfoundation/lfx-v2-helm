@@ -271,8 +271,9 @@ provision or change a global tuple through them.
    service/namespace), the environment's root project ID, and the relation
    you are provisioning — `auditor` for a global-auditor team (the registry
    rows for `lf-staff` / `lf-contractor`), `marketing_ops` for the Marketing
-   Ops team. Steps 2–4 use the same `RELATION` throughout so you cannot write
-   one relation and verify another:
+   Ops team. Steps 2–3 write and read `RELATION`; step 4 checks the
+   *dependent* `CASCADE_RELATION` on a sub-project — pick both here so you
+   cannot write one relation and verify another:
    ```bash
    # Run from an lfx-v2-argocd checkout — the values files live there, not in
    # this repo.
