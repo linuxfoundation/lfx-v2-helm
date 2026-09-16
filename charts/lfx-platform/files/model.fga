@@ -85,16 +85,16 @@ type project
     # @fgadoc:jtbd View project settings
     # @fgadoc:jtbd View formation checklist & activity feed
     define auditor: [user, team#member] or executive_director or writer or auditor from parent
-    # The writer and auditor *grants* have diverged from the "writer_guard"/
-    # "auditor_guard" in order to change cascading permissions in a backwards
-    # compatible way (directly-granted writer/auditor are allowed to cascade,
-    # but "globally inherited" cannot).
+    # The `writer` and `auditor` grants have diverged from `writer_guard`/
+    # `auditor_guard` in order to change cascading permissions in a backwards
+    # compatible way (directly-granted `writer`/`auditor` are allowed to
+    # cascade, but globally-inherited access cannot).
     #
-    # The "_guard" suffix to the relationship is non-standard, but required
-    # for historical reasons. Endpoints should guard on this relation, not on
-    # the auditor/writer relations that are granted to users. For the purpose
-    # of render-permissions, consider this a single, direct-grant column
-    # shared with the non-_guard suffix.
+    # The `_guard` suffix on the relation name does not follow the naming
+    # convention used elsewhere in this model. Endpoints must guard on this
+    # relation, not on the `auditor`/`writer` relations that are granted to
+    # users. For the purpose of render-permissions, consider this a single,
+    # direct-grant column shared with the non-`_guard` suffix.
     define writer_guard: writer or global_writer
     define auditor_guard: auditor or global_auditor
     # The meeting_coordinator relation identifies a user who can manage any meeting
@@ -171,9 +171,9 @@ type committee
     # @fgadoc:jtbd View committee members, invites & applications
     # @fgadoc:jtbd View committee links, folders & documents
     define viewer: [user:*] or member or auditor
-    # set this relation to "self" to enable member access to the roster
+    # Set this relation to *self* to enable member access to the roster.
     define committee_for_member_roster_access: [committee]
-    # set this relation to "self" to enable member access to email addresses
+    # Set this relation to *self* to enable member access to email addresses.
     define committee_for_member_email_access: [committee]
     define roster_viewer: [user:*] or auditor or member from committee_for_member_roster_access
     define email_viewer: auditor or member from committee_for_member_email_access
@@ -201,9 +201,9 @@ type groupsio_service
 # @fgadoc:alias Mailing List
 type groupsio_mailing_list
   relations
-    define groupsio_service: [groupsio_service]  # Parent relationship
-    define project: project from groupsio_service # Inherit project permissions
-    define committee: [committee] # Inherit committee permissions
+    define groupsio_service: [groupsio_service]  # Parent relationship.
+    define project: project from groupsio_service # Inherit project permissions.
+    define committee: [committee] # Inherit committee permissions.
     # @fgadoc:jtbd Update & delete a Groups.io mailing list
     # @fgadoc:jtbd Manage Groups.io mailing list members
     define writer: [user] or writer from groupsio_service or writer from committee
@@ -215,7 +215,7 @@ type groupsio_mailing_list
     # @fgadoc:alias Subscriber
     define member: [user]
 
-# // Hide this from PERMISSIONS.md until we fold v1_meeting into meeting.
+# Hide this from PERMISSIONS.md until we fold v1_meeting into meeting.
 # @fgadoc:hide
 # @fgadoc:alias Scheduled Meeting
 type meeting
@@ -255,7 +255,7 @@ type meeting_attachment
     define participant: participant from meeting
     define viewer: [user:*] or participant or writer or auditor
 
-# // Hide this from PERMISSIONS.md until we fold v1_meeting into meeting.
+# Hide this from PERMISSIONS.md until we fold v1_meeting into meeting.
 # @fgadoc:hide
 type past_meeting
   relations
@@ -281,7 +281,7 @@ type past_meeting
     # only certain privileged users can view it.
     define viewer: [user:*] or attendee or invitee or host or organizer or auditor
 
-# // Hide this from PERMISSIONS.md until we fold v1_meeting into meeting.
+# Hide this from PERMISSIONS.md until we fold v1_meeting into meeting.
 # @fgadoc:hide
 # The past_meeting_attachment type identifies an attachment of a past meeting.
 type past_meeting_attachment
@@ -343,8 +343,8 @@ type v1_past_meeting
     # @fgadoc:jtbd View a past meeting & attachments
     # @fgadoc:jtbd View past meeting participants
     define viewer: [user:*] or attendee or invitee or host or organizer or auditor
-    # Per-artifact conditional access — recording
-    # "participant" access level means invitee+attendee (both can view).
+    # Per-artifact conditional access — recording.
+    # `participant` access level means invitee+attendee (both can view).
     # Self-referential flag tuple: write relation(object=v1_past_meeting:<id>, user=v1_past_meeting:<id>)
     # on the appropriate relation(s) to grant that role access to the recording.
     define past_meeting_for_participant_recording_view: [v1_past_meeting]
@@ -352,7 +352,7 @@ type v1_past_meeting
     define past_meeting_for_host_recording_view: [v1_past_meeting]
     # @fgadoc:jtbd View past meeting recordings
     define recording_viewer: [user:*] or organizer or auditor or invitee from past_meeting_for_participant_recording_view or attendee from past_meeting_for_attendee_recording_view or host from past_meeting_for_host_recording_view
-    # Per-artifact conditional access — transcript
+    # Per-artifact conditional access — transcript.
     # Self-referential flag tuple: write relation(object=v1_past_meeting:<id>, user=v1_past_meeting:<id>)
     # on the appropriate relation(s) to grant that role access to the transcript.
     define past_meeting_for_participant_transcript_view: [v1_past_meeting]
@@ -360,7 +360,7 @@ type v1_past_meeting
     define past_meeting_for_host_transcript_view: [v1_past_meeting]
     # @fgadoc:jtbd View past meeting transcripts
     define transcript_viewer: [user:*] or organizer or auditor or invitee from past_meeting_for_participant_transcript_view or attendee from past_meeting_for_attendee_transcript_view or host from past_meeting_for_host_transcript_view
-    # Per-artifact conditional access — AI summary
+    # Per-artifact conditional access — AI summary.
     # Self-referential flag tuple: write relation(object=v1_past_meeting:<id>, user=v1_past_meeting:<id>)
     # on the appropriate relation(s) to grant that role access to the AI summary.
     define past_meeting_for_participant_summary_view: [v1_past_meeting]
@@ -376,27 +376,28 @@ type vote
     # @fgadoc:jtbd Update, enable & delete a vote
     # @fgadoc:jtbd Extend a vote & resend notifications
     define writer: writer_guard from project or writer from committee
-    # auditor has access to participants, viewer does not
+    # `auditor` has access to participants, `viewer` does not.
     define auditor: writer or auditor_guard from project or auditor from committee
     # @fgadoc:jtbd Cast a vote response
     define participant: [user]
     # @fgadoc:jtbd View vote polls & vote responses
     define viewer: [user:*] or auditor or participant
-    define vote_for_participant_result_access: [vote] # set this relation to "self" to enable access
-    # results_viewer is not for viewing the actual related vote_response objects,
-    # but rather for an aggregate summary which can be made optionally public
+    define vote_for_participant_result_access: [vote] # Set this relation to *self* to enable access.
+    # `results_viewer` is not for viewing the actual related `vote_response`
+    # objects, but rather for an aggregate summary which can be made
+    # optionally public.
     # @fgadoc:jtbd View vote results
     define results_viewer: [user:*] or auditor or participant from vote_for_participant_result_access
 
 type vote_response
   relations
     define vote: [vote]
-    # owner is the user who cast this response
+    # `owner` is the user who cast this response.
     # @fgadoc:alias Voter
     # @fgadoc:jtbd Submit & update a vote response
     define owner: [user]
-    # we don't need to create a "writer" relation that is defined as just "owner":
-    # we just use the "owner" relation in our access checks!
+    # We don't need a separate `writer` relation defined as just `owner`:
+    # we use the `owner` relation directly in our access checks.
     # @fgadoc:jtbd View a vote response
     define auditor: owner or auditor from vote
 
@@ -407,26 +408,27 @@ type survey
     # @fgadoc:jtbd Update & delete a survey
     # @fgadoc:jtbd Resend survey emails & manage recipients
     define writer: writer_guard from project or writer from committee
-    # auditor has access to participants, viewer does not
+    # `auditor` has access to participants, `viewer` does not.
     # @fgadoc:jtbd Preview survey resend impact
     define auditor: writer or auditor_guard from project or auditor from committee
     define participant: [user]
     # @fgadoc:jtbd View survey details & responses
     define viewer: [user:*] or auditor or participant
-    define survey_for_participant_result_access: [survey] # set this relation to "self" to enable access
-    # results_viewer is not for viewing the actual related survey_response objects,
-    # but rather for an aggregate summary which can be made optionally public
+    define survey_for_participant_result_access: [survey] # Set this relation to *self* to enable access.
+    # `results_viewer` is not for viewing the actual related
+    # `survey_response` objects, but rather for an aggregate summary which
+    # can be made optionally public.
     define results_viewer: [user:*] or auditor or participant from survey_for_participant_result_access
 
 # @fgadoc:hide
 type survey_response
   relations
     define survey: [survey]
-    # owner is the user who cast this response
+    # `owner` is the user who cast this response.
     # @fgadoc:alias Respondent
     define owner: [user]
-    # we don't need to create a "writer" relation that is defined as just "owner":
-    # we just use the "owner" relation in our access checks!
+    # We don't need a separate `writer` relation defined as just `owner`:
+    # we use the `owner` relation directly in our access checks.
     define auditor: owner or auditor from survey
 
 # @fgadoc:alias B2B Organization
@@ -478,20 +480,18 @@ type project_membership
     define auditor: writer or auditor from b2b_org or auditor_guard from project
     define key_contact: [user]
 
-# The crowdfunding_initiative type models Crowdfunding's whole authorization
+# The `crowdfunding_initiative` type models Crowdfunding's whole authorization
 # surface: an initiative may hang off a project or a b2b_org (exclusive
 # attribution; a personal initiative has neither), and writers there can
 # manage it. See lfx-crowdfunding's
-# backend/docs/rewrite/12-fga-authorization-model.md for the full design and
-# lfx-crowdfunding#269 for the accepted-decision record.
-# // Hide this from PERMISSIONS.md until CF sits behind Heimdall and
-# RuleSets referencing these relations exist for the populate-jtbds skill to
-# read — see doc 12's "Architecture feedback" section on why @fgadoc:jtbd
-# lines must never be hand-authored ahead of a RuleSet.
+# backend/docs/rewrite/12-fga-authorization-model.md for the full design.
+# Hide this from PERMISSIONS.md until CF sits behind Heimdall and
+# RuleSets referencing these relations exist. `@fgadoc:jtbd` lines must
+# never be hand-authored ahead of a RuleSet.
 # @fgadoc:hide
 type crowdfunding_initiative
   relations
-    # exclusive attribution; personal initiatives have neither
+    # Exclusive attribution; personal initiatives have neither.
     define project: [project]
     define b2b_org: [b2b_org]
     # @fgadoc:alias Creator
