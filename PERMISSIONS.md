@@ -24,26 +24,26 @@ grant assignment.
 
 ### Project
 
-| | *Owner* | *Marketing Ops* | Writer | Auditor | Meeting Coordinator | Executive Director | *Everyone* |
-|---|---|---|---|---|---|---|---|
-| View project details & meeting count | ✅ | | ✅ | ✅ | ✅ | ✅ | 🟡 |
-| View project links & folders | ✅ | | ✅ | ✅ | ✅ | ✅ | 🟡 |
-| View project documents | ✅ | | ✅ | ✅ | ✅ | ✅ | 🟡 |
-| View project settings | ✅ | | ✅ | ✅ | | ✅ | |
-| Create & update a project | ✅ | | ✅ | | | | |
-| Manage project links, folders & documents | ✅ | | ✅ | | | | |
-| Delete a project | ✅ | | | | | | |
-| Create project committees & Groups.io services | ✅ | | ✅ | | | | |
-| Create a vote poll | ✅ | | ✅ | | | | |
-| Create meetings & past meetings | ✅ | | ✅ | | ✅ | | |
-| Connect & manage ad platform accounts | | ✅ | | | | ✅ | |
-| Test & rotate ad platform credentials | | ✅ | | | | ✅ | |
-| Create & manage campaign briefs | | ✅ | | | | ✅ | |
-| Approve a brief for campaign creation | | ✅ | | | | ✅ | |
-| Manage brief target audiences | | ✅ | | | | ✅ | |
-| Launch campaigns across ad platforms | | ✅ | | | | ✅ | |
-| Pause & resume a campaign | | ✅ | | | | ✅ | |
-| Track campaign creation job status | | ✅ | | | | ✅ | |
+| | *Owner* | *Global Owner* | *Global Writer* | *Global Auditor* | *Global Marketing Ops* | *Marketing Ops* | Writer | Auditor | Meeting Coordinator | Executive Director | *Everyone* |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| View project details & meeting count | ✅ | ✅ | | ✅ | | | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View project links & folders | ✅ | ✅ | | ✅ | | | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View project documents | ✅ | ✅ | | ✅ | | | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View project settings | ✅ | ✅ | | | | | ✅ | ✅ | | ✅ | |
+| Create & update a project | ✅ | ✅ | | | | | ✅ | | | | |
+| Manage project links, folders & documents | ✅ | ✅ | | | | | ✅ | | | | |
+| Delete a project | ✅ | ✅ | | | | | | | | | |
+| Create project committees & Groups.io services | ✅ | ✅ | | | | | ✅ | | | | |
+| Create a vote poll | ✅ | ✅ | | | | | ✅ | | | | |
+| Create meetings & past meetings | ✅ | ✅ | ✅ | | | | ✅ | | ✅ | | |
+| Connect & manage ad platform accounts | | | | | ✅ | ✅ | | | | ✅ | |
+| Test & rotate ad platform credentials | | | | | ✅ | ✅ | | | | ✅ | |
+| Create & manage campaign briefs | | | | | ✅ | ✅ | | | | ✅ | |
+| Approve a brief for campaign creation | | | | | ✅ | ✅ | | | | ✅ | |
+| Manage brief target audiences | | | | | ✅ | ✅ | | | | ✅ | |
+| Launch campaigns across ad platforms | | | | | ✅ | ✅ | | | | ✅ | |
+| Pause & resume a campaign | | | | | ✅ | ✅ | | | | ✅ | |
+| Track campaign creation job status | | | | | ✅ | ✅ | | | | ✅ | |
 
 #### Permission Inheritance
 
@@ -71,8 +71,8 @@ grant assignment.
 
 #### Permission Inheritance
 
-- **Writer**: inherited from Project Writer
-- **Auditor**: inherited from Project Auditor, Project Meeting Coordinator
+- **Writer**: inherited from Project Writer Guard
+- **Auditor**: inherited from Project Auditor Guard, Project Meeting Coordinator
 
 ---
 
@@ -99,8 +99,8 @@ grant assignment.
 
 #### Permission Inheritance
 
-- **Writer**: inherited from Project Writer
-- **Auditor**: inherited from Project Auditor
+- **Writer**: inherited from Project Writer Guard
+- **Auditor**: inherited from Project Auditor Guard
 
 ---
 
@@ -135,8 +135,8 @@ grant assignment.
 
 #### Permission Inheritance
 
-- ***Organizer***: inherited from Project Meeting Coordinator, Committee Writer, Project Writer
-- ***Auditor***: inherited from Project Auditor
+- ***Organizer***: inherited from Project Meeting Coordinator, Committee Writer, Project Writer Guard
+- ***Auditor***: inherited from Project Auditor Guard
 
 ---
 
@@ -154,8 +154,8 @@ grant assignment.
 
 #### Permission Inheritance
 
-- ***Organizer***: inherited from Project Meeting Coordinator, Project Writer, Scheduled Meeting Organizer
-- ***Auditor***: inherited from Project Auditor, Scheduled Meeting Auditor
+- ***Organizer***: inherited from Project Meeting Coordinator, Project Writer Guard, Scheduled Meeting Organizer
+- ***Auditor***: inherited from Project Auditor Guard, Scheduled Meeting Auditor
 
 ---
 
@@ -171,8 +171,8 @@ grant assignment.
 
 #### Permission Inheritance
 
-- ***Writer***: inherited from Project Writer, Committee Writer
-- ***Auditor***: inherited from Project Auditor, Committee Auditor
+- ***Writer***: inherited from Project Writer Guard, Committee Writer
+- ***Auditor***: inherited from Project Auditor Guard, Committee Auditor
 
 ---
 
@@ -200,8 +200,8 @@ grant assignment.
 
 #### Permission Inheritance
 
-- ***Writer***: inherited from Project Writer, Committee Writer
-- ***Auditor***: inherited from Project Auditor, Committee Auditor
+- ***Writer***: inherited from Project Writer Guard, Committee Writer
+- ***Auditor***: inherited from Project Auditor Guard, Committee Auditor
 
 ---
 
@@ -231,4 +231,4 @@ grant assignment.
 #### Permission Inheritance
 
 - ***Writer***: inherited from B2B Organization Writer
-- ***Auditor***: inherited from B2B Organization Auditor, Project Auditor
+- ***Auditor***: inherited from B2B Organization Auditor, Project Auditor Guard
