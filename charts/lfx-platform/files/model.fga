@@ -16,8 +16,47 @@ type team
 type project
   relations
     define parent: [project]
+    # global_* tuples are written to every eligible project to quickly check
+    # global permissions without traversing the project hierarchy.
+    # Deliberately no "from parent", because cascading would prevent
+    # withholding a grant from an individual project. That withholding is only
+    # actually achieved for global_writer and global_auditor; global_owner and
+    # global_marketing_ops reach descendants by other routes, explained where
+    # they are defined below.
+    #
+    # The global_ prefix is load-bearing: it is what marks a relation's team
+    # grants as fully reconcilable, so renaming one without the prefix would
+    # silently make its grants permanent. See lfx-v2-fga-sync
+    # (docs/fga-sync-contract.md) for the reconcile behavior itself.
+    define global_owner: [team#member]
+    define global_writer: [team#member]
+    define global_auditor: [team#member]
+    # Named global_ so its team grants can be reconciled, not for the
+    # non-cascading behavior the other three have: it composes into
+    # marketing_auditor, which cascades, so it reaches every descendant of any
+    # project it is written to and cannot be withheld — the rollout must treat
+    # it as exempt. Withholding it later would need a guard relation first, as
+    # writer and auditor have. The cascade is asserted in tests/model.fga.yaml.
+    define global_marketing_ops: [team#member]
+    # `[team#member]` and `or owner from parent` can both be removed once all
+    # global teams have been rolled out to `global_owner`. Sequence the
+    # `global_owner` backfill before or atomically with dropping them, so
+    # `owner` never goes dark on a project mid-migration — and drop the
+    # `owner from parent` fallback *before or with* removing the ROOT tuples,
+    # never after: in that window `owner` still cascades while `global_owner`
+    # is already written per project, so a team withheld from a project class
+    # would reach it through a covered ancestor with the ROOT grant that used
+    # to mask the gap already gone.
+    #
+    # Dropping `owner from parent` closes the `owner` cascade but not the write
+    # and read access it confers: `owner` feeds `writer`, and a direct `writer`
+    # grant is deliberately allowed to cascade. So `global_owner`, like
+    # `global_marketing_ops`, cannot be withheld from an individual project
+    # even after the migration. tests/model.fga.yaml asserts that a global
+    # ownership grant on a parent reaches the child's write and read guards, the
+    # part that survives dropping the fallback.
     # @fgadoc:jtbd Delete a project
-    define owner: [team#member] or owner from parent
+    define owner: [team#member] or global_owner or owner from parent
     # @fgadoc:jtbd Create & update a project
     # @fgadoc:jtbd Manage project links, folders & documents
     # @fgadoc:jtbd Create project committees & Groups.io services
@@ -25,14 +64,34 @@ type project
     define writer: [user] or owner or writer from parent
     # @fgadoc:jtbd View project settings
     define auditor: [user, team#member] or executive_director or writer or auditor from parent
+    # The writer and auditor *grants* have diverged from the "writer_guard"/
+    # "auditor_guard" in order to change cascading permissions in a backwards
+    # compatible way (directly-granted writer/auditor are allowed to cascade,
+    # but "globally inherited" cannot).
+    #
+    # The "_guard" suffix to the relationship is non-standard, but required
+    # for historical reasons. Endpoints should guard on this relation, not on
+    # the auditor/writer relations that are granted to users. For the purpose
+    # of render-permissions, consider this a single, direct-grant column
+    # shared with the non-_guard suffix.
+    define writer_guard: writer or global_writer
+    define auditor_guard: auditor or global_auditor
     # The meeting_coordinator relation identifies a user who can manage any meeting
     # for a given project.
     define meeting_coordinator: [user]
+    # Guarded directly by gateway rules rather than through `writer`, so it
+    # composes the guard explicitly: left as bare `writer` it would keep
+    # working until the ROOT grants are removed and then fail.
     # @fgadoc:jtbd Create meetings & past meetings
-    define meetings_creator: writer or meeting_coordinator
+    define meetings_creator: writer_guard or meeting_coordinator
     # executive_director identifies a user with the executive director role for a project,
     # as assigned by the project-service. executive_directors are auditors of the project.
     define executive_director: [user]
+    # marketing_ops (and every reference to it below, in campaign_manager and
+    # marketing_auditor) can be removed entirely once team:marketing-ops has
+    # been rolled out to global_marketing_ops — it is not folded into
+    # global_marketing_ops itself the way owner absorbs global_owner, since
+    # nothing else needs to keep cascading through it in the meantime.
     define marketing_ops: [team#member] or marketing_ops from parent
     # marketing_auditor identifies a user with read access to marketing dashboards
     # and campaigns for a project. The relation itself cascades from parent
@@ -43,7 +102,7 @@ type project
     # have it on every descendant of that project. Contrast this with
     # campaign_manager below, where an executive_director's access does not
     # cascade.
-    define marketing_auditor: [team#member] or executive_director or marketing_ops or marketing_auditor from parent
+    define marketing_auditor: [team#member] or executive_director or marketing_ops or global_marketing_ops or marketing_auditor from parent
     # @fgadoc:jtbd Connect & manage ad platform accounts
     # @fgadoc:jtbd Test & rotate ad platform credentials
     # @fgadoc:jtbd Create & manage campaign briefs
@@ -59,11 +118,13 @@ type project
     # sub-projects), but marketing_ops, included above, does cascade in its
     # own right — so a marketing_ops grant at ROOT still flows down to every
     # descendant project, making that team campaign_manager there too.
-    define campaign_manager: executive_director or marketing_ops
+    define campaign_manager: executive_director or marketing_ops or global_marketing_ops
+    # Resolves through auditor_guard rather than the bare auditor grant, so
+    # global-team staff keep basic project navigation once the ROOT grants go.
     # @fgadoc:jtbd View project details & meeting count
     # @fgadoc:jtbd View project links & folders
     # @fgadoc:jtbd View project documents
-    define viewer: [user:*] or auditor or meeting_coordinator
+    define viewer: [user:*] or auditor_guard or meeting_coordinator
 
 type committee
   relations
@@ -74,9 +135,9 @@ type committee
     # @fgadoc:jtbd Manage committee links, folders & documents
     # @fgadoc:jtbd Generate & edit the committee weekly brief
     # @fgadoc:jtbd Create a committee survey
-    define writer: [user] or writer from project
+    define writer: [user] or writer_guard from project
     # @fgadoc:jtbd View committee settings
-    define auditor: [user, team#member] or writer or auditor from project or meeting_coordinator from project
+    define auditor: [user, team#member] or writer or auditor_guard from project or meeting_coordinator from project
     # @fgadoc:jtbd Invite a user to join a committee when join mode is invite_only
     define inviter: member or auditor
     # @fgadoc:jtbd View committee details & weekly brief
@@ -104,9 +165,9 @@ type groupsio_service
     define project: [project]
     # @fgadoc:jtbd Update & delete a Groups.io service
     # @fgadoc:jtbd Create a Groups.io mailing list
-    define writer: [user] or writer from project
+    define writer: [user] or writer_guard from project
     # @fgadoc:jtbd View Groups.io service settings
-    define auditor: [user] or auditor from project or writer
+    define auditor: [user] or auditor_guard from project or writer
     # @fgadoc:jtbd View a Groups.io service
     define viewer: [user:*] or auditor
 
@@ -135,10 +196,10 @@ type meeting
     define project: [project]
     define committee: [committee]
     # The auditor relation identifies a user who can audit this meeting.
-    define auditor: organizer or auditor from project
+    define auditor: organizer or auditor_guard from project
     # The organizer relation identifies a user who can manage this one meeting.
     # That means they can update the meeting details, invite/uninvite participants, etc.
-    define organizer: [user] or meeting_coordinator from project or writer from committee or writer from project
+    define organizer: [user] or meeting_coordinator from project or writer from committee or writer_guard from project
     # The host relation identifies a user who is a host of this meeting.
     # This is different than the organizer relation because an organizer isn't necessarily
     # the user who is hosting the meeting, nor is the host necessarily the one who is
@@ -178,10 +239,10 @@ type past_meeting
     # meeting become obsolete if the meeting is deleted.
     define meeting: [meeting]
     # The auditor relation identifies a user who can audit this meeting.
-    define auditor: organizer or auditor from project or auditor from meeting
+    define auditor: organizer or auditor_guard from project or auditor from meeting
     # The organizer relation identifies a user who can manage this one past meeting.
     # That means they can update the past meeting details, update the participants, etc.
-    define organizer: [user] or meeting_coordinator from project or writer from project or organizer from meeting
+    define organizer: [user] or meeting_coordinator from project or writer_guard from project or organizer from meeting
     # The host relation identifies a user who was a host of this past meeting.
     define host: [user]
     # The invitee relation identifies a participant who was invited to this past meeting.
@@ -220,12 +281,12 @@ type v1_meeting
     define project: [project]
     define committee: [committee]
     # @fgadoc:jtbd View a meeting registrant
-    define auditor: organizer or auditor from project
+    define auditor: organizer or auditor_guard from project
     # No explicit [user] relation for organizer in v1.
     # @fgadoc:jtbd Update & delete meetings & occurrences
     # @fgadoc:jtbd Manage meeting registrants & invitations
     # @fgadoc:jtbd Manage meeting attachments
-    define organizer: meeting_coordinator from project or writer from committee or writer from project
+    define organizer: meeting_coordinator from project or writer from committee or writer_guard from project
     define host: [user] or auditor
     define participant: [user] or host
     # @fgadoc:jtbd View a meeting & join link
@@ -240,11 +301,11 @@ type v1_past_meeting
     define project: [project]
     define committee: [committee]
     define meeting: [v1_meeting]
-    define auditor: organizer or auditor from project or auditor from meeting
+    define auditor: organizer or auditor_guard from project or auditor from meeting
     # No explicit [user] relation for organizer in v1.
     # @fgadoc:jtbd Update & delete past meetings & summaries
     # @fgadoc:jtbd Manage past meeting participants & attachments
-    define organizer: meeting_coordinator from project or writer from project or organizer from meeting
+    define organizer: meeting_coordinator from project or writer_guard from project or organizer from meeting
     # The host relation identifies a user who was a host of this past meeting.
     # It is used to gate conditional access to recordings, transcripts, and AI summaries
     # via the self-referential flag tuples below.
@@ -286,9 +347,9 @@ type vote
     define project: [project]
     # @fgadoc:jtbd Update, enable & delete a vote
     # @fgadoc:jtbd Extend a vote & resend notifications
-    define writer: writer from project or writer from committee
+    define writer: writer_guard from project or writer from committee
     # auditor has access to participants, viewer does not
-    define auditor: writer or auditor from project or auditor from committee
+    define auditor: writer or auditor_guard from project or auditor from committee
     # @fgadoc:jtbd Cast a vote response
     define participant: [user]
     # @fgadoc:jtbd View vote polls & vote responses
@@ -317,10 +378,10 @@ type survey
     define project: [project]
     # @fgadoc:jtbd Update & delete a survey
     # @fgadoc:jtbd Resend survey emails & manage recipients
-    define writer: writer from project or writer from committee
+    define writer: writer_guard from project or writer from committee
     # auditor has access to participants, viewer does not
     # @fgadoc:jtbd Preview survey resend impact
-    define auditor: writer or auditor from project or auditor from committee
+    define auditor: writer or auditor_guard from project or auditor from committee
     define participant: [user]
     # @fgadoc:jtbd View survey details & responses
     define viewer: [user:*] or auditor or participant
@@ -383,7 +444,7 @@ type project_membership
     # @fgadoc:jtbd Create, update & delete key contacts
     define writer: writer from b2b_org
     # @fgadoc:jtbd View project membership & key contacts
-    define auditor: writer or auditor from b2b_org or auditor from project
+    define auditor: writer or auditor from b2b_org or auditor_guard from project
     define key_contact: [user]
 
 # The crowdfunding_initiative type models Crowdfunding's whole authorization
