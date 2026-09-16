@@ -216,6 +216,7 @@ grant assignment.
 
 #### Permission Inheritance
 
+- **Writer**: inherited from parent B2B Organization, child B2B Organization
 - **Auditor**: inherited from parent B2B Organization, child B2B Organization, Project Membership Key Contact
 
 ---

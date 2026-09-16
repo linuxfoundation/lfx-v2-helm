@@ -26,9 +26,9 @@ spec:
   @fgadoc:hide and @fgadoc:alias tags are managed manually.
 */}}
     - version:
-        major: 14
-        minor: 4
-        patch: 0
+        major: 15
+        minor: 0
+        patch: 1
       authorizationModel: |
 {{ .Files.Get "files/model.fga" | indent 8 }}
 {{- end }}
