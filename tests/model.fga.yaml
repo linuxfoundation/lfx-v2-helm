@@ -1,0 +1,567 @@
+# Copyright The Linux Foundation and each contributor to LFX.
+# SPDX-License-Identifier: MIT
+---
+# Invariants of the project type's non-cascading global team relations.
+#
+# Run from the repository root:
+#   fga model test --tests "tests/*.fga.yaml"
+#
+# These assert which relations reach a child project and which deliberately do
+# not, because that is what makes it possible to withhold a global grant from one
+# project.
+#
+# Reading a relation's own definition is not sufficient to tell. A relation with
+# no "from parent" of its own still reaches descendants if it composes into a
+# relation that has one — which is how the marketing behavior below was found.
+#
+# Team and user names here are fixtures. They intentionally do not name any real
+# team, so these tests assert the model's shape rather than any deployment's
+# access configuration.
+# The b2b_org section at the end of this file asserts the opposite shape on a
+# different type: a relation that is meant to cascade, and how far it reaches.
+name: Global team relations on the project type, and writer cascade on b2b_org
+
+model_file: ../charts/lfx-platform/files/model.fga
+
+# Shared fixture: a parent project with a child, plus a committee, vote, survey,
+# meeting, mailing-list service and membership hanging off the parent.
+#
+# No root project and no root-level tuples exist in this fixture. That is
+# deliberate: it is the state the migration ends in, and the state in which every
+# claim below has to hold.
+tuples:
+  - user: user:teamster
+    relation: member
+    object: team:global-team
+
+  - user: user:marketer
+    relation: member
+    object: team:marketing-team
+
+  - user: project:parent
+    relation: parent
+    object: project:child
+
+  - user: project:parent
+    relation: project
+    object: committee:c1
+
+  - user: project:parent
+    relation: project
+    object: vote:v1
+
+  - user: project:parent
+    relation: project
+    object: survey:s1
+
+  - user: project:parent
+    relation: project
+    object: v1_meeting:m1
+
+  - user: project:parent
+    relation: project
+    object: meeting:mt1
+
+  - user: project:parent
+    relation: project
+    object: past_meeting:pm2
+
+  - user: project:parent
+    relation: project
+    object: v1_past_meeting:vp1
+
+  - user: project:parent
+    relation: project
+    object: groupsio_service:g1
+
+  - user: project:parent
+    relation: project
+    object: project_membership:pm1
+
+  - user: project:child
+    relation: project
+    object: committee:c2
+
+tests:
+  # The capability this whole shape exists to create.
+  - name: a global read grant on a parent confers nothing on a child
+    tuples:
+      - user: team:global-team#member
+        relation: global_auditor
+        object: project:parent
+    check:
+      - user: user:teamster
+        object: project:parent
+        assertions:
+          auditor_guard: true
+      - user: user:teamster
+        object: project:child
+        assertions:
+          auditor_guard: false
+
+  # Direct grants must keep cascading exactly as they do today.
+  - name: a directly granted auditor on a parent still reads the child
+    tuples:
+      - user: user:reader
+        relation: auditor
+        object: project:parent
+    check:
+      - user: user:reader
+        objects:
+          - project:parent
+          - project:child
+        assertions:
+          auditor_guard: true
+
+  - name: a global write grant on a parent confers nothing on a child
+    tuples:
+      - user: team:global-team#member
+        relation: global_writer
+        object: project:parent
+    check:
+      - user: user:teamster
+        object: project:parent
+        assertions:
+          writer_guard: true
+      - user: user:teamster
+        object: project:child
+        assertions:
+          writer_guard: false
+
+  # Ownership reaches the child through the "owner from parent" fallback, which
+  # the migration removes at the end. That makes the `owner` cascade itself
+  # transitional — but only that. The write and read access ownership confers
+  # keeps reaching the child afterwards, because `owner` feeds `writer` and a
+  # direct `writer` grant is deliberately allowed to cascade — which is why the
+  # write and read guards are checked here alongside `owner`. Those two are the
+  # half that survives dropping the fallback.
+  - name: ownership reaches the child while its parent fallback remains
+    tuples:
+      - user: team:global-team#member
+        relation: global_owner
+        object: project:parent
+    check:
+      - user: user:teamster
+        objects:
+          - project:parent
+          - project:child
+        assertions:
+          owner: true
+          writer_guard: true
+          auditor_guard: true
+
+  # The marketing counterpart also reaches the child, but for a different reason
+  # and with a different lifetime.
+  #
+  # global_marketing_ops carries no "from parent" itself. It reaches descendants
+  # because it composes into marketing_auditor, and marketing_auditor cascades
+  # in its own right. Unlike the ownership fallback above, that cascade is not
+  # part of the migration and is not scheduled for removal, so this behavior is
+  # permanent rather than a rollout window.
+  #
+  # It also is not new: marketing_ops already cascades today, and the comment on
+  # campaign_manager in model.fga records that a marketing_ops grant high in the
+  # hierarchy is expected to flow down to every descendant. Composing the global
+  # relation into marketing_auditor preserves that rather than changing it.
+  #
+  # The consequence is that marketing is only safe while it is exempt from
+  # whatever rule decides which projects a global grant is withheld from. If
+  # marketing is ever withheld from a class of projects, the withholding will not
+  # hold — a withheld child still reaches marketing read through any covered
+  # ancestor — and it would need a guard relation first, the way the read and
+  # write counterparts have one.
+  #
+  # campaign_manager composes the same global relation WITHOUT inheriting from
+  # the parent, so the two consumers of one relation behave differently. Both
+  # directions are asserted so neither can change unnoticed.
+  - name: marketing reaches the child through its consumer, not itself
+    tuples:
+      - user: team:marketing-team#member
+        relation: global_marketing_ops
+        object: project:parent
+    check:
+      - user: user:marketer
+        object: project:parent
+        assertions:
+          marketing_auditor: true
+          campaign_manager: true
+      - user: user:marketer
+        object: project:child
+        assertions:
+          marketing_auditor: true
+          campaign_manager: false
+
+  # The read and write counterparts are the ones that must never reach a child,
+  # since they are the ones a withholding rule will actually be applied to.
+  - name: the read and write counterparts reach no child by any path
+    tuples:
+      - user: team:global-team#member
+        relation: global_auditor
+        object: project:parent
+      - user: team:global-team#member
+        relation: global_writer
+        object: project:parent
+    check:
+      - user: user:teamster
+        object: project:child
+        assertions:
+          auditor_guard: false
+          writer_guard: false
+          viewer: false
+
+  # Why the derived relation and the child types are composed and re-pointed: a
+  # global grant on one project, with no root tuple anywhere, must still reach
+  # every derived relation and every inheriting type.
+  - name: a global write grant reaches every derived relation and child type
+    tuples:
+      - user: team:global-team#member
+        relation: global_writer
+        object: project:parent
+    check:
+      - user: user:teamster
+        object: project:parent
+        assertions:
+          meetings_creator: true
+      - user: user:teamster
+        object: committee:c1
+        assertions:
+          writer: true
+          auditor: true
+      - user: user:teamster
+        object: groupsio_service:g1
+        assertions:
+          writer: true
+          auditor: true
+      - user: user:teamster
+        object: vote:v1
+        assertions:
+          writer: true
+          auditor: true
+      - user: user:teamster
+        object: survey:s1
+        assertions:
+          writer: true
+          auditor: true
+      - user: user:teamster
+        object: v1_meeting:m1
+        assertions:
+          organizer: true
+          auditor: true
+      - user: user:teamster
+        object: meeting:mt1
+        assertions:
+          organizer: true
+          auditor: true
+      - user: user:teamster
+        object: past_meeting:pm2
+        assertions:
+          organizer: true
+          auditor: true
+      - user: user:teamster
+        object: v1_past_meeting:vp1
+        assertions:
+          organizer: true
+          auditor: true
+
+  # A global write grant confers write, and not read of the project object
+  # itself. This is deliberate, and asserted so it reads as a decision rather
+  # than an oversight.
+  #
+  # The project's own `auditor` composes the bare `writer` grant, not
+  # `writer_guard`, so global_writer does not arrive at `auditor`, and therefore
+  # not at `auditor_guard`, `viewer`, or `project_membership` — whose read side
+  # is reached only through `auditor_guard from project`. A *directly* granted
+  # writer does get all of those, so the two differ on purpose.
+  #
+  # Nothing is lost by this. No team holds a `writer` grant today: `writer` is
+  # `[user]` only, so the project relations a team can be granted are `owner`
+  # and `auditor`, and both keep every surface when swapped for their global
+  # counterpart. A team that needs write *and* read is granted global_writer and
+  # global_auditor, exactly as `owner` and `auditor` are granted separately now.
+  - name: a global write grant does not confer read of the project itself
+    tuples:
+      - user: team:global-team#member
+        relation: global_writer
+        object: project:parent
+    check:
+      - user: user:teamster
+        object: project:parent
+        assertions:
+          writer_guard: true
+          auditor: false
+          auditor_guard: false
+          viewer: false
+      - user: user:teamster
+        object: project_membership:pm1
+        assertions:
+          auditor: false
+      # The child types are unaffected: each composes its own writer into its
+      # own auditor, so write access still carries read of the sub-resource.
+      - user: user:teamster
+        object: committee:c1
+        assertions:
+          writer: true
+          auditor: true
+
+  - name: a global read grant reaches the read side of every child type
+    tuples:
+      - user: team:global-team#member
+        relation: global_auditor
+        object: project:parent
+    check:
+      - user: user:teamster
+        object: committee:c1
+        assertions:
+          auditor: true
+      - user: user:teamster
+        object: groupsio_service:g1
+        assertions:
+          auditor: true
+      - user: user:teamster
+        object: vote:v1
+        assertions:
+          auditor: true
+      - user: user:teamster
+        object: survey:s1
+        assertions:
+          auditor: true
+      - user: user:teamster
+        object: v1_meeting:m1
+        assertions:
+          auditor: true
+      - user: user:teamster
+        object: meeting:mt1
+        assertions:
+          auditor: true
+      - user: user:teamster
+        object: past_meeting:pm2
+        assertions:
+          auditor: true
+      - user: user:teamster
+        object: v1_past_meeting:vp1
+        assertions:
+          auditor: true
+      - user: user:teamster
+        object: project_membership:pm1
+        assertions:
+          auditor: true
+
+  # Withholding has to survive one level down: a child excluded from the global
+  # grant must not leak its own sub-resources either.
+  - name: a child excluded from the global grant leaks no sub-resource
+    tuples:
+      - user: team:global-team#member
+        relation: global_auditor
+        object: project:parent
+    check:
+      - user: user:teamster
+        object: committee:c2
+        assertions:
+          auditor: false
+
+  # Public navigation has to survive routing through the guard.
+  - name: an unauthenticated caller still sees a public project
+    tuples:
+      - user: user:*
+        relation: viewer
+        object: project:parent
+    check:
+      - user: user:anonymous
+        object: project:parent
+        assertions:
+          viewer: true
+
+  # The generated permission table's ticks are reachability claims, and routing
+  # viewer and meetings_creator through the guards moved both one hop further
+  # from the grants that reach them. These keep the generated document honest.
+  - name: the project permission table's reachability still holds
+    tuples:
+      - user: user:w
+        relation: writer
+        object: project:parent
+      - user: user:a
+        relation: auditor
+        object: project:parent
+      - user: user:mc
+        relation: meeting_coordinator
+        object: project:parent
+      - user: user:ed
+        relation: executive_director
+        object: project:parent
+    check:
+      - user: user:w
+        object: project:parent
+        assertions:
+          viewer: true
+          meetings_creator: true
+          auditor: true
+          auditor_guard: true
+      - user: user:a
+        object: project:parent
+        assertions:
+          viewer: true
+          meetings_creator: false
+      - user: user:mc
+        object: project:parent
+        assertions:
+          viewer: true
+          meetings_creator: true
+      - user: user:ed
+        object: project:parent
+        assertions:
+          viewer: true
+          auditor: true
+          campaign_manager: true
+          marketing_auditor: true
+
+  # The change is inert on delivery: with no global tuple written, a global team
+  # member has nothing and the existing direct grant is untouched.
+  - name: with no global tuples written the guards resolve their grant alone
+    tuples:
+      - user: user:writer
+        relation: writer
+        object: project:parent
+    check:
+      - user: user:teamster
+        object: project:parent
+        assertions:
+          writer_guard: false
+          auditor_guard: false
+          owner: false
+      - user: user:writer
+        object: project:parent
+        assertions:
+          writer_guard: true
+
+  # b2b_org.writer cascades transitively up and down the parent/child hierarchy,
+  # matching the auditor traversal on the same type.
+  #
+  # The fixtures below are declared per-test rather than in the shared fixture
+  # above, because they describe a different type and must not perturb the
+  # project assertions.
+  #
+  # Both directions of the hierarchy are written as separate tuples, because the
+  # model holds `parent` and `child` independently rather than deriving one from
+  # the other. That mirrors what member-service publishes today.
+  #
+  # The reach asserted here is wider than parent-to-child. Because `owner` folds
+  # into `writer` and `writer` traverses `from child` as well as `from parent`, a
+  # grant on a leaf org resolves upward to its parent and then back down to every
+  # sibling. The sibling and ancestor assertions are therefore load-bearing: they
+  # record that group-wide write reach is the intent, not an accident of the
+  # traversal.
+  - name: a b2b_org writer grant reaches the whole connected hierarchy group
+    tuples:
+      - user: b2b_org:parent-org
+        relation: parent
+        object: b2b_org:sub-org
+      - user: b2b_org:sub-org
+        relation: child
+        object: b2b_org:parent-org
+
+      - user: b2b_org:parent-org
+        relation: parent
+        object: b2b_org:sibling-org
+      - user: b2b_org:sibling-org
+        relation: child
+        object: b2b_org:parent-org
+
+      - user: b2b_org:sub-org
+        relation: parent
+        object: b2b_org:grandchild-org
+      - user: b2b_org:grandchild-org
+        relation: child
+        object: b2b_org:sub-org
+
+      # granted on the subsidiary only, never on the parent
+      - user: user:sub-owner
+        relation: owner
+        object: b2b_org:sub-org
+    check:
+      - user: user:sub-owner
+        objects:
+          - b2b_org:sub-org
+          - b2b_org:parent-org
+          - b2b_org:sibling-org
+          - b2b_org:grandchild-org
+        assertions:
+          writer: true
+          auditor: true
+      # An org in no hierarchy relationship with the grant stays out of reach.
+      - user: user:sub-owner
+        object: b2b_org:unrelated-org
+        assertions:
+          writer: false
+          auditor: false
+
+  # The cascade does not stop at b2b_org. Two types derive their own writer from
+  # it, so a subsidiary-scoped grant reaches sub-resources hanging off every
+  # other org in the group. These are asserted separately from the type above
+  # because reading b2b_org.writer alone does not reveal them.
+  - name: the b2b_org writer cascade carries into its derived types
+    tuples:
+      - user: b2b_org:parent-org
+        relation: parent
+        object: b2b_org:sub-org
+      - user: b2b_org:sub-org
+        relation: child
+        object: b2b_org:parent-org
+
+      - user: b2b_org:parent-org
+        relation: parent
+        object: b2b_org:sibling-org
+      - user: b2b_org:sibling-org
+        relation: child
+        object: b2b_org:parent-org
+
+      - user: user:sub-owner
+        relation: owner
+        object: b2b_org:sub-org
+
+      - user: b2b_org:sibling-org
+        relation: b2b_org
+        object: crowdfunding_initiative:cf-sibling
+      - user: b2b_org:sibling-org
+        relation: b2b_org
+        object: project_membership:pm-sibling
+
+      - user: b2b_org:unrelated-org
+        relation: b2b_org
+        object: crowdfunding_initiative:cf-unrelated
+      - user: b2b_org:unrelated-org
+        relation: b2b_org
+        object: project_membership:pm-unrelated
+    check:
+      - user: user:sub-owner
+        object: crowdfunding_initiative:cf-sibling
+        assertions:
+          writer: true
+      - user: user:sub-owner
+        object: project_membership:pm-sibling
+        assertions:
+          writer: true
+      - user: user:sub-owner
+        object: crowdfunding_initiative:cf-unrelated
+        assertions:
+          writer: false
+      - user: user:sub-owner
+        object: project_membership:pm-unrelated
+        assertions:
+          writer: false
+
+  # The cascade is driven by the hierarchy tuples, not by the relation alone.
+  # With no parent/child tuples written, a grant stays on the org it was made on.
+  - name: with no hierarchy tuples a b2b_org writer grant stays put
+    tuples:
+      - user: user:lone-owner
+        relation: owner
+        object: b2b_org:lone-org
+    check:
+      - user: user:lone-owner
+        object: b2b_org:lone-org
+        assertions:
+          writer: true
+      - user: user:lone-owner
+        object: b2b_org:unrelated-org
+        assertions:
+          writer: false

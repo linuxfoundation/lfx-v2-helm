@@ -41,3 +41,15 @@ jobs:
             exit 1
           fi
           echo "Model changed and version updated."
+      # The check above pairs the model with a version bump but says nothing
+      # about whether the model is valid or still grants what we intend. These
+      # two commands need no store, no server and no credentials.
+      - name: Validate model and run invariant tests
+        env:
+          # openfga/cli v0.7.20, pinned by digest.
+          FGA_CLI: openfga/cli@sha256:26acde96d90420e53fe361a740dcceba4b67f1c49e4f35117cd0c19c83ac5068
+        run: |
+          docker run --rm -v "$PWD":/w -w /w "$FGA_CLI" \
+            model validate --file charts/lfx-platform/files/model.fga
+          docker run --rm -v "$PWD":/w -w /w "$FGA_CLI" \
+            model test --tests "tests/*.fga.yaml"

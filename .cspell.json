@@ -1,10 +1,17 @@
 {
   "language": "en",
-  "dictionaries": ["companies", "filetypes", "fullstack", "softwareTerms"],
+  "dictionaries": [
+    "companies",
+    "filetypes",
+    "fullstack",
+    "softwareTerms"
+  ],
   "words": [
     "apigen",
     "aquasecurity",
+    "artipacked",
     "authelia",
+    "BETTERLEAKS",
     "clearbit",
     "contextualizer",
     "contextualizers",
@@ -15,24 +22,29 @@
     "excalidraw",
     "externalsecret",
     "fanout",
+    "fgadoc",
     "finalizer",
     "forwardemail",
     "gelf",
     "gjson",
-    "GROUPSIO",
     "GOMEMLIMIT",
+    "GROUPSIO",
     "heimdallcfg",
     "hostnames",
     "httproute",
     "jaegertracing",
     "jetstream",
     "jouve",
+    "jtbd",
+    "jtbds",
     "kubeconform",
     "kubescape",
-    "linuxfoundation",
+    "lfid",
     "lfx",
     "LFXV",
+    "linuxfoundation",
     "livez",
+    "lockfiles",
     "mailpit",
     "mockdata",
     "opensearch",
@@ -48,25 +60,19 @@
     "sigstore",
     "slsa",
     "sslmode",
+    "stakater",
     "subchart",
     "subcharts",
     "swaggerapi",
     "tcsh",
+    "TERRASCAN",
     "totp",
-    "userset",
-    "usersets",
     "tracecontext",
     "traefik",
+    "userset",
+    "usersets",
     "webauthn",
     "websecure",
-    "stakater",
-    "artipacked",
-    "BETTERLEAKS",
-    "fgadoc",
-    "jtbd",
-    "jtbds",
-    "lockfiles",
-    "TERRASCAN",
     "zizmor",
     "ZIZMOR"
   ],
@@ -99,7 +105,9 @@
   "languageSettings": [
     {
       "languageId": "markdown",
-      "ignoreRegExpList": ["/^\\s*```\\s*(mermaid)[\\s\\S]*?^\\s*```/gm"]
+      "ignoreRegExpList": [
+        "/^\\s*```\\s*(mermaid)[\\s\\S]*?^\\s*```/gm"
+      ]
     }
   ]
 }
