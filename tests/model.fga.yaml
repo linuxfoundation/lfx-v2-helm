@@ -17,7 +17,9 @@
 # Team and user names here are fixtures. They intentionally do not name any real
 # team, so these tests assert the model's shape rather than any deployment's
 # access configuration.
-name: Non-cascading global team relations on the project type
+# The b2b_org section at the end of this file asserts the opposite shape on a
+# different type: a relation that is meant to cascade, and how far it reaches.
+name: Global team relations on the project type, and writer cascade on b2b_org
 
 model_file: ../charts/lfx-platform/files/model.fga
 
@@ -430,3 +432,136 @@ tests:
         object: project:parent
         assertions:
           writer_guard: true
+
+  # b2b_org.writer cascades transitively up and down the parent/child hierarchy,
+  # matching the auditor traversal on the same type.
+  #
+  # The fixtures below are declared per-test rather than in the shared fixture
+  # above, because they describe a different type and must not perturb the
+  # project assertions.
+  #
+  # Both directions of the hierarchy are written as separate tuples, because the
+  # model holds `parent` and `child` independently rather than deriving one from
+  # the other. That mirrors what member-service publishes today.
+  #
+  # The reach asserted here is wider than parent-to-child. Because `owner` folds
+  # into `writer` and `writer` traverses `from child` as well as `from parent`, a
+  # grant on a leaf org resolves upward to its parent and then back down to every
+  # sibling. The sibling and ancestor assertions are therefore load-bearing: they
+  # record that group-wide write reach is the intent, not an accident of the
+  # traversal.
+  - name: a b2b_org writer grant reaches the whole connected hierarchy group
+    tuples:
+      - user: b2b_org:parent-org
+        relation: parent
+        object: b2b_org:sub-org
+      - user: b2b_org:sub-org
+        relation: child
+        object: b2b_org:parent-org
+
+      - user: b2b_org:parent-org
+        relation: parent
+        object: b2b_org:sibling-org
+      - user: b2b_org:sibling-org
+        relation: child
+        object: b2b_org:parent-org
+
+      - user: b2b_org:sub-org
+        relation: parent
+        object: b2b_org:grandchild-org
+      - user: b2b_org:grandchild-org
+        relation: child
+        object: b2b_org:sub-org
+
+      # granted on the subsidiary only, never on the parent
+      - user: user:sub-owner
+        relation: owner
+        object: b2b_org:sub-org
+    check:
+      - user: user:sub-owner
+        objects:
+          - b2b_org:sub-org
+          - b2b_org:parent-org
+          - b2b_org:sibling-org
+          - b2b_org:grandchild-org
+        assertions:
+          writer: true
+          auditor: true
+      # An org in no hierarchy relationship with the grant stays out of reach.
+      - user: user:sub-owner
+        object: b2b_org:unrelated-org
+        assertions:
+          writer: false
+          auditor: false
+
+  # The cascade does not stop at b2b_org. Two types derive their own writer from
+  # it, so a subsidiary-scoped grant reaches sub-resources hanging off every
+  # other org in the group. These are asserted separately from the type above
+  # because reading b2b_org.writer alone does not reveal them.
+  - name: the b2b_org writer cascade carries into its derived types
+    tuples:
+      - user: b2b_org:parent-org
+        relation: parent
+        object: b2b_org:sub-org
+      - user: b2b_org:sub-org
+        relation: child
+        object: b2b_org:parent-org
+
+      - user: b2b_org:parent-org
+        relation: parent
+        object: b2b_org:sibling-org
+      - user: b2b_org:sibling-org
+        relation: child
+        object: b2b_org:parent-org
+
+      - user: user:sub-owner
+        relation: owner
+        object: b2b_org:sub-org
+
+      - user: b2b_org:sibling-org
+        relation: b2b_org
+        object: crowdfunding_initiative:cf-sibling
+      - user: b2b_org:sibling-org
+        relation: b2b_org
+        object: project_membership:pm-sibling
+
+      - user: b2b_org:unrelated-org
+        relation: b2b_org
+        object: crowdfunding_initiative:cf-unrelated
+      - user: b2b_org:unrelated-org
+        relation: b2b_org
+        object: project_membership:pm-unrelated
+    check:
+      - user: user:sub-owner
+        object: crowdfunding_initiative:cf-sibling
+        assertions:
+          writer: true
+      - user: user:sub-owner
+        object: project_membership:pm-sibling
+        assertions:
+          writer: true
+      - user: user:sub-owner
+        object: crowdfunding_initiative:cf-unrelated
+        assertions:
+          writer: false
+      - user: user:sub-owner
+        object: project_membership:pm-unrelated
+        assertions:
+          writer: false
+
+  # The cascade is driven by the hierarchy tuples, not by the relation alone.
+  # With no parent/child tuples written, a grant stays on the org it was made on.
+  - name: with no hierarchy tuples a b2b_org writer grant stays put
+    tuples:
+      - user: user:lone-owner
+        relation: owner
+        object: b2b_org:lone-org
+    check:
+      - user: user:lone-owner
+        object: b2b_org:lone-org
+        assertions:
+          writer: true
+      - user: user:lone-owner
+        object: b2b_org:unrelated-org
+        assertions:
+          writer: false
