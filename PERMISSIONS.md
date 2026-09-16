@@ -24,40 +24,40 @@ grant assignment.
 
 ### Project
 
-| | *Owner* | *Global Owner* | *Global Writer* | *Global Auditor* | *Global Marketing Ops* | *Marketing Ops* | Writer | Auditor | Meeting Coordinator | Executive Director | *Everyone* |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| View project details & meeting count | ✅ | ✅ | | ✅ | | | ✅ | ✅ | ✅ | ✅ | 🟡 |
-| View project links & folders | ✅ | ✅ | | ✅ | | | ✅ | ✅ | ✅ | ✅ | 🟡 |
-| View project documents | ✅ | ✅ | | ✅ | | | ✅ | ✅ | ✅ | ✅ | 🟡 |
-| View project settings | ✅ | ✅ | | | | | ✅ | ✅ | | ✅ | |
-| View formation checklist & activity feed | ✅ | ✅ | | | | | ✅ | ✅ | | | |
-| Update formation checklist items | ✅ | ✅ | | | | | ✅ | | | | |
-| Create & update a project | ✅ | ✅ | | | | | ✅ | | | | |
-| Manage project links, folders & documents | ✅ | ✅ | | | | | ✅ | | | | |
-| Delete a project | ✅ | ✅ | | | | | | | | | |
-| Create project committees & Groups.io services | ✅ | ✅ | | | | | ✅ | | | | |
-| Create a vote poll | ✅ | ✅ | | | | | ✅ | | | | |
-| Create meetings & past meetings | ✅ | ✅ | ✅ | | | | ✅ | | ✅ | | |
-| Connect & manage ad platform accounts | | | | | ✅ | ✅ | | | | ✅ | |
-| Test & rotate ad platform credentials | | | | | ✅ | ✅ | | | | ✅ | |
-| Create & manage campaign briefs | | | | | ✅ | ✅ | | | | ✅ | |
-| Approve a brief for campaign creation | | | | | ✅ | ✅ | | | | ✅ | |
-| Manage brief target audiences | | | | | ✅ | ✅ | | | | ✅ | |
-| Prefill a brief from an event URL | | | | | ✅ | ✅ | | | | ✅ | |
-| Generate AI-written email copy for a brief | | | | | ✅ | ✅ | | | | ✅ | |
-| Upload creative assets for ad campaigns | | | | | ✅ | ✅ | | | | ✅ | |
-| Launch campaigns across ad platforms | | | | | ✅ | ✅ | | | | ✅ | |
-| Pause & resume a campaign | | | | | ✅ | ✅ | | | | ✅ | |
-| Pause or remove Google Ads keywords | | | | | ✅ | ✅ | | | | ✅ | |
-| View live campaign & keyword performance metrics | | | | | ✅ | ✅ | | | | ✅ | |
-| Track campaign creation job status | | | | | ✅ | ✅ | | | | ✅ | |
+| | *Owner* | *Campaign Manager* | Writer | Auditor | Meeting Coordinator | Executive Director | *Everyone* |
+|---|---|---|---|---|---|---|---|
+| View project details & meeting count | ✅ | | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View project links & folders | ✅ | | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View project documents | ✅ | | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| View project settings | ✅ | | ✅ | ✅ | | ✅ | |
+| View formation checklist & activity feed | ✅ | | ✅ | ✅ | | | |
+| Update formation checklist items | ✅ | | ✅ | | | | |
+| Create & update a project | ✅ | | ✅ | | | | |
+| Manage project links, folders & documents | ✅ | | ✅ | | | | |
+| Delete a project | ✅ | | | | | | |
+| Create project committees & Groups.io services | ✅ | | ✅ | | | | |
+| Create a vote poll | ✅ | | ✅ | | | | |
+| Create meetings & past meetings | ✅ | | ✅ | | ✅ | | |
+| Connect & manage ad platform accounts | | ✅ | | | | ✅ | |
+| Test & rotate ad platform credentials | | ✅ | | | | ✅ | |
+| Create & manage campaign briefs | | ✅ | | | | ✅ | |
+| Approve a brief for campaign creation | | ✅ | | | | ✅ | |
+| Manage brief target audiences | | ✅ | | | | ✅ | |
+| Prefill a brief from an event URL | | ✅ | | | | ✅ | |
+| Generate AI-written email copy for a brief | | ✅ | | | | ✅ | |
+| Upload creative assets for ad campaigns | | ✅ | | | | ✅ | |
+| Launch campaigns across ad platforms | | ✅ | | | | ✅ | |
+| Pause & resume a campaign | | ✅ | | | | ✅ | |
+| Pause or remove Google Ads keywords | | ✅ | | | | ✅ | |
+| View live campaign & keyword performance metrics | | ✅ | | | | ✅ | |
+| Track campaign creation job status | | ✅ | | | | ✅ | |
 
 #### Permission Inheritance
 
 - ***Owner***: inherited from parent Project, global Product Support Team, global Formation Team
-- ***Marketing Ops***: inherited from parent Project, global Marketing Ops Team
+- ***Campaign Manager***: inherited from global Marketing Ops Team
 - **Writer**: inherited from parent Project
-- **Auditor**: inherited from parent Project, global LF Staff Team, global LF Contractor Team
+- **Auditor**: inherited from parent Project, global LF Staff Team
 
 ---
 
@@ -78,8 +78,8 @@ grant assignment.
 
 #### Permission Inheritance
 
-- **Writer**: inherited from Project Writer Guard
-- **Auditor**: inherited from Project Auditor Guard, Project Meeting Coordinator
+- **Writer**: inherited from Project Writer
+- **Auditor**: inherited from Project Auditor, Project Meeting Coordinator
 
 ---
 
@@ -106,8 +106,8 @@ grant assignment.
 
 #### Permission Inheritance
 
-- **Writer**: inherited from Project Writer Guard
-- **Auditor**: inherited from Project Auditor Guard
+- **Writer**: inherited from Project Writer
+- **Auditor**: inherited from Project Auditor
 
 ---
 
@@ -143,8 +143,8 @@ grant assignment.
 
 #### Permission Inheritance
 
-- ***Organizer***: inherited from Project Meeting Coordinator, Committee Writer, Project Writer Guard
-- ***Auditor***: inherited from Project Auditor Guard
+- ***Organizer***: inherited from Project Meeting Coordinator, Committee Writer, Project Writer
+- ***Auditor***: inherited from Project Auditor
 
 ---
 
@@ -162,8 +162,8 @@ grant assignment.
 
 #### Permission Inheritance
 
-- ***Organizer***: inherited from Project Meeting Coordinator, Project Writer Guard, Scheduled Meeting Organizer
-- ***Auditor***: inherited from Project Auditor Guard, Scheduled Meeting Auditor
+- ***Organizer***: inherited from Project Meeting Coordinator, Project Writer, Scheduled Meeting Organizer
+- ***Auditor***: inherited from Project Auditor, Scheduled Meeting Auditor
 
 ---
 
@@ -179,8 +179,8 @@ grant assignment.
 
 #### Permission Inheritance
 
-- ***Writer***: inherited from Project Writer Guard, Committee Writer
-- ***Auditor***: inherited from Project Auditor Guard, Committee Auditor
+- ***Writer***: inherited from Project Writer, Committee Writer
+- ***Auditor***: inherited from Project Auditor, Committee Auditor
 
 ---
 
@@ -208,8 +208,8 @@ grant assignment.
 
 #### Permission Inheritance
 
-- ***Writer***: inherited from Project Writer Guard, Committee Writer
-- ***Auditor***: inherited from Project Auditor Guard, Committee Auditor
+- ***Writer***: inherited from Project Writer, Committee Writer
+- ***Auditor***: inherited from Project Auditor, Committee Auditor
 
 ---
 
@@ -226,7 +226,7 @@ grant assignment.
 #### Permission Inheritance
 
 - **Writer**: inherited from parent B2B Organization, child B2B Organization
-- **Auditor**: inherited from parent B2B Organization, child B2B Organization, Project Membership Key Contact
+- **Auditor**: inherited from parent B2B Organization, child B2B Organization, Project Membership Key Contact, global LF Staff Team
 
 ---
 
@@ -240,4 +240,4 @@ grant assignment.
 #### Permission Inheritance
 
 - ***Writer***: inherited from B2B Organization Writer
-- ***Auditor***: inherited from B2B Organization Auditor, Project Auditor Guard
+- ***Auditor***: inherited from B2B Organization Auditor, Project Auditor

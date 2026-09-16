@@ -43,8 +43,11 @@ type project
     # grants as fully reconcilable, so renaming one without the prefix would
     # silently make its grants permanent. See lfx-v2-fga-sync
     # (docs/fga-sync-contract.md) for the reconcile behavior itself.
+    # @fgadoc:hide
     define global_owner: [team#member]
+    # @fgadoc:hide
     define global_writer: [team#member]
+    # @fgadoc:hide
     define global_auditor: [team#member]
     # Named global_ so its team grants can be reconciled, not for the
     # non-cascading behavior the other three have: it composes into
@@ -52,6 +55,7 @@ type project
     # project it is written to and cannot be withheld — the rollout must treat
     # it as exempt. Withholding it later would need a guard relation first, as
     # writer and auditor have. The cascade is asserted in tests/model.fga.yaml.
+    # @fgadoc:hide
     define global_marketing_ops: [team#member]
     # `[team#member]` and `or owner from parent` can both be removed once all
     # global teams have been rolled out to `global_owner`. Sequence the
@@ -109,6 +113,7 @@ type project
     # been rolled out to global_marketing_ops — it is not folded into
     # global_marketing_ops itself the way owner absorbs global_owner, since
     # nothing else needs to keep cascading through it in the meantime.
+    # @fgadoc:hide
     define marketing_ops: [team#member] or marketing_ops from parent
     # marketing_auditor identifies a user with read access to marketing dashboards
     # and campaigns for a project. The relation itself cascades from parent
