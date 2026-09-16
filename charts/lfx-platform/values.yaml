@@ -325,13 +325,17 @@ heimdall:
       # on the wire, while crowdfunding_initiative OpenFGA tuples are keyed on
       # initiative UID.
       #
-      # The endpoint MUST be the shared Gateway hostname, not
-      # lfx-crowdfunding-backend's ClusterIP — same reason as above.
+      # The endpoint MUST be the shared lfx-api Gateway hostname, not
+      # lfx-crowdfunding-backend's ClusterIP or its own crowdfunding-api.*
+      # ingress — lfx-crowdfunding-backend's Heimdall HTTPRoute is parented
+      # to the shared Gateway under the lfx-api.{domain} hostname (same as
+      # project-service's), so that is the only hostname Heimdall can
+      # reach this path on.
       - id: crowdfunding_slug_resolver_contextualizer
         type: generic
         config:
           endpoint:
-            url: http://crowdfunding-api.k8s.orb.local/v1/initiatives/slug-to-uid/{{ .Values.slug }}
+            url: http://lfx-api.k8s.orb.local/v1/initiatives/slug-to-uid/{{ .Values.slug }}
             method: GET
           forward_headers:
             - Authorization
