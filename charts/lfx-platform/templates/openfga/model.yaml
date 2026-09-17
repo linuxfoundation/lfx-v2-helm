@@ -19,11 +19,8 @@ spec:
     - patch: Modifications of define
 
   Changes to @fgadoc:jtbd, @fgadoc:alias, or @fgadoc:hide annotations are
-  documentation only and do NOT require a version bump.
-
-  Do NOT add @fgadoc:jtbd lines manually. These are updated by the
-  `populate-jtbds` skill by analyzing live RuleSets and API docs.
-  @fgadoc:hide and @fgadoc:alias tags are managed manually.
+  documentation only and do NOT require a version bump. See the header of
+  files/model.fga for details on these annotations.
 */}}
     - version:
         major: 15
