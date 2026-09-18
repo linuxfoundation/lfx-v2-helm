@@ -464,6 +464,9 @@ heimdall:
               {{ if .Values.aud -}},
               "aud": {{ quote .Values.aud }}
               {{ end -}}
+              {{ if .Values.scope -}},
+              "scope": {{ quote .Values.scope }}
+              {{ end -}}
             }
 
   default_rule:
