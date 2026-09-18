@@ -1,0 +1,16 @@
+# Copyright The Linux Foundation and each contributor to LFX.
+# SPDX-License-Identifier: MIT
+---
+# Default values for lfx-crds.
+# This chart is local-development-only: it installs the operators (and
+# their CRDs) that charts/lfx-platform's own resources (for example its
+# CloudNativePG Cluster) assume already exist. Deployed environments
+# (dev/staging/prod) do not install this chart at all -- see
+# docs/platform-chart.md.
+
+# CloudNativePG operator. Every group in this chart defaults to enabled
+# since nothing else installs these CRDs locally.
+cloudnative-pg:
+  enabled: true
+  crds:
+    create: true

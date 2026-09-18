@@ -1,0 +1,32 @@
+{{- /*
+Copyright The Linux Foundation and each contributor to LFX.
+SPDX-License-Identifier: MIT
+*/ -}}
+{{- if .Values.cloudNativePG.enabled }}
+# CloudNativePG Cluster: the shared, single-instance local-development
+# Postgres cluster that per-service charts' "database" mode targets via a
+# CloudNativePG Database CR.
+#
+# This is a plain custom resource, not a Helm subchart -- the operator and
+# its CRDs (postgresql.cnpg.io/*) are installed separately by
+# charts/lfx-crds, which must be installed before this chart. See
+# docs/platform-chart.md for install order.
+#
+# Deliberately minimal: single instance, no backup, no HA. Not intended
+# for any deployed environment -- deployed environments set
+# cloudNativePG.enabled: false and use external RDS instead.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: {{ .Values.cloudNativePG.cluster.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "lfx-platform.labels" . | nindent 4 }}
+spec:
+  instances: {{ .Values.cloudNativePG.cluster.instances }}
+  storage:
+    size: {{ .Values.cloudNativePG.cluster.storage.size | quote }}
+    {{- with .Values.cloudNativePG.cluster.storage.storageClass }}
+    storageClass: {{ . | quote }}
+    {{- end }}
+{{- end }}

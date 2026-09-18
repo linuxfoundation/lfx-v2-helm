@@ -12,6 +12,8 @@ stack. It is not the owner for service-specific application logic.
 ## Repository Ownership
 
 - `charts/lfx-platform/` - shared platform chart composition and dependencies.
+- `charts/lfx-crds/` - operator/CRD-providing chart (CloudNativePG today),
+  installed separately, local development only. See `docs/platform-chart.md`.
 - OpenFGA model template under `charts/lfx-platform/templates/openfga/`.
 - Local platform stack defaults for NATS, OpenSearch, OpenFGA, Traefik,
   Heimdall, Gateway API, and related shared infrastructure.
