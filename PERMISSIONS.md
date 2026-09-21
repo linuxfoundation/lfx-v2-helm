@@ -65,8 +65,6 @@ grant assignment.
 
 | | Member |
 |---|---|
-| View mentorship program settings | ✅ |
-| View mentorship program members & approvers | ✅ |
 
 #### Permission Inheritance
 
@@ -78,13 +76,6 @@ grant assignment.
 
 | | Writer | Mentor | Auditor | *Everyone* |
 |---|---|---|---|---|
-| Manage the mentorship program | ✅ | | | |
-| Manage mentorship program applications | ✅ | | | |
-| Review mentorship program performance | ✅ | | | |
-| View mentorship program details | ✅ | ✅ | ✅ | 🟡 |
-| View mentorship program applications | ✅ | ✅ | ✅ | 🟡 |
-| View mentorship program settings | ✅ | | ✅ | |
-| View mentorship program members & approvers | ✅ | | ✅ | |
 
 #### Permission Inheritance
 
@@ -98,9 +89,6 @@ grant assignment.
 
 | | Writer | Mentee | Auditor | Reviewer |
 |---|---|---|---|---|
-| View a mentorship application | ✅ | ✅ | ✅ | ✅ |
-| Update a mentorship application | ✅ | ✅ | ✅ | |
-| Review a mentorship application | ✅ | | ✅ | ✅ |
 
 #### Permission Inheritance
 
@@ -114,8 +102,6 @@ grant assignment.
 
 | | Assignee | Auditor |
 |---|---|---|
-| View a mentorship task | ✅ | ✅ |
-| Update a mentorship task | ✅ | ✅ |
 
 #### Permission Inheritance
 
