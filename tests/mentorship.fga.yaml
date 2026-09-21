@@ -163,12 +163,12 @@ tests:
           manager: false
           reviewer: false
           writer: false
-          auditor: false
+          auditor: true
       - user: team:global-auditor#member
         object: mentorship_task:task-mia-1
         assertions:
           manager: false
-          auditor: false
+          auditor: true
 
   - name: project access does not leak between mentorship programs
     check:

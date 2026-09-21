@@ -175,14 +175,14 @@ type mentorship_application
     define manager: writer from mentorship_program
     define writer: mentee or manager
     define reviewer: manager or mentor from mentorship_program
-    define auditor: writer or reviewer
+    define auditor: writer or reviewer or auditor from mentorship_program
 
 type mentorship_task
   relations
     define mentorship_application: [mentorship_application]
     define assignee: [user]
     define manager: reviewer from mentorship_application
-    define auditor: assignee or manager
+    define auditor: assignee or manager or auditor from mentorship_application
 
 type committee
   relations
