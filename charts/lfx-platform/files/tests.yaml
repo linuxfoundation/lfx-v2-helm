@@ -160,14 +160,27 @@ tests:
         object: mentorship_approver_team:global
         assertions:
           member: true
+      - user: user:priya
+        object: mentorship_program:go-2026
+        assertions:
+          auditor: true
+          viewer: true
       - user: user:carla
         object: mentorship_approver_team:global
         assertions:
           member: false
+      - user: user:carla
+        object: mentorship_program:go-2026
+        assertions:
+          auditor: true
       - user: user:aisha
         object: mentorship_approver_team:global
         assertions:
           member: false
+      - user: user:aisha
+        object: mentorship_program:go-2026
+        assertions:
+          auditor: true
 
   - name: applicant is not a reviewer even though they can view their application
     check:

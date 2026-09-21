@@ -28,6 +28,12 @@ tuples:
   - user: mentorship_approver_team:global#member
     relation: auditor
     object: mentorship_program:go-2026
+  - user: team:global-writer#member
+    relation: global_writer
+    object: project:lfx
+  - user: team:global-auditor#member
+    relation: global_auditor
+    object: project:lfx
   - user: project:lfx
     relation: project
     object: mentorship_program:go-2026
@@ -123,6 +129,26 @@ tests:
         object: mentorship_application:app-noah
         assertions:
           auditor: false
+
+  - name: global guards propagate to program resources without crossing roles
+    check:
+      - user: team:global-writer#member
+        object: mentorship_program:go-2026
+        assertions:
+          writer: true
+          manager: true
+          auditor: true
+      - user: team:global-writer#member
+        object: mentorship_task:task-mia-1
+        assertions:
+          manager: true
+          auditor: true
+      - user: team:global-auditor#member
+        object: mentorship_program:go-2026
+        assertions:
+          writer: false
+          auditor: true
+          viewer: true
 
   - name: project access does not leak between mentorship programs
     check:
