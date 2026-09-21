@@ -143,12 +143,31 @@ tests:
         assertions:
           manager: true
           auditor: true
+      - user: team:global-writer#member
+        object: mentorship_application:app-mia
+        assertions:
+          manager: true
+          reviewer: true
+          writer: true
+          auditor: true
       - user: team:global-auditor#member
         object: mentorship_program:go-2026
         assertions:
           writer: false
           auditor: true
           viewer: true
+      - user: team:global-auditor#member
+        object: mentorship_application:app-mia
+        assertions:
+          manager: false
+          reviewer: false
+          writer: false
+          auditor: false
+      - user: team:global-auditor#member
+        object: mentorship_task:task-mia-1
+        assertions:
+          manager: false
+          auditor: false
 
   - name: project access does not leak between mentorship programs
     check:
