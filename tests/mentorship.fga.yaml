@@ -93,6 +93,7 @@ tests:
           mentor: true
           manager: true
           writer: false
+          auditor: false
       - user: user:miguel
         object: mentorship_application:app-mia
         assertions:
