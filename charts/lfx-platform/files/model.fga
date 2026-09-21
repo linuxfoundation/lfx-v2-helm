@@ -82,6 +82,8 @@ type project
     # @fgadoc:jtbd Create a vote poll
     # @fgadoc:jtbd Update formation checklist items
     define writer: [user] or owner or writer from parent
+    define mentorship_program_admin: [user]
+    define mentorship_program_creator: writer or mentorship_program_admin
     # @fgadoc:jtbd View project settings
     # @fgadoc:jtbd View formation checklist & activity feed
     define auditor: [user, team#member] or executive_director or writer or auditor from parent
@@ -152,6 +154,35 @@ type project
     # @fgadoc:jtbd View project links & folders
     # @fgadoc:jtbd View project documents
     define viewer: [user:*] or auditor_guard or meeting_coordinator
+
+type mentorship_approver_team
+  relations
+    define member: [user]
+
+type mentorship_program
+  relations
+    define project: [project]
+    define writer: [user] or writer from project or mentorship_program_admin from project
+    define mentor: [user]
+    define manager: writer or mentor
+    define auditor: [user, mentorship_approver_team#member] or manager or auditor from project
+    define viewer: [user:*] or auditor
+
+type mentorship_application
+  relations
+    define mentorship_program: [mentorship_program]
+    define mentee: [user]
+    define manager: writer from mentorship_program
+    define writer: mentee or manager
+    define reviewer: manager or mentor from mentorship_program
+    define auditor: writer or reviewer
+
+type mentorship_task
+  relations
+    define mentorship_application: [mentorship_application]
+    define assignee: [user]
+    define manager: reviewer from mentorship_application
+    define auditor: assignee or manager
 
 type committee
   relations
