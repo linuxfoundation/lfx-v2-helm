@@ -80,33 +80,21 @@ grant assignment.
 #### Permission Inheritance
 
 - **Writer**: inherited from Project Writer, project mentorship_program_admin
-- **Mentor**: direct grant on the program
 - **Auditor**: inherited from project Auditor, approver team membership
 
 ---
 
 ### Mentorship Application
 
-| | Writer | Mentee | Auditor | Reviewer |
-|---|---|---|---|---|
-
-#### Permission Inheritance
-
-- **Writer**: inherited from mentorship program Writer, direct mentee grant
-- **Auditor**: inherited from Writer, Reviewer
-- **Reviewer**: inherited from mentorship program Manager or Mentor
+| | Mentee |
+|---|---|
 
 ---
 
 ### Mentorship Task
 
-| | Assignee | Auditor |
-|---|---|---|
-
-#### Permission Inheritance
-
-- **Assignee**: direct task assignment
-- **Auditor**: inherited from assignee, reviewer/manager
+| | Assignee |
+|---|---|
 
 ---
 
