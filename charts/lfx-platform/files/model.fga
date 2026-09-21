@@ -83,7 +83,7 @@ type project
     # @fgadoc:jtbd Update formation checklist items
     define writer: [user] or owner or writer from parent
     define mentorship_program_admin: [user]
-    define mentorship_program_creator: writer or mentorship_program_admin
+    define mentorship_program_creator: writer_guard or mentorship_program_admin
     # @fgadoc:jtbd View project settings
     # @fgadoc:jtbd View formation checklist & activity feed
     define auditor: [user, team#member] or executive_director or writer or auditor from parent
@@ -162,17 +162,28 @@ type mentorship_approver_team
 type mentorship_program
   relations
     define project: [project]
-    define writer: [user] or writer from project or mentorship_program_admin from project
+    # @fgadoc:jtbd Manage the mentorship program
+    # @fgadoc:jtbd Manage mentorship program applications
+    # @fgadoc:jtbd Review mentorship program performance
+    define writer: [user] or writer_guard from project or mentorship_program_admin from project
+    # @fgadoc:jtbd View mentorship program details
+    # @fgadoc:jtbd View mentorship program applications
     define mentor: [user]
     define manager: writer or mentor
-    define auditor: [user, mentorship_approver_team#member] or manager or auditor from project
+    # @fgadoc:jtbd View mentorship program settings
+    # @fgadoc:jtbd View mentorship program members & approvers
+    define auditor: [user, mentorship_approver_team#member] or manager or auditor_guard from project
     define viewer: [user:*] or auditor
 
 type mentorship_application
   relations
     define mentorship_program: [mentorship_program]
+    # @fgadoc:jtbd View a mentorship application
+    # @fgadoc:jtbd Update a mentorship application
     define mentee: [user]
     define manager: writer from mentorship_program
+    # @fgadoc:jtbd View a mentorship application
+    # @fgadoc:jtbd Review a mentorship application
     define writer: mentee or manager
     define reviewer: manager or mentor from mentorship_program
     define auditor: writer or reviewer
@@ -180,6 +191,8 @@ type mentorship_application
 type mentorship_task
   relations
     define mentorship_application: [mentorship_application]
+    # @fgadoc:jtbd View a mentorship task
+    # @fgadoc:jtbd Update a mentorship task
     define assignee: [user]
     define manager: reviewer from mentorship_application
     define auditor: assignee or manager

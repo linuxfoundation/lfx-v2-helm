@@ -61,6 +61,69 @@ grant assignment.
 
 ---
 
+### Mentorship Approver Team
+
+| | Member |
+|---|---|
+| View mentorship program settings | ✅ |
+| View mentorship program members & approvers | ✅ |
+
+#### Permission Inheritance
+
+- **Member**: direct team membership only
+
+---
+
+### Mentorship Program
+
+| | Writer | Mentor | Auditor | *Everyone* |
+|---|---|---|---|---|
+| Manage the mentorship program | ✅ | | | |
+| Manage mentorship program applications | ✅ | | | |
+| Review mentorship program performance | ✅ | | | |
+| View mentorship program details | ✅ | ✅ | ✅ | 🟡 |
+| View mentorship program applications | ✅ | ✅ | ✅ | 🟡 |
+| View mentorship program settings | ✅ | | ✅ | |
+| View mentorship program members & approvers | ✅ | | ✅ | |
+
+#### Permission Inheritance
+
+- **Writer**: inherited from Project Writer, project mentorship_program_admin
+- **Mentor**: direct grant on the program
+- **Auditor**: inherited from project Auditor, approver team membership
+
+---
+
+### Mentorship Application
+
+| | Writer | Mentee | Auditor | Reviewer |
+|---|---|---|---|---|
+| View a mentorship application | ✅ | ✅ | ✅ | ✅ |
+| Update a mentorship application | ✅ | ✅ | ✅ | |
+| Review a mentorship application | ✅ | | ✅ | ✅ |
+
+#### Permission Inheritance
+
+- **Writer**: inherited from mentorship program Writer, direct mentee grant
+- **Auditor**: inherited from Writer, Reviewer
+- **Reviewer**: inherited from mentorship program Manager or Mentor
+
+---
+
+### Mentorship Task
+
+| | Assignee | Auditor |
+|---|---|---|
+| View a mentorship task | ✅ | ✅ |
+| Update a mentorship task | ✅ | ✅ |
+
+#### Permission Inheritance
+
+- **Assignee**: direct task assignment
+- **Auditor**: inherited from assignee, reviewer/manager
+
+---
+
 ### Committee
 
 | | Writer | Auditor | Member | *Everyone* |

@@ -1,0 +1,137 @@
+# Copyright The Linux Foundation and each contributor to LFX.
+# SPDX-License-Identifier: MIT
+
+name: Mentorship authorization model checks
+model_file: ../charts/lfx-platform/files/model.fga
+
+# These tuples mirror the shipped mentorship fixture data and assert the
+# program-level authorizer behavior we want to keep stable in CI.
+tuples:
+  - user: user:aisha
+    relation: writer
+    object: project:lfx
+  - user: user:carla
+    relation: mentorship_program_admin
+    object: project:lfx
+  - user: user:frank
+    relation: writer
+    object: mentorship_program:go-2026
+  - user: user:derek
+    relation: writer
+    object: mentorship_program:rust-2026
+  - user: user:miguel
+    relation: mentor
+    object: mentorship_program:go-2026
+  - user: user:priya
+    relation: member
+    object: mentorship_approver_team:global
+  - user: mentorship_approver_team:global#member
+    relation: auditor
+    object: mentorship_program:go-2026
+  - user: project:lfx
+    relation: project
+    object: mentorship_program:go-2026
+  - user: project:lfx
+    relation: project
+    object: mentorship_program:rust-2026
+  - user: mentorship_program:go-2026
+    relation: mentorship_program
+    object: mentorship_application:app-mia
+  - user: mentorship_program:go-2026
+    relation: mentorship_program
+    object: mentorship_application:app-noah
+  - user: user:mia
+    relation: mentee
+    object: mentorship_application:app-mia
+  - user: user:noah
+    relation: mentee
+    object: mentorship_application:app-noah
+  - user: mentorship_application:app-mia
+    relation: mentorship_application
+    object: mentorship_task:task-mia-1
+  - user: user:mia
+    relation: assignee
+    object: mentorship_task:task-mia-1
+  - user: user:*
+    relation: viewer
+    object: mentorship_program:go-2026
+
+tests:
+  - name: project-level program creation is restricted to project writers and admins
+    check:
+      - user: user:carla
+        object: project:lfx
+        assertions:
+          mentorship_program_creator: true
+      - user: user:aisha
+        object: project:lfx
+        assertions:
+          mentorship_program_creator: true
+      - user: user:miguel
+        object: project:lfx
+        assertions:
+          mentorship_program_creator: false
+
+  - name: program writers and mentors can manage the program and its applications
+    check:
+      - user: user:aisha
+        object: mentorship_program:go-2026
+        assertions:
+          writer: true
+          manager: true
+          auditor: true
+          viewer: true
+      - user: user:miguel
+        object: mentorship_program:go-2026
+        assertions:
+          mentor: true
+          manager: true
+          writer: false
+      - user: user:miguel
+        object: mentorship_application:app-mia
+        assertions:
+          reviewer: true
+          manager: false
+      - user: user:miguel
+        object: mentorship_task:task-mia-1
+        assertions:
+          manager: true
+          auditor: true
+
+  - name: approver team members and program admins are auditors for mentorship programs
+    check:
+      - user: user:priya
+        object: mentorship_program:go-2026
+        assertions:
+          auditor: true
+          viewer: true
+      - user: user:carla
+        object: mentorship_program:go-2026
+        assertions:
+          auditor: true
+          viewer: true
+
+  - name: mentee access stays scoped to their own application
+    check:
+      - user: user:mia
+        object: mentorship_application:app-mia
+        assertions:
+          mentee: true
+          writer: true
+          auditor: true
+      - user: user:mia
+        object: mentorship_application:app-noah
+        assertions:
+          auditor: false
+
+  - name: project access does not leak between mentorship programs
+    check:
+      - user: user:frank
+        object: mentorship_program:rust-2026
+        assertions:
+          writer: false
+          manager: false
+      - user: user:miguel
+        object: mentorship_program:rust-2026
+        assertions:
+          manager: false
