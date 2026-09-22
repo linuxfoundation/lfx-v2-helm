@@ -165,7 +165,8 @@ type mentorship_program
     define writer: [user] or writer_guard from project or mentorship_program_admin from project
     define mentor: [user]
     define manager: writer or mentor
-    define auditor: [user, mentorship_approver_team#member] or writer or auditor_guard from project
+    define global_mentorship_approver: [mentorship_approver_team#member]
+    define auditor: [user] or global_mentorship_approver or writer or auditor_guard from project
     define viewer: [user:*] or auditor
 
 type mentorship_application

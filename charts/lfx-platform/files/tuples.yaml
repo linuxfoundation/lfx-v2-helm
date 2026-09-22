@@ -23,10 +23,10 @@
   relation: global_writer
   object: project:lfx
 - user: mentorship_approver_team:global#member
-  relation: auditor
+  relation: global_mentorship_approver
   object: mentorship_program:go-2026
 - user: mentorship_approver_team:global#member
-  relation: auditor
+  relation: global_mentorship_approver
   object: mentorship_program:rust-2026
 - user: project:lfx
   relation: project
