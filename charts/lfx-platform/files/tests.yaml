@@ -140,6 +140,11 @@ tests:
         assertions:
           assignee: false
           auditor: false
+      - user: user:zoe
+        object: mentorship_task:task-zoe-1
+        assertions:
+          assignee: true
+          auditor: true
 
   - name: program admin and mentor can view tasks through inheritance
     check:
@@ -156,6 +161,10 @@ tests:
 
   - name: approval is a global team membership check
     check:
+      - user: team:global-writer#member
+        object: project:lfx
+        assertions:
+          mentorship_program_creator: true
       - user: user:priya
         object: mentorship_approver_team:global
         assertions:

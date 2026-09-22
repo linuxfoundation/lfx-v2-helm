@@ -52,12 +52,21 @@ tuples:
   - user: mentorship_program:go-2026
     relation: mentorship_program
     object: mentorship_application:app-noah
+  - user: mentorship_program:go-2026
+    relation: mentorship_program
+    object: mentorship_application:app-zoe
   - user: user:mia
     relation: mentee
     object: mentorship_application:app-mia
   - user: user:noah
     relation: mentee
     object: mentorship_application:app-noah
+  - user: mentorship_application:app-zoe
+    relation: mentorship_application
+    object: mentorship_task:task-zoe-1
+  - user: user:zoe
+    relation: assignee
+    object: mentorship_task:task-zoe-1
   - user: mentorship_application:app-mia
     relation: mentorship_application
     object: mentorship_task:task-mia-1
@@ -111,6 +120,14 @@ tests:
           manager: true
           auditor: true
 
+  - name: isolated assignee access is not inherited application access
+    check:
+      - user: user:zoe
+        object: mentorship_task:task-zoe-1
+        assertions:
+          assignee: true
+          auditor: true
+
   - name: approver team members and program admins are auditors for mentorship programs
     check:
       - user: user:priya
@@ -144,6 +161,10 @@ tests:
 
   - name: global guards propagate to program resources without crossing roles
     check:
+      - user: team:global-writer#member
+        object: project:lfx
+        assertions:
+          mentorship_program_creator: true
       - user: team:global-writer#member
         object: mentorship_program:go-2026
         assertions:

@@ -19,6 +19,9 @@
 - user: user:priya
   relation: member
   object: mentorship_approver_team:global
+- user: team:global-writer#member
+  relation: global_writer
+  object: project:lfx
 - user: mentorship_approver_team:global#member
   relation: auditor
   object: mentorship_program:go-2026
@@ -40,12 +43,21 @@
 - user: mentorship_program:go-2026
   relation: mentorship_program
   object: mentorship_application:app-noah
+- user: mentorship_program:go-2026
+  relation: mentorship_program
+  object: mentorship_application:app-zoe
 - user: user:mia
   relation: mentee
   object: mentorship_application:app-mia
 - user: user:noah
   relation: mentee
   object: mentorship_application:app-noah
+- user: mentorship_application:app-zoe
+  relation: mentorship_application
+  object: mentorship_task:task-zoe-1
+- user: user:zoe
+  relation: assignee
+  object: mentorship_task:task-zoe-1
 - user: mentorship_application:app-mia
   relation: mentorship_application
   object: mentorship_task:task-mia-1

@@ -24,33 +24,34 @@ grant assignment.
 
 ### Project
 
-| | *Owner* | *Campaign Manager* | Writer | Auditor | Meeting Coordinator | Executive Director | *Everyone* |
-|---|---|---|---|---|---|---|---|
-| View project details & meeting count | ✅ | | ✅ | ✅ | ✅ | ✅ | 🟡 |
-| View project links & folders | ✅ | | ✅ | ✅ | ✅ | ✅ | 🟡 |
-| View project documents | ✅ | | ✅ | ✅ | ✅ | ✅ | 🟡 |
-| View project settings | ✅ | | ✅ | ✅ | | ✅ | |
-| View formation checklist & activity feed | ✅ | | ✅ | ✅ | | | |
-| Update formation checklist items | ✅ | | ✅ | | | | |
-| Create & update a project | ✅ | | ✅ | | | | |
-| Manage project links, folders & documents | ✅ | | ✅ | | | | |
-| Delete a project | ✅ | | | | | | |
-| Create project committees & Groups.io services | ✅ | | ✅ | | | | |
-| Create a vote poll | ✅ | | ✅ | | | | |
-| Create meetings & past meetings | ✅ | | ✅ | | ✅ | | |
-| Connect & manage ad platform accounts | | ✅ | | | | ✅ | |
-| Test & rotate ad platform credentials | | ✅ | | | | ✅ | |
-| Create & manage campaign briefs | | ✅ | | | | ✅ | |
-| Approve a brief for campaign creation | | ✅ | | | | ✅ | |
-| Manage brief target audiences | | ✅ | | | | ✅ | |
-| Prefill a brief from an event URL | | ✅ | | | | ✅ | |
-| Generate AI-written email copy for a brief | | ✅ | | | | ✅ | |
-| Upload creative assets for ad campaigns | | ✅ | | | | ✅ | |
-| Launch campaigns across ad platforms | | ✅ | | | | ✅ | |
-| Pause & resume a campaign | | ✅ | | | | ✅ | |
-| Pause or remove Google Ads keywords | | ✅ | | | | ✅ | |
-| View live campaign & keyword performance metrics | | ✅ | | | | ✅ | |
-| Track campaign creation job status | | ✅ | | | | ✅ | |
+| | *Owner* | *Campaign Manager* | Writer | Mentorship Program Admin | Auditor | Meeting Coordinator | Executive Director | *Everyone* |
+|---|---|---|---|---|---|---|---|---|
+| View project details & meeting count | ✅ | | ✅ | | ✅ | ✅ | ✅ | 🟡 |
+| View project links & folders | ✅ | | ✅ | | ✅ | ✅ | ✅ | 🟡 |
+| View project documents | ✅ | | ✅ | | ✅ | ✅ | ✅ | 🟡 |
+| View project settings | ✅ | | ✅ | | ✅ | | ✅ | |
+| View formation checklist & activity feed | ✅ | | ✅ | | ✅ | | | |
+| Update formation checklist items | ✅ | | ✅ | | | | | |
+| Create & update a project | ✅ | | ✅ | | | | | |
+| Manage project links, folders & documents | ✅ | | ✅ | | | | | |
+| Delete a project | ✅ | | | | | | | |
+| Create project committees & Groups.io services | ✅ | | ✅ | | | | | |
+| Create & manage mentorship programs | | | | ✅ | | | | |
+| Create a vote poll | ✅ | | ✅ | | | | | |
+| Create meetings & past meetings | ✅ | | ✅ | | | ✅ | | |
+| Connect & manage ad platform accounts | | ✅ | | | | | ✅ | |
+| Test & rotate ad platform credentials | | ✅ | | | | | ✅ | |
+| Create & manage campaign briefs | | ✅ | | | | | ✅ | |
+| Approve a brief for campaign creation | | ✅ | | | | | ✅ | |
+| Manage brief target audiences | | ✅ | | | | | ✅ | |
+| Prefill a brief from an event URL | | ✅ | | | | | ✅ | |
+| Generate AI-written email copy for a brief | | ✅ | | | | | ✅ | |
+| Upload creative assets for ad campaigns | | ✅ | | | | | ✅ | |
+| Launch campaigns across ad platforms | | ✅ | | | | | ✅ | |
+| Pause & resume a campaign | | ✅ | | | | | ✅ | |
+| Pause or remove Google Ads keywords | | ✅ | | | | | ✅ | |
+| View live campaign & keyword performance metrics | | ✅ | | | | | ✅ | |
+| Track campaign creation job status | | ✅ | | | | | ✅ | |
 
 #### Permission Inheritance
 
