@@ -26,8 +26,11 @@ tuples:
     relation: member
     object: mentorship_approver_team:global
   - user: mentorship_approver_team:global#member
-    relation: global_mentorship_approver
-    object: project:lfx
+    relation: auditor
+    object: mentorship_program:go-2026
+  - user: mentorship_approver_team:global#member
+    relation: auditor
+    object: mentorship_program:rust-2026
   - user: team:global-writer#member
     relation: global_writer
     object: project:lfx

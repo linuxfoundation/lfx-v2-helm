@@ -80,7 +80,7 @@ grant assignment.
 #### Permission Inheritance
 
 - **Writer**: inherited from Project Writer, project mentorship_program_admin
-- **Auditor**: inherited from project Auditor, Project global mentorship approver team
+- **Auditor**: inherited from project Auditor, approver team membership
 
 ---
 

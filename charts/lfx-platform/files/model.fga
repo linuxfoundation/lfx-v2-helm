@@ -57,8 +57,6 @@ type project
     # writer and auditor have. The cascade is asserted in tests/model.fga.yaml.
     # @fgadoc:hide
     define global_marketing_ops: [team#member]
-    # @fgadoc:hide
-    define global_mentorship_approver: [mentorship_approver_team#member]
     # `[team#member]` and `or owner from parent` can both be removed once all
     # global teams have been rolled out to `global_owner`. Sequence the
     # `global_owner` backfill before or atomically with dropping them, so
@@ -167,7 +165,7 @@ type mentorship_program
     define writer: [user] or writer_guard from project or mentorship_program_admin from project
     define mentor: [user]
     define manager: writer or mentor
-    define auditor: [user] or global_mentorship_approver from project or writer or auditor_guard from project
+    define auditor: [user, mentorship_approver_team#member] or writer or auditor_guard from project
     define viewer: [user:*] or auditor
 
 type mentorship_application
