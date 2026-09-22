@@ -137,6 +137,7 @@ tests:
       - user: user:priya
         object: mentorship_program:go-2026
         assertions:
+          approver: true
           auditor: true
           viewer: true
       - user: user:priya
@@ -199,12 +200,20 @@ tests:
           manager: false
           reviewer: false
           writer: false
-          auditor: true
+          auditor: false
       - user: team:global-auditor#member
         object: mentorship_task:task-mia-1
         assertions:
           manager: false
-          auditor: true
+          auditor: false
+      - user: user:priya
+        object: mentorship_application:app-mia
+        assertions:
+          auditor: false
+      - user: user:priya
+        object: mentorship_task:task-mia-1
+        assertions:
+          auditor: false
 
   - name: project-scoped access does not leak across projects
     check:

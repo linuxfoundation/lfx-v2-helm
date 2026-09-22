@@ -176,6 +176,7 @@ tests:
       - user: user:priya
         object: mentorship_program:go-2026
         assertions:
+          approver: true
           auditor: true
           viewer: true
       - user: user:priya
@@ -183,6 +184,14 @@ tests:
         assertions:
           auditor: true
           viewer: true
+      - user: user:priya
+        object: mentorship_application:app-mia
+        assertions:
+          auditor: false
+      - user: user:priya
+        object: mentorship_task:task-mia-1
+        assertions:
+          auditor: false
       - user: user:carla
         object: mentorship_approver_team:global
         assertions:
