@@ -83,7 +83,6 @@ type project
     # @fgadoc:jtbd Update formation checklist items
     define writer: [user] or owner or writer from parent
     define mentorship_program_admin: [user]
-    # @fgadoc:jtbd Create & manage mentorship programs
     define mentorship_program_creator: writer_guard or mentorship_program_admin
     # @fgadoc:jtbd View project settings
     # @fgadoc:jtbd View formation checklist & activity feed
