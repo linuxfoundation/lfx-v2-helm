@@ -36,7 +36,7 @@ grant assignment.
 | Manage project links, folders & documents | ✅ | | ✅ | | | | | |
 | Delete a project | ✅ | | | | | | | |
 | Create project committees & Groups.io services | ✅ | | ✅ | | | | | |
-| Create & manage mentorship programs | | | | ✅ | | | | |
+| Create & manage mentorship programs | ✅ | | ✅ | ✅ | | | | |
 | Create a vote poll | ✅ | | ✅ | | | | | |
 | Create meetings & past meetings | ✅ | | ✅ | | | ✅ | | |
 | Connect & manage ad platform accounts | | ✅ | | | | | ✅ | |

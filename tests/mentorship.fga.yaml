@@ -127,6 +127,10 @@ tests:
         assertions:
           assignee: true
           auditor: true
+      - user: user:zoe
+        object: mentorship_application:app-zoe
+        assertions:
+          auditor: false
 
   - name: approver team members and program admins are auditors for mentorship programs
     check:

@@ -145,6 +145,10 @@ tests:
         assertions:
           assignee: true
           auditor: true
+      - user: user:zoe
+        object: mentorship_application:app-zoe
+        assertions:
+          auditor: false
 
   - name: program admin and mentor can view tasks through inheritance
     check:
