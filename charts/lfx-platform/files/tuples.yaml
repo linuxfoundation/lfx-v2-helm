@@ -21,13 +21,16 @@
   object: mentorship_approver_team:global
 - user: mentorship_approver_team:global#member
   relation: global_mentorship_approver
-  object: mentorship_program:go-2026
+  object: project:lfx
 - user: project:lfx
   relation: project
   object: mentorship_program:go-2026
 - user: project:lfx
   relation: project
   object: mentorship_program:rust-2026
+- user: project:cncf
+  relation: project
+  object: mentorship_program:k8s-2026
 - user: mentorship_program:go-2026
   relation: mentorship_program
   object: mentorship_application:app-mia

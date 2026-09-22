@@ -14,9 +14,6 @@ DISABLE_LINTERS:
   # Repository-wide link checking returns mostly false positives (like internal
   # service URLs in templates).
   - SPELL_LYCHEE
-  # Vale is intentionally non-blocking for repository docs; it generates large
-  # numbers of style suggestions that are not actionable for this chart repo.
-  - SPELL_VALE
   # yamllint is sufficient for us.
   - YAML_PRETTIER
   # No lockfiles, manifests, or SBOMs in this repo for osv-scanner to scan.
@@ -26,6 +23,9 @@ DISABLE_LINTERS:
   # Deprecated in v9 (repo archived).
   - TERRAFORM_TERRASCAN
 DISABLE_ERRORS_LINTERS:
+  # Vale is intentionally non-blocking for repository docs; it generates large
+  # numbers of style suggestions that are not actionable for this chart repo.
+  - SPELL_VALE
   # Include grammar checks only as warnings.
   - SPELL_PROSELINT
   # This may be informative but doesn't need to break the build.

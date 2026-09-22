@@ -165,6 +165,11 @@ tests:
         assertions:
           auditor: true
           viewer: true
+      - user: user:priya
+        object: mentorship_program:rust-2026
+        assertions:
+          auditor: true
+          viewer: true
       - user: user:carla
         object: mentorship_approver_team:global
         assertions:
@@ -194,7 +199,7 @@ tests:
         assertions:
           reviewer: true
 
-  - name: project A access does not leak to another project
+  - name: project-scoped access does not leak across projects
     check:
       - user: user:frank
         object: mentorship_program:rust-2026
@@ -205,6 +210,23 @@ tests:
         object: mentorship_program:rust-2026
         assertions:
           manager: false
+      - user: user:aisha
+        object: mentorship_program:k8s-2026
+        assertions:
+          writer: false
+          manager: false
+          auditor: false
+      - user: user:carla
+        object: mentorship_program:k8s-2026
+        assertions:
+          writer: false
+          manager: false
+          auditor: false
+      - user: user:priya
+        object: mentorship_program:k8s-2026
+        assertions:
+          auditor: false
+          viewer: false
 
   - name: published wildcard is visible while unpublished programs are not
     check:
