@@ -271,17 +271,19 @@ provision or change a global tuple through them.
    service/namespace), the environment's root project ID, and the relation
    you are provisioning — `auditor` for a global-auditor team (the registry
    rows for `lf-staff` / `lf-contractor`), `marketing_ops` for the Marketing
-   Ops team. Steps 2–3 write and read `RELATION`; step 4 checks the
-   *dependent* `CASCADE_RELATION` on a sub-project — pick both here so you
-   cannot write one relation and verify another:
+   Ops team, `owner` for the formation team. Steps 2–3 write and read
+   `RELATION`; step 4 checks the *dependent* `CASCADE_RELATION` on a
+   sub-project — pick both here so you cannot write one relation and verify
+   another:
    ```bash
    # Run from an lfx-v2-argocd checkout — the values files live there, not in
    # this repo.
    ROOT_PROJECT_ID=$(yq -r '.app.rootProjectId' values/<env>/lfid-management.yaml)
-   RELATION=auditor            # or marketing_ops
+   RELATION=auditor            # or marketing_ops, or owner
    CASCADE_RELATION=auditor    # what step 4 checks on a sub-project:
                                #   auditor       -> auditor (via `auditor from parent`)
                                #   marketing_ops -> marketing_auditor
+                               #   owner         -> writer_guard (owner -> writer -> writer_guard)
    ```
 2. Write the tuple:
    ```bash
