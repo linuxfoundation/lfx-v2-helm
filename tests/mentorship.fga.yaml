@@ -148,6 +148,7 @@ tests:
       - user: user:carla
         object: mentorship_program:go-2026
         assertions:
+          approver: false
           auditor: true
           viewer: true
 

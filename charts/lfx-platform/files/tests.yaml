@@ -199,6 +199,7 @@ tests:
       - user: user:carla
         object: mentorship_program:go-2026
         assertions:
+          approver: false
           auditor: true
       - user: user:aisha
         object: mentorship_approver_team:global
@@ -207,6 +208,7 @@ tests:
       - user: user:aisha
         object: mentorship_program:go-2026
         assertions:
+          approver: false
           auditor: true
 
   - name: applicant is not a reviewer even though they can view their application
