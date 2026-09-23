@@ -61,6 +61,43 @@ grant assignment.
 
 ---
 
+### Mentorship Approver Team
+
+| | Member |
+|---|---|
+
+#### Permission Inheritance
+
+- **Member**: direct team membership only
+
+---
+
+### Mentorship Program
+
+| | Writer | Mentor | Auditor | *Everyone* |
+|---|---|---|---|---|
+
+#### Permission Inheritance
+
+- **Writer**: inherited from Project Writer, project mentorship_program_admin
+- **Auditor**: inherited from project Auditor, approver team membership
+
+---
+
+### Mentorship Application
+
+| | Mentee |
+|---|---|
+
+---
+
+### Mentorship Task
+
+| | Assignee |
+|---|---|
+
+---
+
 ### Committee
 
 | | Writer | Auditor | Member | *Everyone* |
