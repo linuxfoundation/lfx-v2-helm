@@ -1,0 +1,264 @@
+# Copyright The Linux Foundation and each contributor to LFX.
+# SPDX-License-Identifier: MIT
+
+name: Mentorship Authorization Model Tests (post arch-review)
+model_file: model.fga
+tuple_file: tuples.yaml
+
+tests:
+  - name: project-level program creation — cross-program admin or writer only
+    check:
+      - user: user:carla
+        object: project:lfx
+        assertions:
+          mentorship_program_creator: true
+      - user: user:aisha
+        object: project:lfx
+        assertions:
+          mentorship_program_creator: true
+      - user: user:miguel
+        object: project:lfx
+        assertions:
+          mentorship_program_creator: false
+
+  - name: project writer has full inherited program control
+    check:
+      - user: user:aisha
+        object: mentorship_program:go-2026
+        assertions:
+          writer: true
+          manager: true
+          auditor: true
+          viewer: true
+      - user: user:aisha
+        object: mentorship_application:app-mia
+        assertions:
+          manager: true
+          reviewer: true
+          auditor: true
+          writer: true
+      - user: user:aisha
+        object: mentorship_task:task-mia-1
+        assertions:
+          manager: true
+          auditor: true
+
+  - name: cross-program project admin manages every program in the project
+    check:
+      - user: user:carla
+        object: mentorship_program:go-2026
+        assertions:
+          writer: true
+          manager: true
+      - user: user:carla
+        object: mentorship_program:rust-2026
+        assertions:
+          writer: true
+          manager: true
+
+  - name: per-program admins are scoped to their own program
+    check:
+      - user: user:frank
+        object: mentorship_program:go-2026
+        assertions:
+          writer: true
+          manager: true
+      - user: user:frank
+        object: mentorship_program:rust-2026
+        assertions:
+          writer: false
+          manager: false
+      - user: user:derek
+        object: mentorship_program:rust-2026
+        assertions:
+          writer: true
+          manager: true
+      - user: user:derek
+        object: mentorship_program:go-2026
+        assertions:
+          writer: false
+          manager: false
+
+  - name: mentor can manage program applications and tasks but not program administration
+    check:
+      - user: user:miguel
+        object: mentorship_program:go-2026
+        assertions:
+          mentor: true
+          manager: true
+          writer: false
+      - user: user:miguel
+        object: mentorship_program:rust-2026
+        assertions:
+          manager: false
+      - user: user:miguel
+        object: mentorship_application:app-mia
+        assertions:
+          reviewer: true
+          manager: false
+      - user: user:miguel
+        object: mentorship_task:task-mia-1
+        assertions:
+          manager: true
+          auditor: true
+
+  - name: mentee can view only their own application
+    check:
+      - user: user:mia
+        object: mentorship_application:app-mia
+        assertions:
+          mentee: true
+          writer: true
+          auditor: true
+      - user: user:mia
+        object: mentorship_application:app-noah
+        assertions:
+          auditor: false
+
+  - name: only application managers decide applications
+    check:
+      - user: user:frank
+        object: mentorship_application:app-mia
+        assertions:
+          manager: true
+          reviewer: true
+      - user: user:miguel
+        object: mentorship_application:app-mia
+        assertions:
+          manager: false
+          reviewer: true
+
+  - name: task assignee can view and access their own task
+    check:
+      - user: user:mia
+        object: mentorship_task:task-mia-1
+        assertions:
+          assignee: true
+          auditor: true
+      - user: user:noah
+        object: mentorship_task:task-mia-1
+        assertions:
+          assignee: false
+          auditor: false
+      - user: user:zoe
+        object: mentorship_task:task-zoe-1
+        assertions:
+          assignee: true
+          auditor: true
+      - user: user:zoe
+        object: mentorship_application:app-zoe
+        assertions:
+          auditor: false
+
+  - name: program admin and mentor can view tasks through inheritance
+    check:
+      - user: user:frank
+        object: mentorship_task:task-mia-1
+        assertions:
+          manager: true
+          auditor: true
+      - user: user:miguel
+        object: mentorship_task:task-mia-1
+        assertions:
+          manager: true
+          auditor: true
+
+  - name: approval is a global team membership check
+    check:
+      - user: team:global-writer#member
+        object: project:lfx
+        assertions:
+          mentorship_program_creator: true
+      - user: user:priya
+        object: mentorship_approver_team:global
+        assertions:
+          member: true
+      - user: user:priya
+        object: mentorship_program:go-2026
+        assertions:
+          approver: true
+          auditor: true
+          viewer: true
+      - user: user:priya
+        object: mentorship_program:rust-2026
+        assertions:
+          auditor: true
+          viewer: true
+      - user: user:priya
+        object: mentorship_application:app-mia
+        assertions:
+          auditor: false
+      - user: user:priya
+        object: mentorship_task:task-mia-1
+        assertions:
+          auditor: false
+      - user: user:carla
+        object: mentorship_approver_team:global
+        assertions:
+          member: false
+      - user: user:carla
+        object: mentorship_program:go-2026
+        assertions:
+          approver: false
+          auditor: true
+      - user: user:aisha
+        object: mentorship_approver_team:global
+        assertions:
+          member: false
+      - user: user:aisha
+        object: mentorship_program:go-2026
+        assertions:
+          approver: false
+          auditor: true
+
+  - name: applicant is not a reviewer even though they can view their application
+    check:
+      - user: user:mia
+        object: mentorship_application:app-mia
+        assertions:
+          auditor: true
+          reviewer: false
+      - user: user:miguel
+        object: mentorship_application:app-mia
+        assertions:
+          reviewer: true
+
+  - name: project-scoped access does not leak across projects
+    check:
+      - user: user:frank
+        object: mentorship_program:rust-2026
+        assertions:
+          writer: false
+          manager: false
+      - user: user:miguel
+        object: mentorship_program:rust-2026
+        assertions:
+          manager: false
+      - user: user:aisha
+        object: mentorship_program:k8s-2026
+        assertions:
+          writer: false
+          manager: false
+          auditor: false
+      - user: user:carla
+        object: mentorship_program:k8s-2026
+        assertions:
+          writer: false
+          manager: false
+          auditor: false
+      - user: user:priya
+        object: mentorship_program:k8s-2026
+        assertions:
+          auditor: false
+          viewer: false
+
+  - name: published wildcard is visible while unpublished programs are not
+    check:
+      - user: user:noah
+        object: mentorship_program:go-2026
+        assertions:
+          viewer: true
+      - user: user:noah
+        object: mentorship_program:rust-2026
+        assertions:
+          viewer: false
