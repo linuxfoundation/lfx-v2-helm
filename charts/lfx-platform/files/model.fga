@@ -531,3 +531,19 @@ type crowdfunding_initiative
     define owner: [user]
     define writer: owner or writer from project or writer from b2b_org
     define viewer: [user:*] or writer
+
+# @fgadoc:alias Project Application
+# Exists before any project, so it has no parent and nothing cascades. Private:
+# viewer carries no public wildcard. Create is gated at the gateway on the UI
+# service identity's team membership, because no object exists yet to check.
+# Hide from PERMISSIONS.md until the RuleSets referencing these relations are
+# deployed; @fgadoc:jtbd lines must never be hand-authored ahead of a RuleSet.
+# @fgadoc:hide
+type project_application
+  relations
+    define formation_team: [team#member]
+    # Written by the service from the stored payload; the applicant never calls
+    # the API, so nothing attests it at create time.
+    define submitter: [user]
+    define viewer: submitter or formation_team
+    define writer: submitter or formation_team
