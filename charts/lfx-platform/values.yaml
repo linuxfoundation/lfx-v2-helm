@@ -335,7 +335,7 @@ heimdall:
         type: generic
         config:
           endpoint:
-            url: http://lfx-api.k8s.orb.local/v1/initiatives/slug-to-uid/{{ .Values.slug }}
+            url: http://lfx-api.k8s.orb.local/crowdfunding/initiatives/slug-to-uid/{{ .Values.slug }}
             method: GET
           forward_headers:
             - Authorization
