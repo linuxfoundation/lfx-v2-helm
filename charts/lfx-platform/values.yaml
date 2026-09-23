@@ -152,7 +152,13 @@ gateway:
 # cluster per-service charts' "database" mode targets. The operator and
 # CRDs themselves come from a separate chart -- see charts/lfx-crds and
 # docs/platform-chart.md for install order. Deployed environments
-# (dev/staging/prod) set this to false and use external RDS instead.
+# (dev/staging/prod) set this to false, but that alone only suppresses the
+# Cluster resource -- OpenFGA's extraObjects/extraEnvVars below still
+# default to the CNPG Database CR and its generated secret, so deployed
+# environments also replace openfga.datastore, openfga.extraEnvVars, and
+# openfga.extraObjects with the external RDS wiring (see
+# docs/platform-chart.md:93-95 and lfx-v2-argocd's
+# values/global/lfx-platform.yaml for the exact overrides).
 cloudNativePG:
   enabled: true
   cluster:
