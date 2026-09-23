@@ -5,7 +5,10 @@ resource APIs for the LFX platform.
 
 ## Prerequisites
 
-- Kubernetes 1.19+
+- Kubernetes 1.29+ for the default local installation (propagated from the
+  `charts/lfx-crds` CloudNativePG operator dependency). Kubernetes 1.19+ is
+  sufficient only when `cloudNativePG.enabled=false` and `lfx-crds` is not
+  installed.
 - Helm 3.2.0+
 - PV provisioner support in the underlying infrastructure (if persistence is
   enabled)
@@ -23,7 +26,12 @@ kubectl create namespace lfx
 > operator and its CRDs, installed first from the separate `charts/lfx-crds`
 > chart -- see each install method below. Deployed environments
 > (dev/staging/prod) do not install `lfx-crds`; they set
-> `cloudNativePG.enabled: false` instead.
+> `cloudNativePG.enabled: false` and `openfga.extraObjects: []` instead --
+> the latter is required too, since OpenFGA's chart-default `extraObjects`
+> still renders a CloudNativePG `Database` custom resource with no
+> corresponding CRD once the operator is absent. See
+> `lfx-v2-argocd`'s `values/global/lfx-platform.yaml` for the exact override
+> deployed environments use.
 
 ### Installing via the OCI registry
 
