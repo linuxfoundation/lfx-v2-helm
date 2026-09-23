@@ -24,12 +24,14 @@ grant assignment.
 
 ### Project
 
-| | *Owner* | *Marketing Ops* | Writer | Auditor | Meeting Coordinator | Executive Director | *Everyone* |
+| | *Owner* | *Campaign Manager* | Writer | Auditor | Meeting Coordinator | Executive Director | *Everyone* |
 |---|---|---|---|---|---|---|---|
 | View project details & meeting count | ✅ | | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | View project links & folders | ✅ | | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | View project documents | ✅ | | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | View project settings | ✅ | | ✅ | ✅ | | ✅ | |
+| View formation checklist & activity feed | ✅ | | ✅ | ✅ | | | |
+| Update formation checklist items | ✅ | | ✅ | | | | |
 | Create & update a project | ✅ | | ✅ | | | | |
 | Manage project links, folders & documents | ✅ | | ✅ | | | | |
 | Delete a project | ✅ | | | | | | |
@@ -41,16 +43,58 @@ grant assignment.
 | Create & manage campaign briefs | | ✅ | | | | ✅ | |
 | Approve a brief for campaign creation | | ✅ | | | | ✅ | |
 | Manage brief target audiences | | ✅ | | | | ✅ | |
+| Prefill a brief from an event URL | | ✅ | | | | ✅ | |
+| Generate AI-written email copy for a brief | | ✅ | | | | ✅ | |
+| Upload creative assets for ad campaigns | | ✅ | | | | ✅ | |
 | Launch campaigns across ad platforms | | ✅ | | | | ✅ | |
 | Pause & resume a campaign | | ✅ | | | | ✅ | |
+| Pause or remove Google Ads keywords | | ✅ | | | | ✅ | |
+| View live campaign & keyword performance metrics | | ✅ | | | | ✅ | |
 | Track campaign creation job status | | ✅ | | | | ✅ | |
 
 #### Permission Inheritance
 
 - ***Owner***: inherited from parent Project, global Product Support Team, global Formation Team
-- ***Marketing Ops***: inherited from parent Project, global Marketing Ops Team
+- ***Campaign Manager***: inherited from global Marketing Ops Team
 - **Writer**: inherited from parent Project
-- **Auditor**: inherited from parent Project, global LF Staff Team, global LF Contractor Team
+- **Auditor**: inherited from parent Project, global LF Staff Team
+
+---
+
+### Mentorship Approver Team
+
+| | Member |
+|---|---|
+
+#### Permission Inheritance
+
+- **Member**: direct team membership only
+
+---
+
+### Mentorship Program
+
+| | Writer | Mentor | Auditor | *Everyone* |
+|---|---|---|---|---|
+
+#### Permission Inheritance
+
+- **Writer**: inherited from Project Writer, project mentorship_program_admin
+- **Auditor**: inherited from project Auditor, approver team membership
+
+---
+
+### Mentorship Application
+
+| | Mentee |
+|---|---|
+
+---
+
+### Mentorship Task
+
+| | Assignee |
+|---|---|
 
 ---
 
@@ -128,6 +172,7 @@ grant assignment.
 | View a meeting & join link | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | Submit a meeting RSVP & download attachments | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | View meeting registrants & RSVPs | ✅ | ✅ | ✅ | ✅ | 🟡 |
+| Register for a public meeting | ✅ | ✅ | ✅ | ✅ | 🟡 |
 | View a meeting registrant | ✅ | ✅ | | | |
 | Manage meeting registrants & invitations | ✅ | | | | |
 | Manage meeting attachments | ✅ | | | | |
@@ -213,10 +258,12 @@ grant assignment.
 | View org workspaces & workspace projects | ✅ | ✅ | ✅ |
 | Update org details & access settings | ✅ | ✅ | |
 | Manage membership committee seat assignments | ✅ | ✅ | |
+| Manage org workspaces & workspace projects | ✅ | ✅ | |
 
 #### Permission Inheritance
 
-- **Auditor**: inherited from parent B2B Organization, child B2B Organization, Project Membership Key Contact
+- **Writer**: inherited from parent B2B Organization, child B2B Organization
+- **Auditor**: inherited from parent B2B Organization, child B2B Organization, Project Membership Key Contact, global LF Staff Team
 
 ---
 
