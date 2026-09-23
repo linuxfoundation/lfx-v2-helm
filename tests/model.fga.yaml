@@ -565,3 +565,65 @@ tests:
         object: b2b_org:unrelated-org
         assertions:
           writer: false
+
+  # Accept and deny guard on formation_team, so the submitter must never hold it.
+  - name: a project application is reachable only by its submitter and the formation team
+    tuples:
+      - user: user:applicant
+        relation: submitter
+        object: project_application:pa1
+      - user: team:review-team#member
+        relation: formation_team
+        object: project_application:pa1
+      - user: user:reviewer
+        relation: member
+        object: team:review-team
+      - user: user:intake-client@clients
+        relation: member
+        object: team:intake-team
+      - user: user:project-writer
+        relation: writer
+        object: project:parent
+    check:
+      - user: user:applicant
+        object: project_application:pa1
+        assertions:
+          viewer: true
+          writer: true
+          formation_team: false
+      - user: user:reviewer
+        object: project_application:pa1
+        assertions:
+          viewer: true
+          writer: true
+          formation_team: true
+      # The creating service holds no grant on the application it created.
+      - user: user:intake-client@clients
+        object: project_application:pa1
+        assertions:
+          viewer: false
+          writer: false
+          formation_team: false
+      - user: user:project-writer
+        object: project_application:pa1
+        assertions:
+          viewer: false
+          writer: false
+          formation_team: false
+      - user: user:applicant
+        object: project_application:pa2
+        assertions:
+          viewer: false
+          writer: false
+    list_users:
+      - object: project_application:pa1
+        user_filter:
+          - type: user
+        assertions:
+          viewer:
+            users:
+              - user:applicant
+              - user:reviewer
+          formation_team:
+            users:
+              - user:reviewer
