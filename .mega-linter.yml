@@ -45,3 +45,13 @@ SPELL_VALE_PRE_COMMANDS:
 FILTER_REGEX_EXCLUDE: '(templates/.*\.yml|templates/.*\.yaml)'
 KUBERNETES_DIRECTORY: charts/lfx-platform
 KUBERNETES_HELM_ARGUMENTS: charts/lfx-platform
+# helm lint only accepts a single chart PATH per invocation, so a second
+# chart (charts/lfx-crds) can't be added to KUBERNETES_HELM_ARGUMENTS above
+# -- lint it as an explicit pre-command instead. The workflow's own "Helm
+# dependency fetch" step already runs `helm dependency build` for every
+# charts/* directory with a Chart.lock before MegaLinter starts, so
+# charts/lfx-crds's dependency is already vendored by the time this runs.
+KUBERNETES_HELM_PRE_COMMANDS:
+  - command: "helm lint charts/lfx-crds"
+    cwd: "workspace"
+    continue_if_failed: false

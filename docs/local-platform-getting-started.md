@@ -28,6 +28,15 @@ Subcharts in `charts/lfx-platform/`:
 
 ```bash
 kubectl create namespace lfx
+
+# First: the CloudNativePG operator + CRDs, from the separate lfx-crds
+# chart. lfx-platform's own CloudNativePG Cluster resource
+# (cloudNativePG.enabled, default true) assumes the operator already
+# exists. --wait ensures the operator Deployment (and its admission
+# webhooks) is ready before the lfx-platform install below.
+helm dependency update charts/lfx-crds
+helm install -n lfx lfx-crds ./charts/lfx-crds --wait
+
 helm dependency update charts/lfx-platform
 cp charts/lfx-platform/values.local.example.yaml charts/lfx-platform/values.local.yaml
 # fill in local secret values per the chart README and the team 1Password vault
