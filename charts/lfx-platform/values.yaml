@@ -318,6 +318,28 @@ heimdall:
           forward_headers:
             - Authorization
           continue_pipeline_on_error: false
+      # Resolves a crowdfunding initiative slug to its UID via the equivalent
+      # endpoint exposed by lfx-crowdfunding-backend, for the same reason and
+      # under the same constraints as project_slug_resolver_contextualizer
+      # above (lfx-crowdfunding#278): lfx-self-serve receives initiative slugs
+      # on the wire, while crowdfunding_initiative OpenFGA tuples are keyed on
+      # initiative UID.
+      #
+      # The endpoint MUST be the shared lfx-api Gateway hostname, not
+      # lfx-crowdfunding-backend's ClusterIP or its own crowdfunding-api.*
+      # ingress — lfx-crowdfunding-backend's Heimdall HTTPRoute is parented
+      # to the shared Gateway under the lfx-api.{domain} hostname (same as
+      # project-service's), so that is the only hostname Heimdall can
+      # reach this path on.
+      - id: crowdfunding_slug_resolver_contextualizer
+        type: generic
+        config:
+          endpoint:
+            url: http://lfx-api.k8s.orb.local/crowdfunding/initiatives/slug-to-uid/{{ .Values.slug }}
+            method: GET
+          forward_headers:
+            - Authorization
+          continue_pipeline_on_error: false
     authorizers:
       - id: allow_all
         type: allow
