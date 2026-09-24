@@ -724,7 +724,11 @@ trust-manager:
   namespace: cert-manager
 
 lfx-v2-fga-sync:
-  replicaCount: 1
+  # lfx-v2-fga-sync's deployment template reads application.replicas, not
+  # the generic replicaCount key — see charts/lfx-v2-fga-sync/templates/deployment.yaml
+  # in that repo.
+  application:
+    replicas: 1
   enabled: true
   lfx:
     domain: k8s.orb.local
@@ -740,7 +744,11 @@ lfx-v2-access-check:
     reloader.stakater.com/auto: "true"
 
 lfx-v2-indexer-service:
-  replicaCount: 1
+  # lfx-v2-indexer-service's deployment template reads app.replicas, not
+  # the generic replicaCount key — see charts/lfx-v2-indexer-service/templates/deployment.yaml
+  # in that repo.
+  app:
+    replicas: 1
   enabled: true
   lfx:
     domain: k8s.orb.local
