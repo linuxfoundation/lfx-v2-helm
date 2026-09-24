@@ -125,6 +125,12 @@ tests:
           owner: true
           writer_guard: true
           auditor_guard: true
+      - user: user:teamster
+        object: project:child
+        assertions:
+          owner: false
+          writer_guard: true
+          auditor_guard: true
       - user: user:legacy
         object: project:parent
         assertions:
@@ -176,18 +182,37 @@ tests:
         assertions:
           writer_guard: false
 
-  # Ownership reaches the child through the "owner from parent" fallback, which
-  # the migration removes at the end. That makes the `owner` cascade itself
-  # transitional — but only that. The write and read access ownership confers
-  # keeps reaching the child afterwards, because `owner` feeds `writer` and a
-  # direct `writer` grant is deliberately allowed to cascade — which is why the
-  # write and read guards are checked here alongside `owner`. Those two are the
-  # half that survives dropping the fallback.
-  - name: ownership reaches the child while its parent fallback remains
+  # A global ownership grant applies only to the project that carries it. The
+  # write and read access ownership confers still reach a child because `owner`
+  # feeds `writer`, and a direct `writer` grant is deliberately allowed to
+  # cascade.
+  - name: global ownership itself stays on its granted project
     tuples:
       - user: team:global-team#member
         relation: global_owner
         object: project:parent
+    check:
+      - user: user:teamster
+        object: project:parent
+        assertions:
+          owner: true
+          writer_guard: true
+          auditor_guard: true
+      - user: user:teamster
+        object: project:child
+        assertions:
+          owner: false
+          writer_guard: true
+          auditor_guard: true
+
+  - name: per-project global ownership grants owner on each project
+    tuples:
+      - user: team:global-team#member
+        relation: global_owner
+        object: project:parent
+      - user: team:global-team#member
+        relation: global_owner
+        object: project:child
     check:
       - user: user:teamster
         objects:
@@ -195,17 +220,15 @@ tests:
           - project:child
         assertions:
           owner: true
-          writer_guard: true
-          auditor_guard: true
 
   # The marketing counterpart also reaches the child, but for a different reason
   # and with a different lifetime.
   #
   # global_marketing_ops carries no "from parent" itself. It reaches descendants
   # because it composes into marketing_auditor, and marketing_auditor cascades
-  # in its own right. Unlike the ownership fallback above, that cascade is not
-  # part of the migration and is not scheduled for removal, so this behavior is
-  # permanent rather than a rollout window.
+  # in its own right. Marketing read continues to cascade after ownership stops
+  # cascading and is not scheduled for removal, so this behavior is permanent
+  # rather than a rollout window.
   #
   # It also is not new: marketing_ops already cascades today, and the comment on
   # campaign_manager in model.fga records that a marketing_ops grant high in the
