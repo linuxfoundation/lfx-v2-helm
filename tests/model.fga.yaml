@@ -38,6 +38,11 @@ tuples:
     relation: member
     object: team:marketing-team
 
+  # Used only by the transitional test that guards the drop ordering.
+  - user: user:legacy
+    relation: member
+    object: team:legacy-team
+
   - user: project:parent
     relation: parent
     object: project:child
@@ -83,6 +88,55 @@ tuples:
     object: committee:c2
 
 tests:
+  # The one test that asserts the state BEFORE the migration ends rather than
+  # after it, and the only place the fixture's "no root-level tuples" note does
+  # not apply.
+  #
+  # The root team grants the migration removes are possible only because `owner`
+  # and `auditor` still accept `[team#member]` directly. Both restrictions are
+  # transitional and come out in the migration's last release, and the order in
+  # which that happens is not free.
+  #
+  # Dropping a type restriction does not delete the tuples written under it. Run
+  # on 2026-09-21 against a throwaway OpenFGA instance: after the restriction was
+  # removed the tuple was still in the store, the check returned false, the same
+  # check against the retained earlier model version still returned true, and
+  # writing a fresh team tuple was refused as a validation error. Stranded, not
+  # removed — the access disappears with nothing in the store to account for it,
+  # so the root grants must be removed first and the restrictions dropped after.
+  #
+  # The two tuples below are the tripwire. If either restriction is dropped while
+  # this test still carries them, they stop validating and the whole file fails
+  # to load before a single check runs. That failure is the intended signal, not
+  # a broken test: remove the root grants first, then drop the restrictions, then
+  # delete this test along with the legacy-team fixture it uses.
+  - name: direct team grants on owner and auditor still validate and still confer access
+    tuples:
+      - user: team:global-team#member
+        relation: owner
+        object: project:parent
+      - user: team:legacy-team#member
+        relation: auditor
+        object: project:parent
+    check:
+      - user: user:teamster
+        object: project:parent
+        assertions:
+          owner: true
+          writer_guard: true
+          auditor_guard: true
+      - user: user:teamster
+        object: project:child
+        assertions:
+          owner: false
+          writer_guard: true
+          auditor_guard: true
+      - user: user:legacy
+        object: project:parent
+        assertions:
+          auditor_guard: true
+          writer_guard: false
+
   # The capability this whole shape exists to create.
   - name: a global read grant on a parent confers nothing on a child
     tuples:
@@ -128,18 +182,37 @@ tests:
         assertions:
           writer_guard: false
 
-  # Ownership reaches the child through the "owner from parent" fallback, which
-  # the migration removes at the end. That makes the `owner` cascade itself
-  # transitional — but only that. The write and read access ownership confers
-  # keeps reaching the child afterwards, because `owner` feeds `writer` and a
-  # direct `writer` grant is deliberately allowed to cascade — which is why the
-  # write and read guards are checked here alongside `owner`. Those two are the
-  # half that survives dropping the fallback.
-  - name: ownership reaches the child while its parent fallback remains
+  # A global ownership grant applies only to the project that carries it. The
+  # write and read access ownership confers still reach a child because `owner`
+  # feeds `writer`, and a direct `writer` grant is deliberately allowed to
+  # cascade.
+  - name: global ownership itself stays on its granted project
     tuples:
       - user: team:global-team#member
         relation: global_owner
         object: project:parent
+    check:
+      - user: user:teamster
+        object: project:parent
+        assertions:
+          owner: true
+          writer_guard: true
+          auditor_guard: true
+      - user: user:teamster
+        object: project:child
+        assertions:
+          owner: false
+          writer_guard: true
+          auditor_guard: true
+
+  - name: per-project global ownership grants owner on each project
+    tuples:
+      - user: team:global-team#member
+        relation: global_owner
+        object: project:parent
+      - user: team:global-team#member
+        relation: global_owner
+        object: project:child
     check:
       - user: user:teamster
         objects:
@@ -147,17 +220,15 @@ tests:
           - project:child
         assertions:
           owner: true
-          writer_guard: true
-          auditor_guard: true
 
   # The marketing counterpart also reaches the child, but for a different reason
   # and with a different lifetime.
   #
   # global_marketing_ops carries no "from parent" itself. It reaches descendants
   # because it composes into marketing_auditor, and marketing_auditor cascades
-  # in its own right. Unlike the ownership fallback above, that cascade is not
-  # part of the migration and is not scheduled for removal, so this behavior is
-  # permanent rather than a rollout window.
+  # in its own right. Marketing read continues to cascade after ownership stops
+  # cascading and is not scheduled for removal, so this behavior is permanent
+  # rather than a rollout window.
   #
   # It also is not new: marketing_ops already cascades today, and the comment on
   # campaign_manager in model.fga records that a marketing_ops grant high in the

@@ -318,7 +318,11 @@ provision or change a global tuple through them.
      --consistency HIGHER_CONSISTENCY \
      "user:<a-team-member>" "$CASCADE_RELATION" "project:<any-sub-project>"
    ```
-   A successful check (returned `"allowed": true`) confirms that the cascade behaves as expected. Note that the CLI always exits with code 0 even when `allowed: false`, so you must inspect the response body to verify success.
+   A successful check (returned `"allowed": true`) confirms that the cascade behaves as expected. A ROOT
+   `owner` tuple no longer grants `owner` on a sub-project; its cascading
+   `writer` independently satisfies `writer_guard` and, through `auditor`,
+   `auditor_guard`. Note that the CLI always exits with code 0 even when
+   `allowed: false`, so you must inspect the response body to verify success.
 5. Record what you wrote in the table below, in the same PR/change that
    requested it, so this stays the source of truth for "what global tuples
    exist in which environment."
@@ -330,7 +334,7 @@ provision or change a global tuple through them.
 | `team:<marketing-ops-teamID>#member:marketing_ops:project:<rootProjectId>` | (unconfirmed) | Grants the LF Marketing Ops team `marketing_auditor`/`campaign_manager` on every project via cascade (LFXV2-2231) | _Not yet confirmed written to any environment as of 2026-08-17 — verify before relying on it; update this row once confirmed._ |
 | `team:lf-staff#member:auditor:project:<rootProjectId>` | dev, prod. **Not staging** (no team subjects on `project:4c540182-…#auditor`, verified 2026-09-15) | Global auditor population: cascades to every project (`auditor from parent`); read by the `sync-global-groups` reconciler, which grants `auditor` on every `b2b_org` (spec 044, LFXV2-3071) | Staff Support — dev 2026-06-22, prod 2026-05-04 |
 | `team:lf-contractor#member:auditor:project:<rootProjectId>` | dev, prod. **Not staging** (same check) | Same population rule. LFXV2-3071 ratified staff/contractor parity (a population, not a role), so this tuple is the source both the project cascade and the `b2b_org` reconciler derive contractor read access from | Staff Support — dev 2026-06-22, prod 2026-05-04 |
-| `team:formation#member:owner:project:<rootProjectId>` | dev, prod. The tuple itself reads back on both ROOT objects (step 3 above); separately, a team member checks `writer_guard` true on a random sample of prod projects, including ones in Formation sub-stages, while a control user is refused on the same objects (step 4 — effective access, which on its own would not establish the row) | `owner` cascades to every descendant (`owner from parent`), which is how the formation team satisfies the `writer_guard` half of `lfx-v2-formation-service`'s `set_item_status` gate ([`charts/lfx-v2-formation-service/templates/ruleset.yaml`](https://github.com/linuxfoundation/lfx-v2-formation-service/blob/main/charts/lfx-v2-formation-service/templates/ruleset.yaml), in that repository rather than this one). The other half is `member` on `team:formation`, checked with no resource in the object; both must pass, and that pair is what stops an assignee closing their own checklist item | Staff Support — dev 2026-06-22, prod 2026-05-04. Recovered from the tuples' own write timestamps rather than a record at the time; they match the two rows above exactly, so all three were written in the same passes. Membership of `team:formation` is a separate thing, maintained by the IT team outside this platform (it is absent from the `sync-global-groups` group map, which covers only `lf-staff` and `lf-contractor`) |
+| `team:<formation-team>#member:owner:project:<rootProjectId>` | Verify current state per environment with steps 3–4 before relying on this tuple. | The ROOT `owner` tuple no longer grants `owner` on descendants. Its cascading `writer` independently satisfies `writer_guard` and, through `auditor`, `auditor_guard`. The service gate also requires membership in the configured formation team. Per-project `global_owner` grants provide ownership itself. | Environment-specific provisioning history is intentionally omitted from this public repository. |
 
 ## Advanced Topics
 
