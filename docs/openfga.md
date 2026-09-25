@@ -247,10 +247,11 @@ effects: on the *project* plane it revokes the team's inherited access
 immediately (the `auditor from parent` cascade has nothing to cascade from);
 on the *organization* plane it only stops the reconciler's new per-org grants
 — member-service keeps emitting for a team until its chart value is cleared —
-and revokes nothing already written, because the reconciler is write-only and
-fga-sync preserves team subjects on relations not prefixed `global_`; these
-per-org grants use `auditor`. The per-org grants therefore outlive the ROOT
-tuple until the cleanup path below is run. Team *membership* tuples
+and revokes nothing already written, because the reconciler is write-only;
+older fga-sync releases preserve all team subjects, while relation-name
+reconciliation preserves only relations not prefixed `global_`; these per-org
+grants use `auditor`. The per-org grants therefore outlive the ROOT tuple until
+the cleanup path below is run. Team *membership* tuples
 — `user:<lfid>` subjects on a `team:` object — are a different thing: the
 `sync-global-groups` CronJob itself adds and removes them (`syncGroup`, a
 direct OpenFGA `/write`, not the fga-sync service — the Application name
