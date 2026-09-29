@@ -209,6 +209,59 @@ tests:
           writer_guard: false
           viewer: false
 
+  # The general form of the check above. A global relation reaches descendants
+  # only by composing into a relation that carries "from parent", so the read and
+  # write counterparts must stay out of every one of them — writer, auditor,
+  # marketing_ops and marketing_auditor, and owner while its parent fallback
+  # remains — and then no relation on the child can be reached. global_owner (through owner) and global_marketing_ops
+  # (through marketing_auditor) are the two exemptions, asserted above.
+  #
+  # The relation lists are explicit because the test runner cannot enumerate
+  # them. A new relation on the project type belongs in both lists.
+  - name: the read and write counterparts compose into no inheriting relation
+    tuples:
+      - user: team:global-team#member
+        relation: global_auditor
+        object: project:parent
+      - user: team:global-team#member
+        relation: global_writer
+        object: project:parent
+    check:
+      - user: user:teamster
+        object: project:parent
+        assertions:
+          owner: false
+          writer: false
+          auditor: false
+          marketing_ops: false
+          marketing_auditor: false
+      - user: user:teamster
+        object: project:child
+        assertions:
+          global_owner: false
+          global_writer: false
+          global_auditor: false
+          global_marketing_ops: false
+          owner: false
+          writer: false
+          mentorship_program_admin: false
+          mentorship_program_creator: false
+          auditor: false
+          writer_guard: false
+          auditor_guard: false
+          meeting_coordinator: false
+          meetings_creator: false
+          executive_director: false
+          marketing_ops: false
+          marketing_auditor: false
+          campaign_manager: false
+          viewer: false
+      - user: user:teamster
+        object: committee:c2
+        assertions:
+          writer: false
+          auditor: false
+
   # Why the derived relation and the child types are composed and re-pointed: a
   # global grant on one project, with no root tuple anywhere, must still reach
   # every derived relation and every inheriting type.
