@@ -216,7 +216,6 @@ type committee_application
     define committee: [committee]
     # The applicant relation identifies the user who submitted the application.
     define applicant: [user]
-    # @fgadoc:jtbd View a committee application
     define viewer: applicant or auditor from committee
 
 type committee_invite

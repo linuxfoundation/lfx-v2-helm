@@ -120,6 +120,17 @@ grant assignment.
 
 ---
 
+### Committee Application
+
+| | *Viewer* | Applicant |
+|---|---|---|
+
+#### Permission Inheritance
+
+- ***Viewer***: inherited from Committee Auditor
+
+---
+
 ### Committee Invite
 
 | | *Viewer* | Invitee |
