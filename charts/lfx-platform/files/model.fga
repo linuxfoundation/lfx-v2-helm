@@ -211,6 +211,14 @@ type committee
     define roster_viewer: [user:*] or auditor or member from committee_for_member_roster_access
     define email_viewer: auditor or member from committee_for_member_email_access
 
+type committee_application
+  relations
+    define committee: [committee]
+    # The applicant relation identifies the user who submitted the application.
+    define applicant: [user]
+    # @fgadoc:jtbd View a committee application
+    define viewer: applicant or auditor from committee
+
 type committee_invite
   relations
     define committee: [committee]
