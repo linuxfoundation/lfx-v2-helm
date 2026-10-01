@@ -724,7 +724,8 @@ trust-manager:
   namespace: cert-manager
 
 lfx-v2-fga-sync:
-  replicaCount: 1
+  application:
+    replicas: 1
   enabled: true
   lfx:
     domain: k8s.orb.local
@@ -740,7 +741,8 @@ lfx-v2-access-check:
     reloader.stakater.com/auto: "true"
 
 lfx-v2-indexer-service:
-  replicaCount: 1
+  app:
+    replicas: 1
   enabled: true
   lfx:
     domain: k8s.orb.local
