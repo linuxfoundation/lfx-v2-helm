@@ -14,17 +14,24 @@ This repository contains Helm charts for deploying the LFX v2 platform on Kubern
 ```text
 lfx-v2-helm/
 └── charts/
-    └── lfx-platform/       # Main LFX Platform chart
-        ├── templates/      # Kubernetes templates
-        ├── Chart.yaml      # Chart metadata
-        ├── values.yaml     # Default values
-        └── README.md       # Documentation
+    ├── lfx-platform/       # Main LFX Platform chart
+    │   ├── templates/      # Kubernetes templates
+    │   ├── Chart.yaml      # Chart metadata
+    │   ├── values.yaml     # Default values
+    │   └── README.md       # Documentation
+    └── lfx-crds/           # Operator/CRD-providing chart (local dev only)
+        ├── Chart.yaml
+        ├── values.yaml
+        └── README.md
 ```
 
 ## Installation
 
 See the [lfx-platform chart README](./charts/lfx-platform/README.md) for
-installation instructions.
+installation instructions. If your local cluster doesn't already have the
+CloudNativePG operator installed, install
+[`charts/lfx-crds`](./charts/lfx-crds/README.md) first -- see
+[`docs/platform-chart.md`](docs/platform-chart.md) for install order.
 
 ## Components
 
@@ -92,16 +99,22 @@ This repository automatically publishes Helm charts to GitHub Container Registry
 ### Creating a Release
 
 1. Merge pull requests that update chart manifests or configuration. Do not
-   manually bump the `version` field in `charts/lfx-platform/Chart.yaml` — the
-   release workflow sets the published chart version from the Git tag. Update
-   service subchart version constraints in `charts/lfx-platform/Chart.yaml` and
-   regenerate `charts/lfx-platform/Chart.lock` only when dependency pins change.
+   manually bump the `version` field in `charts/lfx-platform/Chart.yaml` (or
+   `charts/lfx-crds/Chart.yaml`) — the release workflow sets the published
+   chart version from the Git tag. Update service subchart version
+   constraints in `charts/lfx-platform/Chart.yaml` and regenerate
+   `charts/lfx-platform/Chart.lock` only when dependency pins change.
 2. After the pull request is merged, create a GitHub release and choose the
-   option for GitHub to also tag the repository. The tag must match the `v*`
-   pattern (e.g., `v0.3.36`); the release workflow only runs for pushed tags
-   matching `v*` (see `.github/workflows/release.yaml`). The tag determines
-   the chart version published to GHCR (e.g. tag `v0.3.36` publishes chart
-   version `0.3.36`).
+   option for GitHub to also tag the repository.
+   - For `charts/lfx-platform`, the tag must match the `v*` pattern (e.g.,
+     `v0.3.36`); tag `v0.3.36` publishes chart version `0.3.36`.
+   - For `charts/lfx-crds`, the tag must match the `lfx-crds-v*` pattern
+     (e.g., `lfx-crds-v0.1.0`); tag `lfx-crds-v0.1.0` publishes chart
+     version `0.1.0`.
+
+   The release workflow only runs for pushed tags matching one of these two
+   patterns (see `.github/workflows/release.yaml`); each pattern releases
+   only its own chart.
 3. The GitHub Actions workflow will automatically:
    - Package the Helm chart
    - Publish it to `ghcr.io/linuxfoundation/lfx-v2-helm/chart`

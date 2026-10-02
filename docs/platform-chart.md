@@ -5,7 +5,8 @@
 
 This file documents the platform/umbrella chart composition that this repo
 owns. For local bring-up commands see `local-platform-getting-started.md`.
-For service-local chart conventions see `service-chart-patterns.md`.
+For service-local chart conventions see `service-chart-patterns.md`. For the
+separate `charts/lfx-crds` chart, see "Second chart: `charts/lfx-crds`" below.
 
 ## Chart composition
 
@@ -69,6 +70,68 @@ service's RuleSet `openfga_check` calls authorize against the types,
 relations, and inheritance defined in
 `charts/lfx-platform/files/model.fga` (injected into the Kubernetes
 `AuthorizationModelRequest` by `charts/lfx-platform/templates/openfga/model.yaml`).
+
+`charts/lfx-platform/templates/cloudnativepg/cluster.yaml` renders a
+CloudNativePG `Cluster` custom resource (gated by `cloudNativePG.enabled`,
+default `true`) -- the shared local-development Postgres cluster that
+per-service charts' "database" mode targets via a CloudNativePG `Database`
+CR. This is a plain CR template, not a subchart: the CloudNativePG operator
+and its CRDs live in the separate `charts/lfx-crds` chart below, and must
+be installed first.
+
+OpenFGA is the first consumer of the shared cluster: rather than patching
+the OpenFGA chart's own bundled `postgresql.*` (Bitnami) values, its
+`values.yaml` entry disables that subchart (`postgresql.enabled: false`)
+and integrates via OpenFGA's `extraObjects` escape hatch, rendering a
+CloudNativePG `Database` CR against the shared cluster. The connection
+string is built in `extraEnvVars` from the CloudNativePG operator's
+generated `<clusterName>-app` secret (`PGHOST`/`PGPORT`/`PGUSER`/
+`PGPASSWORD` composed into `OPENFGA_DATASTORE_URI`) rather than via
+`datastore.uri`/`uriSecret`/`existingSecret`, since splitting the
+connection across `OPENFGA_DATASTORE_URI`/`USERNAME`/`PASSWORD` hits a
+known regression in the `openfga migrate` CLI used by the migration
+initContainer (openfga/openfga#2493). Deployed environments override all
+of `datastore`, `extraEnvVars`, and `extraObjects` to keep using external
+RDS -- see `lfx-v2-argocd`'s `values/global/lfx-platform.yaml`.
+
+## Second chart: `charts/lfx-crds`
+
+`charts/lfx-crds` is a second, independent chart in this repo (not a
+dependency of `lfx-platform`) that installs operators and their CRDs --
+starting with the CloudNativePG operator. It exists as a separate chart
+because the pinned `cloudnative-pg` dependency (`~0.29.0`) defines its CRDs
+as regular templates under `templates/crds/` rather than in a `crds/`
+directory, so Helm does not apply its built-in "install CRDs first and wait
+for them to be established" handling here. The operator (and its CRDs)
+must therefore be installed standalone, ahead of `lfx-platform`, instead of
+relying on Helm's dependency-CRD ordering.
+
+**Local-development only.** Deployed environments (dev/staging/prod) do not
+install this chart; see `lfx-v2-argocd`'s environment values for how
+`cloudNativePG.enabled` is set to `false` there instead.
+
+Install order for a fresh local cluster:
+
+```bash
+kubectl create namespace lfx
+
+helm dependency update charts/lfx-crds
+# --wait ensures the operator Deployment (and its admission webhooks) is
+# ready before the lfx-platform install below, whose CloudNativePG
+# Cluster resource depends on it.
+helm install -n lfx lfx-crds ./charts/lfx-crds --wait
+
+helm dependency update charts/lfx-platform
+helm install -n lfx lfx-platform ./charts/lfx-platform
+```
+
+`charts/lfx-crds` must land first: `lfx-platform`'s CloudNativePG `Cluster`
+resource assumes the operator (and its CRDs) it installs already exist.
+
+Releasing `charts/lfx-crds` uses its own tag prefix,
+`lfx-crds-vX.Y.Z` -- bare `vX.Y.Z` tags continue to mean `lfx-platform`,
+matching this repo's tagging convention from before `charts/lfx-crds`
+existed. See `.github/workflows/release.yaml`.
 
 ## OpenFGA model: worked edit
 
