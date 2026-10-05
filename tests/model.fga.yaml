@@ -316,22 +316,16 @@ tests:
           organizer: true
           auditor: true
 
-  # A global write grant confers write, and not read of the project object
-  # itself. This is deliberate, and asserted so it reads as a decision rather
-  # than an oversight.
+  # A global write grant also reads the project it is written to, as a directly
+  # granted writer does.
   #
   # The project's own `auditor` composes the bare `writer` grant, not
-  # `writer_guard`, so global_writer does not arrive at `auditor`, and therefore
-  # not at `auditor_guard`, `viewer`, or `project_membership` — whose read side
-  # is reached only through `auditor_guard from project`. A *directly* granted
-  # writer does get all of those, so the two differ on purpose.
-  #
-  # Nothing is lost by this. No team holds a `writer` grant today: `writer` is
-  # `[user]` only, so the project relations a team can be granted are `owner`
-  # and `auditor`, and both keep every surface when swapped for their global
-  # counterpart. A team that needs write *and* read is granted global_writer and
-  # global_auditor, exactly as `owner` and `auditor` are granted separately now.
-  - name: a global write grant does not confer read of the project itself
+  # `writer_guard`, so global_writer does not arrive at `auditor`. It reaches the
+  # read guard because `auditor_guard` lists it directly, and through the guard
+  # it reaches `viewer` and `project_membership`, whose read side is reached
+  # only through `auditor_guard from project`. Bare `auditor` stays false, so
+  # the read does not cascade: the child assertions above still hold.
+  - name: a global write grant confers read of the project itself
     tuples:
       - user: team:global-team#member
         relation: global_writer
@@ -342,12 +336,12 @@ tests:
         assertions:
           writer_guard: true
           auditor: false
-          auditor_guard: false
-          viewer: false
+          auditor_guard: true
+          viewer: true
       - user: user:teamster
         object: project_membership:pm1
         assertions:
-          auditor: false
+          auditor: true
       # The child types are unaffected: each composes its own writer into its
       # own auditor, so write access still carries read of the sub-resource.
       - user: user:teamster
