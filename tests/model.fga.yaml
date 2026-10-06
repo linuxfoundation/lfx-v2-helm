@@ -674,3 +674,51 @@ tests:
           formation_team:
             users:
               - user:reviewer
+
+  - name: a committee application is visible only to its applicant and committee auditors
+    # Verifies that the committee_application viewer relation resolves to the
+    # applicant (directly) and the committee auditor (via "auditor from committee")
+    # but NOT to a plain committee member or an unrelated user.
+    tuples:
+      - user: committee:c1
+        relation: committee
+        object: committee_application:ca1
+      - user: user:applicant
+        relation: applicant
+        object: committee_application:ca1
+      - user: user:committee-auditor
+        relation: auditor
+        object: committee:c1
+      - user: user:committee-member
+        relation: member
+        object: committee:c1
+    check:
+      - user: user:applicant
+        object: committee_application:ca1
+        assertions:
+          viewer: true
+      - user: user:committee-auditor
+        object: committee_application:ca1
+        assertions:
+          viewer: true
+      - user: user:committee-member
+        object: committee_application:ca1
+        assertions:
+          viewer: false
+      - user: user:unrelated-user
+        object: committee_application:ca1
+        assertions:
+          viewer: false
+      - user: user:other-applicant
+        object: committee_application:ca1
+        assertions:
+          viewer: false
+    list_users:
+      - object: committee_application:ca1
+        user_filter:
+          - type: user
+        assertions:
+          viewer:
+            users:
+              - user:applicant
+              - user:committee-auditor
