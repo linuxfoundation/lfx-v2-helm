@@ -722,3 +722,27 @@ tests:
             users:
               - user:applicant
               - user:committee-auditor
+
+  # A crowdfunding initiative must follow the project's writer_guard, not the
+  # bare writer, so a global project writer can manage initiatives attributed to
+  # that project — matching what the gateway and services check.
+  - name: a global project writer can write an initiative attributed to the project
+    tuples:
+      - user: team:global-team#member
+        relation: global_writer
+        object: project:cf-project
+      - user: project:cf-project
+        relation: project
+        object: crowdfunding_initiative:cf-attributed
+      - user: project:other-project
+        relation: project
+        object: crowdfunding_initiative:cf-elsewhere
+    check:
+      - user: user:teamster
+        object: crowdfunding_initiative:cf-attributed
+        assertions:
+          writer: true
+      - user: user:teamster
+        object: crowdfunding_initiative:cf-elsewhere
+        assertions:
+          writer: false
