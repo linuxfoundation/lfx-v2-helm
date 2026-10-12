@@ -65,10 +65,6 @@ type project
     # /projects/:id on owner directly, and it is the only gateway rule in any
     # service that checks that relation.
     #
-    # `[team#member]` remains temporarily so the existing ROOT owner tuples stay
-    # valid until they are removed in the next rollout release; remove the
-    # restriction only after those tuples are gone.
-    #
     # Closing the `owner` cascade does not close the write and read access it
     # confers: `owner` feeds `writer`, and a direct `writer` grant is
     # deliberately allowed to cascade. So `global_owner`, like
@@ -76,7 +72,7 @@ type project
     # descendant. tests/model.fga.yaml asserts both the non-cascading ownership
     # and the surviving write/read access.
     # @fgadoc:jtbd Delete a project
-    define owner: [team#member] or global_owner
+    define owner: global_owner
     # @fgadoc:jtbd Create & update a project
     # @fgadoc:jtbd Manage project links, folders & documents
     # @fgadoc:jtbd Create project committees & Groups.io services
@@ -87,7 +83,7 @@ type project
     define mentorship_program_creator: writer_guard or mentorship_program_admin
     # @fgadoc:jtbd View project settings
     # @fgadoc:jtbd View formation checklist & activity feed
-    define auditor: [user, team#member] or executive_director or writer or auditor from parent
+    define auditor: [user] or executive_director or writer or auditor from parent
     # The `writer` and `auditor` grants have diverged from `writer_guard`/
     # `auditor_guard` in order to change cascading permissions in a backwards
     # compatible way (directly-granted `writer`/`auditor` are allowed to
@@ -114,23 +110,16 @@ type project
     # executive_director identifies a user with the executive director role for a project,
     # as assigned by the project-service. executive_directors are auditors of the project.
     define executive_director: [user]
-    # marketing_ops (and every reference to it below, in campaign_manager and
-    # marketing_auditor) can be removed entirely once team:marketing-ops has
-    # been rolled out to global_marketing_ops — it is not folded into
-    # global_marketing_ops itself the way owner absorbs global_owner, since
-    # nothing else needs to keep cascading through it in the meantime.
-    # @fgadoc:hide
-    define marketing_ops: [team#member] or marketing_ops from parent
     # marketing_auditor identifies a user with read access to marketing dashboards
     # and campaigns for a project. The relation itself cascades from parent
     # projects via "marketing_auditor from parent" — so it doesn't matter
     # whether a user reaches marketing_auditor by direct grant, by being an
-    # executive_director, or by being marketing_ops, nor at what level of the
+    # executive_director, or by global_marketing_ops, nor at what level of the
     # project hierarchy that happens: however/wherever they got it, they also
     # have it on every descendant of that project. Contrast this with
     # campaign_manager below, where an executive_director's access does not
     # cascade.
-    define marketing_auditor: [team#member] or executive_director or marketing_ops or global_marketing_ops or marketing_auditor from parent
+    define marketing_auditor: [team#member] or executive_director or global_marketing_ops or marketing_auditor from parent
     # @fgadoc:jtbd Connect & manage ad platform accounts
     # @fgadoc:jtbd Test & rotate ad platform credentials
     # @fgadoc:jtbd Create & manage campaign briefs
@@ -144,14 +133,11 @@ type project
     # @fgadoc:jtbd Pause or remove Google Ads keywords
     # @fgadoc:jtbd View live campaign & keyword performance metrics
     # @fgadoc:jtbd Track campaign creation job status
-    # campaign_manager is intentionally the same population as marketing_ops
-    # (plus executive_director) — there is no separate campaign-manager grant
-    # path. The campaign_manager relation itself does not cascade (we don't
-    # want an executive_director grant on a project to flow down to its
-    # sub-projects), but marketing_ops, included above, does cascade in its
-    # own right — so a marketing_ops grant at ROOT still flows down to every
-    # descendant project, making that team campaign_manager there too.
-    define campaign_manager: executive_director or marketing_ops or global_marketing_ops
+    # campaign_manager is intentionally the same population as
+    # global_marketing_ops (plus executive_director) — there is no separate
+    # campaign-manager grant path. It does not cascade: it resolves only from
+    # a global_marketing_ops grant written on the project itself.
+    define campaign_manager: executive_director or global_marketing_ops
     # Resolves through auditor_guard rather than the bare auditor grant, so
     # global-team staff keep basic project navigation once the ROOT grants go.
     # @fgadoc:jtbd View project details & meeting count
