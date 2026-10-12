@@ -1,7 +1,9 @@
 # Copyright The Linux Foundation and each contributor to LFX.
 # SPDX-License-Identifier: MIT
 name: FGA Model Check
-on: [pull_request]
+on:
+  pull_request:
+  merge_group:
 permissions:
   contents: read
 jobs:
@@ -14,8 +16,12 @@ jobs:
           persist-credentials: false
       - name: Check version bump when model changes
         env:
-          BASE_REF: ${{ github.base_ref }}
+          BASE_REF: ${{ github.base_ref || github.event.merge_group.base_ref }}
         run: |
+          # github.base_ref is set only on pull_request and holds a short name;
+          # merge_group supplies the full ref instead. Normalize to the short
+          # name so the fetch and revision lookups below work for both events.
+          BASE_REF="${BASE_REF#refs/heads/}"
           MODEL=charts/lfx-platform/files/model.fga
           TEMPLATE=charts/lfx-platform/templates/openfga/model.yaml
           git fetch origin "$BASE_REF" --depth=1
