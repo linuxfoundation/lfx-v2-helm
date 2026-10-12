@@ -283,9 +283,10 @@ tests:
   # The general form of the check above. A global relation reaches descendants
   # only by composing into a relation that carries "from parent", so the read and
   # write counterparts must stay out of every one of them — writer, auditor,
-  # marketing_ops and marketing_auditor, and owner while its parent fallback
-  # remains — and then no relation on the child can be reached. global_owner (through owner) and global_marketing_ops
-  # (through marketing_auditor) are the two exemptions, asserted above.
+  # marketing_ops and marketing_auditor — and then no relation on the child
+  # can be reached. global_owner (through owner, which feeds writer) and
+  # global_marketing_ops (through marketing_auditor) are the two exemptions,
+  # asserted above.
   #
   # The relation lists are explicit because the test runner cannot enumerate
   # them. A new relation on the project type belongs in both lists.

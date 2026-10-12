@@ -284,8 +284,13 @@ provision or change a global tuple through them.
    CASCADE_RELATION=auditor    # what step 4 checks on a sub-project:
                                #   auditor       -> auditor (via `auditor from parent`)
                                #   marketing_ops -> marketing_auditor
-                               #   owner         -> writer_guard (owner -> writer -> writer_guard)
+                               #   owner         -> writer_guard (owner -> writer -> writer_guard); this
+                               #                 checks only the surviving write cascade, not ownership
    ```
+   A root `owner` tuple no longer grants `owner` on sub-projects. Ownership
+   comes from a `global_owner` grant written on each project, which this
+   runbook does not provision, so step 4 with `writer_guard` confirms only the
+   write access that still cascades.
 2. Write the tuple:
    ```bash
    kubectl run --rm -it fga-cli --namespace <ns> --image=openfga/cli:v0.4.5 \
