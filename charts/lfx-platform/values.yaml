@@ -497,6 +497,13 @@ nats:
       fileStore:
         enabled: true
         size: 1Gi
+
+    # Server config additions. lfxAuthorization is rendered by
+    # templates/nats/_authorization.tpl from nats.lfxAuthorization below and
+    # spreads nothing into the config while that is disabled.
+    merge:
+      lfxAuthorization:
+        $tplYamlSpread: '{{ include "lfx-platform.nats.authorization" . }}'
   container:
     env:
       # Different from k8s units, suffix must be B, KiB, MiB, GiB, or TiB
@@ -511,6 +518,51 @@ nats:
         limits:
           cpu: "1000m"
           memory: 2Gi
+
+  # Publish restrictions on security-sensitive subjects. Not a nats chart key;
+  # read only by templates/nats/_authorization.tpl. See
+  # docs/nats-authorization.md before enabling.
+  lfxAuthorization:
+    # Off by default: enabling it before the listed publishers connect with
+    # their nkeys stops those publishers from delivering on their subjects.
+    enabled: false
+    # Unauthenticated clients are mapped to this user (NATS no_auth_user).
+    anonymousUser: anonymous
+    # Identities that may be granted restricted subjects. nkey is the user's
+    # PUBLIC key (starts with U); the seed stays in the service's own Secret.
+    # A user with an empty nkey is not rendered, so its rules fail closed.
+    users:
+      inviteService:
+        nkey: ""
+      selfServe:
+        nkey: ""
+    # Subjects only the listed publishers may publish on. Every other client,
+    # anonymous or nkey, is denied publish on them. Toggle a rule with its own
+    # enabled flag to stage the rollout one publisher at a time.
+    restrictedPublish:
+      # Invite acceptance from the self-serve app. The invite service writes
+      # the event's username into the invite record's accepted_by.
+      inviteAccepted:
+        enabled: true
+        subjects:
+          - lfx.invite.accepted
+        publishers:
+          - selfServe
+      # Enriched acceptance event consumed by the meeting service.
+      inviteServiceAccepted:
+        enabled: true
+        subjects:
+          - lfx.invite-service.invite_accepted
+        publishers:
+          - inviteService
+      # Direct writes to the invite service's KV bucket, which would otherwise
+      # bypass both rules above by writing accepted_by straight into a record.
+      invitesKV:
+        enabled: true
+        subjects:
+          - $KV.invites.>
+        publishers:
+          - inviteService
 
 # OpenSearch configuration
 opensearch:

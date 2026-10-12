@@ -36,6 +36,8 @@ Repo-owned implementation guidance lives under `docs/`:
   `helm dependency update` failure modes, and worked examples.
 - `docs/local-platform-getting-started.md` - bringing the
   shared platform stack up locally (commands, secrets, gotchas).
+- `docs/nats-authorization.md` - opt-in NATS publish restrictions
+  (`nats.lfxAuthorization`) and their rollout order.
 - `docs/service-chart-patterns.md` - canonical cross-service
   chart conventions (HTTPRoute, Heimdall RuleSet, ExternalSecret, NATS KV,
   probes, env wiring, native vs wrapper). Per-service repos link here from

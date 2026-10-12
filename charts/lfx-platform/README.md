@@ -287,6 +287,14 @@ kubectl create secret generic lfx-v2-mailing-list-service -n lfx \
   --from-literal=GROUPSIO_WEBHOOK_SECRET="<from-1password>"
 ```
 
+## NATS publish authorization
+
+`nats.lfxAuthorization` restricts publish on security-sensitive subjects
+(currently the invite-acceptance subjects and the `invites` KV bucket) to
+named nkey identities, while clients without credentials keep working for
+everything else. It is disabled by default and must be rolled out in a fixed
+order; see [docs/nats-authorization.md](../../docs/nats-authorization.md).
+
 ## Using external PostgreSQL with OpenFGA
 
 To use an external PostgreSQL database with OpenFGA:

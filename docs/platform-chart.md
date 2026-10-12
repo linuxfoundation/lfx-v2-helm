@@ -58,6 +58,8 @@ charts/lfx-platform/templates/
 │   ├── model.yaml          # Shared OpenFGA authorization model
 │   └── db-secrets.yaml
 ├── heimdall/               # Shared Heimdall middleware + signer cert/bundle
+├── nats/
+│   └── _authorization.tpl  # NATS publish restrictions (see nats-authorization.md)
 ├── authelia/               # Local-only auth
 ├── mailpit/                # Local-only email capture
 ├── swagger_ui/             # Aggregated OpenAPI viewer (incl. its RuleSet)
