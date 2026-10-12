@@ -99,7 +99,10 @@ type project
     # users. For the purpose of render-permissions, consider this a single,
     # direct-grant column shared with the non-`_guard` suffix.
     define writer_guard: writer or global_writer
-    define auditor_guard: auditor or global_auditor
+    # `global_writer` is listed here because `auditor` composes the bare
+    # `writer`, not `writer_guard`: without it a global write grant could
+    # change a project it cannot read.
+    define auditor_guard: auditor or global_writer or global_auditor
     # The meeting_coordinator relation identifies a user who can manage any meeting
     # for a given project.
     define meeting_coordinator: [user]
@@ -211,6 +214,13 @@ type committee
     define committee_for_member_email_access: [committee]
     define roster_viewer: [user:*] or auditor or member from committee_for_member_roster_access
     define email_viewer: auditor or member from committee_for_member_email_access
+
+type committee_application
+  relations
+    define committee: [committee]
+    # The applicant relation identifies the user who submitted the application.
+    define applicant: [user]
+    define viewer: applicant or auditor from committee
 
 type committee_invite
   relations
@@ -530,7 +540,7 @@ type crowdfunding_initiative
     define b2b_org: [b2b_org]
     # @fgadoc:alias Creator
     define owner: [user]
-    define writer: owner or writer from project or writer from b2b_org
+    define writer: owner or writer_guard from project or writer from b2b_org
     define viewer: [user:*] or writer
 
 # @fgadoc:alias Project Application
