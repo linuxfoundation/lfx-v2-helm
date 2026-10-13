@@ -80,11 +80,13 @@ lfx-v2-committee-service:
 lfx-v2-email-service:
   replicaCount: 1
 lfx-v2-fga-sync:
-  replicaCount: 1
+  application:
+    replicas: 1
 lfx-v2-forwards-service:
   replicaCount: 1
 lfx-v2-indexer-service:
-  replicaCount: 1
+  app:
+    replicas: 1
 lfx-v2-invite-service:
   replicaCount: 1
 lfx-v2-mailing-list-service:
