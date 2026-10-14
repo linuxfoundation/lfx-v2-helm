@@ -54,7 +54,7 @@ grant assignment.
 
 #### Permission Inheritance
 
-- ***Owner***: inherited from parent Project, global Product Support Team, global Formation Team
+- ***Owner***: inherited from global Product Support Team, global Formation Team
 - ***Campaign Manager***: inherited from global Marketing Ops Team
 - **Writer**: inherited from parent Project
 - **Auditor**: inherited from parent Project, global LF Staff Team

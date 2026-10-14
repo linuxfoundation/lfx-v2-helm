@@ -35,9 +35,9 @@ type project
     # global permissions without traversing the project hierarchy.
     # Deliberately no "from parent", because cascading would prevent
     # withholding a grant from an individual project. That withholding is only
-    # actually achieved for global_writer and global_auditor; global_owner and
-    # global_marketing_ops reach descendants by other routes, explained where
-    # they are defined below.
+    # actually achieved for global_writer and global_auditor. global_owner and
+    # global_marketing_ops have effects that reach descendants by other routes,
+    # explained where they are defined below.
     #
     # The global_ prefix is load-bearing: it is what marks a relation's team
     # grants as fully reconcilable, so renaming one without the prefix would
@@ -57,25 +57,26 @@ type project
     # writer and auditor have. The cascade is asserted in tests/model.fga.yaml.
     # @fgadoc:hide
     define global_marketing_ops: [team#member]
-    # `[team#member]` and `or owner from parent` can both be removed once all
-    # global teams have been rolled out to `global_owner`. Sequence the
-    # `global_owner` backfill before or atomically with dropping them, so
-    # `owner` never goes dark on a project mid-migration — and drop the
-    # `owner from parent` fallback *before or with* removing the ROOT tuples,
-    # never after: in that window `owner` still cascades while `global_owner`
-    # is already written per project, so a team withheld from a project class
-    # would reach it through a covered ancestor with the ROOT grant that used
-    # to mask the gap already gone.
+    # owner no longer inherits from a parent. global_owner must therefore be
+    # written on every project where the team needs ownership, and that backfill
+    # must be complete before this model version reaches an environment: until
+    # it is, a global team holds owner on the root object and nowhere else, which
+    # takes project deletion with it — lfx-v2-project-service gates DELETE
+    # /projects/:id on owner directly, and it is the only gateway rule in any
+    # service that checks that relation.
     #
-    # Dropping `owner from parent` closes the `owner` cascade but not the write
-    # and read access it confers: `owner` feeds `writer`, and a direct `writer`
-    # grant is deliberately allowed to cascade. So `global_owner`, like
-    # `global_marketing_ops`, cannot be withheld from an individual project
-    # even after the migration. tests/model.fga.yaml asserts that a global
-    # ownership grant on a parent reaches the child's write and read guards, the
-    # part that survives dropping the fallback.
+    # `[team#member]` remains temporarily so the existing ROOT owner tuples stay
+    # valid until they are removed in the next rollout release; remove the
+    # restriction only after those tuples are gone.
+    #
+    # Closing the `owner` cascade does not close the write and read access it
+    # confers: `owner` feeds `writer`, and a direct `writer` grant is
+    # deliberately allowed to cascade. So `global_owner`, like
+    # `global_marketing_ops`, cannot withhold all access from an individual
+    # descendant. tests/model.fga.yaml asserts both the non-cascading ownership
+    # and the surviving write/read access.
     # @fgadoc:jtbd Delete a project
-    define owner: [team#member] or global_owner or owner from parent
+    define owner: [team#member] or global_owner
     # @fgadoc:jtbd Create & update a project
     # @fgadoc:jtbd Manage project links, folders & documents
     # @fgadoc:jtbd Create project committees & Groups.io services
