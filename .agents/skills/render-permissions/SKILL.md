@@ -65,7 +65,7 @@ For each `define <relation>:` line, extract:
 | Direct user grant? | Has `[user]` (see Gotchas for what this means) |
 | Public wildcard? | `[user:*]` appears as one of the type restrictions in `[...]` |
 | Indirect? | Does not have `[user]` — the relation cannot be granted directly to a user on this object |
-| Column-worthy? | A relation that is indirect AND has at least one non-peer source in its own define expression: a `<rel> from <field>` term where `<field>` resolves to a different type, or any type restriction in `[...]` other than `user`/`user:*`. Relations that are purely unions of same-type peers (e.g. `writer or meeting_coordinator`) are already represented by their constituent columns and are not shown separately. |
+| Column-worthy? | A relation that is indirect AND has at least one non-peer source in its own define expression: a `<rel> from <field>` term where `<field>` resolves to a different type, any type restriction in `[...]` other than `user`/`user:*`, or a reference to a hidden same-type relation whose own define carries such a restriction (the `global_*` team relations: they are hidden and have no column of their own, so the relation that composes one is where their team access is shown). Relations that are purely unions of same-type peers (e.g. `writer or meeting_coordinator`) are already represented by their constituent columns and are not shown separately. |
 
 ## Step 2 — Build the JTBD × relation matrix
 
@@ -77,8 +77,8 @@ For each **visible** type (not hidden), determine two sets of visible columns:
 
 **Indirect-only columns** — relations that are indirect (no `[user]`) **and**
 column-worthy (have at least one non-peer source — a cross-type
-`<rel> from <field>` term or any type restriction other than
-`user`/`user:*`) **and** are not hidden **and** would have at least one ✅
+`<rel> from <field>` term, any type restriction other than
+`user`/`user:*`, or a hidden `global_*` team relation, as defined in Step 1) **and** are not hidden **and** would have at least one ✅
 cell (i.e. their reachable JTBD pool is non-empty — see Step 2c for how to
 compute this). These columns represent permissions that cannot be granted
 directly to a user on this object. Their header text is **italicized** in
