@@ -208,9 +208,11 @@ LFXV2-2231 is the first example: `marketing_ops` is granted on
 
 > **Superseded by the global grants.** From model version 18.1.0 the project
 > `owner` and `auditor` relations no longer accept `team#member`, and
-> `marketing_ops` no longer exists. Team access is granted per project through
-> the `global_owner`, `global_writer`, `global_auditor` and
-> `global_marketing_ops` relations. None of them has a `from parent` of its
+> `marketing_ops` no longer exists. Global team access is granted per project
+> through the `global_owner`, `global_writer`, `global_auditor` and
+> `global_marketing_ops` relations. A direct `team#member` grant on
+> `marketing_auditor` remains valid for a project-specific marketing team. None
+> of the global relations has a `from parent` of its
 > own, so ownership and campaign management stay on the project the grant is
 > written to. Two still reach descendants through the relations they compose
 > into: `global_owner` through `owner`, which feeds the cascading `writer` and
