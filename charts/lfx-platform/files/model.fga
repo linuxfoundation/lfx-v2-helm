@@ -258,6 +258,11 @@ type groupsio_mailing_list
     define viewer: [user:*] or writer or auditor or member
     # @fgadoc:alias Subscriber
     define member: [user]
+    # Pure public-access indicator, separate from viewer: unlike viewer, this is never
+    # implied by writer/auditor/member, so callers can check it on its own to gate
+    # self-service actions (e.g. self-subscription) that must only be available on
+    # public lists, regardless of the caller's other relations to this list.
+    define public: [user:*]
 
 # Hide this from PERMISSIONS.md until we fold v1_meeting into meeting.
 # @fgadoc:hide
