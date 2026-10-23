@@ -167,6 +167,7 @@ grant assignment.
 | View & download Groups.io artifacts | ✅ | ✅ | ✅ | 🟡 |
 | View Groups.io mailing list settings | ✅ | ✅ | | |
 | Manage Groups.io mailing list members | ✅ | | | |
+| Self-subscribe to a public Groups.io mailing list | | | | 🟡 |
 | Update & delete a Groups.io mailing list | ✅ | | | |
 
 #### Permission Inheritance
