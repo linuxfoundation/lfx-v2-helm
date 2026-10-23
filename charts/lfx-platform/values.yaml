@@ -461,6 +461,21 @@ heimdall:
               {{- if not .Outputs.oidc_contextualizer.email_verified }}{{ fail "request denied: oidc_contextualizer returned unverified email" }}{{ end }}
               "email": {{ quote .Outputs.oidc_contextualizer.email }}
               {{ end -}}
+              {{- /* Profile claims from userinfo, for services that create a local user
+                     from the token (e.g. Mentorship PUT /me). Each is emitted only when
+                     the IdP returned it. */ -}}
+              {{ if .Outputs.oidc_contextualizer.name -}},
+              "name": {{ quote .Outputs.oidc_contextualizer.name }}
+              {{ end -}}
+              {{ if .Outputs.oidc_contextualizer.given_name -}},
+              "given_name": {{ quote .Outputs.oidc_contextualizer.given_name }}
+              {{ end -}}
+              {{ if .Outputs.oidc_contextualizer.family_name -}},
+              "family_name": {{ quote .Outputs.oidc_contextualizer.family_name }}
+              {{ end -}}
+              {{ if .Outputs.oidc_contextualizer.picture -}},
+              "picture": {{ quote .Outputs.oidc_contextualizer.picture }}
+              {{ end -}}
               {{ if .Values.aud -}},
               "aud": {{ quote .Values.aud }}
               {{ end -}}

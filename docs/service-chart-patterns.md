@@ -159,6 +159,27 @@ Public/anonymous endpoints (e.g. OpenAPI spec) skip `openfga_check` and use
 `- authorizer: allow_all`. Health endpoints (`/livez`, `/readyz`) do not need
 a rule — they are not routed through Heimdall.
 
+### Claims in the Heimdall-issued JWT
+
+`create_jwt` always emits `principal` (the username, `{client_id}@clients`
+for M2M, or `_anonymous`), plus `aud` and `scope` when the rule sets them.
+The identity claims below are added only when the rule ran
+`oidc_contextualizer` (`app.use_oidc_contextualizer`), which calls the IdP's
+`userinfo` endpoint; each is emitted only if the IdP returned it. A verified
+email is enforced: if `userinfo` reports `email_verified: false` the request
+is denied. Use the contextualizer only on rules whose handler reads these
+claims, since it costs one `userinfo` call per request.
+
+| Claim | Source |
+| --- | --- |
+| `email` | `userinfo.email`, verified |
+| `name`, `given_name`, `family_name` | `userinfo` profile claims |
+| `picture` | `userinfo.picture` |
+
+Deployed environments define `heimdall.config` in `lfx-v2-argocd`
+(`values/global/lfx-platform.yaml`), which replaces this chart's default; a
+change to the claims template must be made there as well to take effect.
+
 Workflow for a new endpoint:
 
 1. Add it in the Goa design and run `make apigen`.
