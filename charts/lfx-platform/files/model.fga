@@ -500,6 +500,14 @@ type b2b_org
     # @fgadoc:jtbd Manage membership committee seat assignments
     # @fgadoc:jtbd Manage org workspaces & workspace projects
     define writer: [user] or owner or global_org_admin or writer from parent or writer from child
+    # cla_admin is held by a CLA manager of a signed corporate CLA for this
+    # organization, and admits them to its CLA section only. It is a direct
+    # grant with no parent/child traversal, so it never reaches another org in
+    # the Salesforce company family, and it is not part of writer or auditor,
+    # so it grants nothing else on b2b_org or on types derived from it.
+    # Tuples are written by the member service from its own data.
+    # @fgadoc:hide
+    define cla_admin: [user]
     # writer and auditor both cascade transitively up and down the hierarchy via
     # parent/child (LFXV2-3029) — an editor on any organization in a connected
     # parent-child-sibling group is an editor on every member of that group,
@@ -507,6 +515,12 @@ type b2b_org
     # @fgadoc:jtbd View org details, settings & committee seats
     # @fgadoc:jtbd View org workspaces & workspace projects
     define auditor: [user, team#member] or writer or auditor from parent or auditor from child or key_contact from membership
+    # viewer gates reading the organization document; the settings document
+    # stays on auditor. It adds cla_admin to auditor's existing reach without
+    # traversing the hierarchy itself, so a CLA manager can read their own
+    # organization and no other.
+    # @fgadoc:hide
+    define viewer: auditor or cla_admin
     # parent is included to model company subsidiaries (a b2b_org may have a
     # parent b2b_org in Salesforce).
     define parent: [b2b_org]
