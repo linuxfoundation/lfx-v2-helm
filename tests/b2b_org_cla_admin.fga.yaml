@@ -1,0 +1,151 @@
+# Copyright The Linux Foundation and each contributor to LFX.
+# SPDX-License-Identifier: MIT
+
+# Asserts the isolation promise of b2b_org's `cla_admin` relation: it holds on
+# the organization it was granted on and nowhere else. It does not traverse the
+# parent/child hierarchy, it does not imply writer or auditor, it does not reach
+# the types derived from b2b_org, and owner, writer, auditor and
+# global_org_admin do not imply it.
+name: B2B organization cla_admin relation isolation
+
+model_file: ../charts/lfx-platform/files/model.fga
+
+# Shared fixture: parent-org has two subsidiaries, cla-org and sibling-org, and
+# cla-org has a subsidiary of its own, grandchild-org. Both directions of each
+# link are written, because the model holds `parent` and `child` independently.
+# The cla_admin grant and every other b2b_org grant sit on cla-org only.
+tuples:
+  - user: b2b_org:parent-org
+    relation: parent
+    object: b2b_org:cla-org
+  - user: b2b_org:cla-org
+    relation: child
+    object: b2b_org:parent-org
+
+  - user: b2b_org:parent-org
+    relation: parent
+    object: b2b_org:sibling-org
+  - user: b2b_org:sibling-org
+    relation: child
+    object: b2b_org:parent-org
+
+  - user: b2b_org:cla-org
+    relation: parent
+    object: b2b_org:grandchild-org
+  - user: b2b_org:grandchild-org
+    relation: child
+    object: b2b_org:cla-org
+
+  - user: user:cla-manager
+    relation: cla_admin
+    object: b2b_org:cla-org
+
+  - user: user:org-owner
+    relation: owner
+    object: b2b_org:cla-org
+  - user: user:org-writer
+    relation: writer
+    object: b2b_org:cla-org
+  - user: user:org-auditor
+    relation: auditor
+    object: b2b_org:cla-org
+  - user: user:org-admin
+    relation: member
+    object: team:org-admins
+  - user: team:org-admins#member
+    relation: global_org_admin
+    object: b2b_org:cla-org
+
+  # A writer on the parent reaches cla-org as writer through the cascade.
+  - user: user:parent-writer
+    relation: writer
+    object: b2b_org:parent-org
+
+  - user: b2b_org:cla-org
+    relation: b2b_org
+    object: project_membership:pm-cla
+  - user: b2b_org:cla-org
+    relation: b2b_org
+    object: crowdfunding_initiative:cf-cla
+
+tests:
+  - name: a cla_admin grant holds on the organization it was made on
+    check:
+      - user: user:cla-manager
+        object: b2b_org:cla-org
+        assertions:
+          cla_admin: true
+
+  - name: cla_admin does not imply writer, auditor or owner
+    check:
+      - user: user:cla-manager
+        object: b2b_org:cla-org
+        assertions:
+          owner: false
+          writer: false
+          auditor: false
+
+  - name: cla_admin does not traverse the company hierarchy
+    check:
+      - user: user:cla-manager
+        objects:
+          - b2b_org:parent-org
+          - b2b_org:sibling-org
+          - b2b_org:grandchild-org
+        assertions:
+          cla_admin: false
+          writer: false
+          auditor: false
+
+  - name: a cla_admin grant lists only its own organization
+    list_objects:
+      - user: user:cla-manager
+        type: b2b_org
+        assertions:
+          cla_admin:
+            - b2b_org:cla-org
+          writer: []
+          auditor: []
+
+  - name: cla_admin does not reach types derived from b2b_org
+    check:
+      - user: user:cla-manager
+        object: project_membership:pm-cla
+        assertions:
+          writer: false
+          auditor: false
+          key_contact: false
+      - user: user:cla-manager
+        object: crowdfunding_initiative:cf-cla
+        assertions:
+          writer: false
+
+  # Org admins reach the lens through writer and auditor, not through
+  # cla_admin, so the cla_admin tuple set stays exactly the set of CLA managers.
+  - name: owner, writer, auditor and global_org_admin do not imply cla_admin
+    check:
+      - user: user:org-owner
+        object: b2b_org:cla-org
+        assertions:
+          writer: true
+          cla_admin: false
+      - user: user:org-writer
+        object: b2b_org:cla-org
+        assertions:
+          writer: true
+          cla_admin: false
+      - user: user:org-auditor
+        object: b2b_org:cla-org
+        assertions:
+          auditor: true
+          cla_admin: false
+      - user: user:org-admin
+        object: b2b_org:cla-org
+        assertions:
+          writer: true
+          cla_admin: false
+      - user: user:parent-writer
+        object: b2b_org:cla-org
+        assertions:
+          writer: true
+          cla_admin: false
