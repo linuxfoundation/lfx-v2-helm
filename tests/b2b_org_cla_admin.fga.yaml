@@ -6,7 +6,12 @@
 # parent/child hierarchy, it does not imply writer or auditor, it does not reach
 # the types derived from b2b_org, and owner, writer, auditor and
 # global_org_admin do not imply it.
-name: B2B organization cla_admin relation isolation
+#
+# It also asserts b2b_org's `viewer` relation, which lets a cla_admin read the
+# organization document: viewer is auditor plus cla_admin, so it follows
+# auditor's existing reach across the hierarchy and adds a cla_admin's own
+# organization only.
+name: B2B organization cla_admin and viewer relation isolation
 
 model_file: ../charts/lfx-platform/files/model.fga
 
@@ -75,6 +80,7 @@ tests:
         object: b2b_org:cla-org
         assertions:
           cla_admin: true
+          viewer: true
 
   - name: cla_admin does not imply writer, auditor or owner
     check:
@@ -94,6 +100,7 @@ tests:
           - b2b_org:grandchild-org
         assertions:
           cla_admin: false
+          viewer: false
           writer: false
           auditor: false
 
@@ -103,6 +110,8 @@ tests:
         type: b2b_org
         assertions:
           cla_admin:
+            - b2b_org:cla-org
+          viewer:
             - b2b_org:cla-org
           writer: []
           auditor: []
@@ -148,4 +157,77 @@ tests:
         object: b2b_org:cla-org
         assertions:
           writer: true
+          cla_admin: false
+
+  # viewer adds nothing to auditor's reach for anyone who is not a cla_admin.
+  # Every grant below cascades across the connected group through auditor, so
+  # viewer holds on every org in it, and on no unrelated org.
+  - name: viewer follows the existing auditor reach across the hierarchy
+    check:
+      - user: user:org-owner
+        objects:
+          - b2b_org:cla-org
+          - b2b_org:parent-org
+          - b2b_org:sibling-org
+          - b2b_org:grandchild-org
+        assertions:
+          auditor: true
+          viewer: true
+      - user: user:org-writer
+        objects:
+          - b2b_org:cla-org
+          - b2b_org:parent-org
+          - b2b_org:sibling-org
+          - b2b_org:grandchild-org
+        assertions:
+          auditor: true
+          viewer: true
+      - user: user:org-auditor
+        objects:
+          - b2b_org:cla-org
+          - b2b_org:parent-org
+          - b2b_org:sibling-org
+          - b2b_org:grandchild-org
+        assertions:
+          auditor: true
+          viewer: true
+      - user: user:org-admin
+        objects:
+          - b2b_org:cla-org
+          - b2b_org:parent-org
+          - b2b_org:sibling-org
+          - b2b_org:grandchild-org
+        assertions:
+          auditor: true
+          viewer: true
+      - user: user:parent-writer
+        objects:
+          - b2b_org:parent-org
+          - b2b_org:cla-org
+          - b2b_org:sibling-org
+          - b2b_org:grandchild-org
+        assertions:
+          auditor: true
+          viewer: true
+      - user: user:org-auditor
+        object: b2b_org:unrelated-org
+        assertions:
+          auditor: false
+          viewer: false
+
+  # A cla_admin is the one subject whose viewer comes from cla_admin alone, so
+  # it is the subject that shows viewer grants no other relation.
+  - name: viewer does not imply auditor, writer or cla_admin
+    check:
+      - user: user:cla-manager
+        object: b2b_org:cla-org
+        assertions:
+          viewer: true
+          auditor: false
+          writer: false
+      - user: user:org-auditor
+        object: b2b_org:cla-org
+        assertions:
+          viewer: true
+          writer: false
           cla_admin: false

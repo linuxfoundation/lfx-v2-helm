@@ -515,6 +515,12 @@ type b2b_org
     # @fgadoc:jtbd View org details, settings & committee seats
     # @fgadoc:jtbd View org workspaces & workspace projects
     define auditor: [user, team#member] or writer or auditor from parent or auditor from child or key_contact from membership
+    # viewer gates reading the organization document; the settings document
+    # stays on auditor. It adds cla_admin to auditor's existing reach without
+    # traversing the hierarchy itself, so a CLA manager can read their own
+    # organization and no other.
+    # @fgadoc:hide
+    define viewer: auditor or cla_admin
     # parent is included to model company subsidiaries (a b2b_org may have a
     # parent b2b_org in Salesforce).
     define parent: [b2b_org]
