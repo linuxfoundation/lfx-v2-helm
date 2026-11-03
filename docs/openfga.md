@@ -206,7 +206,7 @@ LFXV2-2231 is the first example: `marketing_ops` is granted on
 `marketing_ops from parent` (which `marketing_auditor` and
 `campaign_manager` both resolve through).
 
-> **Superseded by the global grants.** From model version 18.1.0 the project
+> **Superseded by the global grants.** From model version 18.2.0 the project
 > `owner` and `auditor` relations no longer accept `team#member`, and
 > `marketing_ops` no longer exists. Global team access is granted per project
 > through the `global_owner`, `global_writer`, `global_auditor` and
@@ -218,7 +218,7 @@ LFXV2-2231 is the first example: `marketing_ops` is granted on
 > into: `global_owner` through `owner`, which feeds the cascading `writer` and
 > its read access, and `global_marketing_ops` through the cascading
 > `marketing_auditor`. The runbook and registry below describe the earlier
-> model versions and cannot be applied to 18.1.0 or later.
+> model versions and cannot be applied to 18.2.0 or later.
 
 There is currently no admin UI for this (tracked separately as LFXV2-1760)
 and no service writes these tuples — not project-service (its
