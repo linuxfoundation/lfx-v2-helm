@@ -217,8 +217,13 @@ LFXV2-2231 is the first example: `marketing_ops` is granted on
 > written to. Two still reach descendants through the relations they compose
 > into: `global_owner` through `owner`, which feeds the cascading `writer` and
 > its read access, and `global_marketing_ops` through the cascading
-> `marketing_auditor`. The runbook and registry below describe the earlier
-> model versions and cannot be applied to 18.2.0 or later.
+> `marketing_auditor`. Everything else in this section, including the
+> introduction above, the global auditor rule, the runbook and the registry,
+> describes the earlier model versions and cannot be applied to 18.2.0 or
+> later. The `sync-global-groups` reconcile no longer reads the root project:
+> the teams it grants org-wide read to are a fixed list in its code (argocd
+> `custom-resources/lfx-v2-fga-sync-global-groups/base/main.go`,
+> `orgAuditorTeams`).
 
 There is currently no admin UI for this (tracked separately as LFXV2-1760)
 and no service writes these tuples — not project-service (its
