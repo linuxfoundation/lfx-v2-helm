@@ -4,31 +4,31 @@
 name: Mentorship program admins cascade to sub-projects
 model_file: ../charts/lfx-platform/files/model.fga
 
-# A foundation with a sub-project and a sub-sub-project, each with a program,
-# and a separate foundation. carla administers the foundation's programs, sam
-# only the sub-project's.
+# A foundation with a child project and a grandchild project, each with a
+# program, and a separate foundation. carla administers the foundation's
+# programs, sam only the child project's.
 tuples:
   - user: user:carla
     relation: mentorship_program_admin
     object: project:foundation
   - user: user:sam
     relation: mentorship_program_admin
-    object: project:sub
+    object: project:child
   - user: project:foundation
     relation: parent
-    object: project:sub
-  - user: project:sub
+    object: project:child
+  - user: project:child
     relation: parent
-    object: project:subsub
+    object: project:grandchild
   - user: project:foundation
     relation: project
     object: mentorship_program:foundation-2026
-  - user: project:sub
+  - user: project:child
     relation: project
-    object: mentorship_program:sub-2026
-  - user: project:subsub
+    object: mentorship_program:child-2026
+  - user: project:grandchild
     relation: project
-    object: mentorship_program:subsub-2026
+    object: mentorship_program:grandchild-2026
   - user: project:other
     relation: project
     object: mentorship_program:other-2026
@@ -37,23 +37,23 @@ tests:
   - name: a project's mentorship program admins administer its sub-projects at any depth
     check:
       - user: user:carla
-        object: project:sub
+        object: project:child
         assertions:
           mentorship_program_admin: true
           mentorship_program_creator: true
       - user: user:carla
-        object: project:subsub
+        object: project:grandchild
         assertions:
           mentorship_program_admin: true
           mentorship_program_creator: true
       - user: user:carla
-        object: mentorship_program:sub-2026
+        object: mentorship_program:child-2026
         assertions:
           writer: true
           manager: true
           auditor: true
       - user: user:carla
-        object: mentorship_program:subsub-2026
+        object: mentorship_program:grandchild-2026
         assertions:
           writer: true
           manager: true
@@ -62,7 +62,7 @@ tests:
   - name: the cascade grants nothing beyond mentorship programs
     check:
       - user: user:carla
-        object: project:sub
+        object: project:child
         assertions:
           writer: false
           auditor: false
@@ -80,11 +80,11 @@ tests:
           writer: false
           manager: false
       - user: user:sam
-        object: mentorship_program:sub-2026
+        object: mentorship_program:child-2026
         assertions:
           writer: true
       - user: user:sam
-        object: mentorship_program:subsub-2026
+        object: mentorship_program:grandchild-2026
         assertions:
           writer: true
       - user: user:carla
