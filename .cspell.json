@@ -71,6 +71,7 @@
     "totp",
     "tracecontext",
     "traefik",
+    "userinfo",
     "userset",
     "usersets",
     "webauthn",
