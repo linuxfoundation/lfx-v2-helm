@@ -77,7 +77,9 @@ type project
     # @fgadoc:jtbd Create a vote poll
     # @fgadoc:jtbd Update formation checklist items
     define writer: [user] or owner or writer from parent
-    define mentorship_program_admin: [user]
+    # Cascades like writer: a foundation's mentorship program admins
+    # administer the mentorship programs of every project below it.
+    define mentorship_program_admin: [user] or mentorship_program_admin from parent
     define mentorship_program_creator: writer_guard or mentorship_program_admin
     # @fgadoc:jtbd View project settings
     # @fgadoc:jtbd View formation checklist & activity feed
