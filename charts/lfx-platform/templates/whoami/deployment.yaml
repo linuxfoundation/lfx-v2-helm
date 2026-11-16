@@ -26,6 +26,18 @@ spec:
           ports:
             - name: web
               containerPort: 80
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: web
+            periodSeconds: 15
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: web
+            periodSeconds: 10
+            failureThreshold: 1
           {{- with .Values.lfx.whoami.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
