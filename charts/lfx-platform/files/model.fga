@@ -35,9 +35,9 @@ type project
     # global permissions without traversing the project hierarchy.
     # Deliberately no "from parent", because cascading would prevent
     # withholding a grant from an individual project. That withholding is only
-    # actually achieved for global_writer and global_auditor; global_owner and
-    # global_marketing_ops reach descendants by other routes, explained where
-    # they are defined below.
+    # actually achieved for global_writer and global_auditor. global_owner and
+    # global_marketing_ops have effects that reach descendants by other routes,
+    # explained where they are defined below.
     #
     # The global_ prefix is load-bearing: it is what marks a relation's team
     # grants as fully reconcilable, so renaming one without the prefix would
@@ -57,25 +57,20 @@ type project
     # writer and auditor have. The cascade is asserted in tests/model.fga.yaml.
     # @fgadoc:hide
     define global_marketing_ops: [team#member]
-    # `[team#member]` and `or owner from parent` can both be removed once all
-    # global teams have been rolled out to `global_owner`. Sequence the
-    # `global_owner` backfill before or atomically with dropping them, so
-    # `owner` never goes dark on a project mid-migration — and drop the
-    # `owner from parent` fallback *before or with* removing the ROOT tuples,
-    # never after: in that window `owner` still cascades while `global_owner`
-    # is already written per project, so a team withheld from a project class
-    # would reach it through a covered ancestor with the ROOT grant that used
-    # to mask the gap already gone.
+    # owner neither inherits from a parent nor accepts a direct grant: it
+    # resolves only from a global_owner grant written on the project itself. A
+    # project without that grant has no owner, and project deletion goes with
+    # it — lfx-v2-project-service gates DELETE /projects/:id on owner directly,
+    # and it is the only gateway rule in any service that checks that relation.
     #
-    # Dropping `owner from parent` closes the `owner` cascade but not the write
-    # and read access it confers: `owner` feeds `writer`, and a direct `writer`
-    # grant is deliberately allowed to cascade. So `global_owner`, like
-    # `global_marketing_ops`, cannot be withheld from an individual project
-    # even after the migration. tests/model.fga.yaml asserts that a global
-    # ownership grant on a parent reaches the child's write and read guards, the
-    # part that survives dropping the fallback.
+    # Closing the `owner` cascade does not close the write and read access it
+    # confers: `owner` feeds `writer`, and a direct `writer` grant is
+    # deliberately allowed to cascade. So `global_owner`, like
+    # `global_marketing_ops`, cannot withhold all access from an individual
+    # descendant. tests/model.fga.yaml asserts both the non-cascading ownership
+    # and the surviving write/read access.
     # @fgadoc:jtbd Delete a project
-    define owner: [team#member] or global_owner or owner from parent
+    define owner: global_owner
     # @fgadoc:jtbd Create & update a project
     # @fgadoc:jtbd Manage project links, folders & documents
     # @fgadoc:jtbd Create project committees & Groups.io services
@@ -86,7 +81,7 @@ type project
     define mentorship_program_creator: writer_guard or mentorship_program_admin
     # @fgadoc:jtbd View project settings
     # @fgadoc:jtbd View formation checklist & activity feed
-    define auditor: [user, team#member] or executive_director or writer or auditor from parent
+    define auditor: [user] or executive_director or writer or auditor from parent
     # The `writer` and `auditor` grants have diverged from `writer_guard`/
     # `auditor_guard` in order to change cascading permissions in a backwards
     # compatible way (directly-granted `writer`/`auditor` are allowed to
@@ -113,23 +108,16 @@ type project
     # executive_director identifies a user with the executive director role for a project,
     # as assigned by the project-service. executive_directors are auditors of the project.
     define executive_director: [user]
-    # marketing_ops (and every reference to it below, in campaign_manager and
-    # marketing_auditor) can be removed entirely once team:marketing-ops has
-    # been rolled out to global_marketing_ops — it is not folded into
-    # global_marketing_ops itself the way owner absorbs global_owner, since
-    # nothing else needs to keep cascading through it in the meantime.
-    # @fgadoc:hide
-    define marketing_ops: [team#member] or marketing_ops from parent
     # marketing_auditor identifies a user with read access to marketing dashboards
     # and campaigns for a project. The relation itself cascades from parent
     # projects via "marketing_auditor from parent" — so it doesn't matter
     # whether a user reaches marketing_auditor by direct grant, by being an
-    # executive_director, or by being marketing_ops, nor at what level of the
-    # project hierarchy that happens: however/wherever they got it, they also
-    # have it on every descendant of that project. Contrast this with
-    # campaign_manager below, where an executive_director's access does not
-    # cascade.
-    define marketing_auditor: [team#member] or executive_director or marketing_ops or global_marketing_ops or marketing_auditor from parent
+    # executive_director, or through a global_marketing_ops grant, nor at what
+    # level of the project hierarchy that happens: however/wherever they got
+    # it, they also have it on every descendant of that project. Contrast this
+    # with campaign_manager below, where an executive_director's access does
+    # not cascade.
+    define marketing_auditor: [team#member] or executive_director or global_marketing_ops or marketing_auditor from parent
     # @fgadoc:jtbd Connect & manage ad platform accounts
     # @fgadoc:jtbd Test & rotate ad platform credentials
     # @fgadoc:jtbd Create & manage campaign briefs
@@ -143,14 +131,12 @@ type project
     # @fgadoc:jtbd Pause or remove Google Ads keywords
     # @fgadoc:jtbd View live campaign & keyword performance metrics
     # @fgadoc:jtbd Track campaign creation job status
-    # campaign_manager is intentionally the same population as marketing_ops
-    # (plus executive_director) — there is no separate campaign-manager grant
-    # path. The campaign_manager relation itself does not cascade (we don't
-    # want an executive_director grant on a project to flow down to its
-    # sub-projects), but marketing_ops, included above, does cascade in its
-    # own right — so a marketing_ops grant at ROOT still flows down to every
-    # descendant project, making that team campaign_manager there too.
-    define campaign_manager: executive_director or marketing_ops or global_marketing_ops
+    # campaign_manager is intentionally the same population as
+    # global_marketing_ops (plus executive_director) — there is no separate
+    # campaign-manager grant path. It does not cascade: it resolves only from
+    # an executive_director or global_marketing_ops grant written on the
+    # project itself.
+    define campaign_manager: executive_director or global_marketing_ops
     # Resolves through auditor_guard rather than the bare auditor grant, so
     # global-team staff keep basic project navigation once the ROOT grants go.
     # @fgadoc:jtbd View project details & meeting count
@@ -257,6 +243,16 @@ type groupsio_mailing_list
     define viewer: [user:*] or writer or auditor or member
     # @fgadoc:alias Subscriber
     define member: [user]
+    # Pure public-access indicator, separate from viewer: unlike viewer, this is never
+    # implied by writer/auditor/member, so callers can check it on its own to gate
+    # self-service actions (e.g. self-subscription) that must only be available on
+    # public lists, regardless of the caller's other relations to this list.
+    # True for every user:* subject, including unauthenticated/anonymous callers
+    # (Heimdall maps these to user:_anonymous) — do not use this relation alone to
+    # gate a write; pair it with an authentication check so self-service actions
+    # stay restricted to authenticated-but-otherwise-unrelated callers.
+    # @fgadoc:jtbd Self-subscribe to a public Groups.io mailing list
+    define public: [user:*]
 
 # Hide this from PERMISSIONS.md until we fold v1_meeting into meeting.
 # @fgadoc:hide

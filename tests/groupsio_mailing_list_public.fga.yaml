@@ -1,0 +1,65 @@
+# Copyright The Linux Foundation and each contributor to LFX.
+# SPDX-License-Identifier: MIT
+
+# Asserts the isolation promise of groupsio_mailing_list's `public` relation:
+# it is never implied by writer, auditor, member, or the [user:*] viewer
+# wildcard, and it only becomes true for an object that carries its own
+# [user:*] public tuple.
+name: Groupsio mailing list public relation isolation
+
+model_file: ../charts/lfx-platform/files/model.fga
+
+tuples:
+  # private-list: no public tuple. Every other relation is granted here so the
+  # tests below can prove none of them leaks into public.
+  - user: user:writer1
+    relation: writer
+    object: groupsio_mailing_list:private-list
+  - user: user:auditor1
+    relation: auditor
+    object: groupsio_mailing_list:private-list
+  - user: user:member1
+    relation: member
+    object: groupsio_mailing_list:private-list
+  - user: user:*
+    relation: viewer
+    object: groupsio_mailing_list:private-list
+
+  # public-list: carries its own public wildcard tuple.
+  - user: user:*
+    relation: public
+    object: groupsio_mailing_list:public-list
+
+tests:
+  - name: private-list relations do not imply public
+    check:
+      - user: user:writer1
+        object: groupsio_mailing_list:private-list
+        assertions:
+          writer: true
+          public: false
+      - user: user:auditor1
+        object: groupsio_mailing_list:private-list
+        assertions:
+          auditor: true
+          public: false
+      - user: user:member1
+        object: groupsio_mailing_list:private-list
+        assertions:
+          member: true
+          public: false
+      - user: user:unrelated
+        object: groupsio_mailing_list:private-list
+        assertions:
+          viewer: true
+          public: false
+
+  - name: public-list grants public to an unrelated user via the wildcard tuple
+    check:
+      - user: user:unrelated
+        object: groupsio_mailing_list:public-list
+        assertions:
+          public: true
+          writer: false
+          auditor: false
+          member: false
