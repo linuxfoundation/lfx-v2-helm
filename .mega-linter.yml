@@ -23,9 +23,11 @@ DISABLE_LINTERS:
   # Deprecated in v9 (repo archived).
   - TERRAFORM_TERRASCAN
 DISABLE_ERRORS_LINTERS:
+  # Vale is intentionally non-blocking for repository docs; it generates large
+  # numbers of style suggestions that are not actionable for this chart repo.
+  - SPELL_VALE
   # Include grammar checks only as warnings.
   - SPELL_PROSELINT
-  - SPELL_VALE
   # This may be informative but doesn't need to break the build.
   - COPYPASTE_JSCPD
   # TBD! Need to work through these.

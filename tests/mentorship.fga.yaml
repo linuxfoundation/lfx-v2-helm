@@ -1,0 +1,246 @@
+# Copyright The Linux Foundation and each contributor to LFX.
+# SPDX-License-Identifier: MIT
+
+name: Mentorship authorization model checks
+model_file: ../charts/lfx-platform/files/model.fga
+
+# These tuples mirror the shipped mentorship fixture data and assert the
+# program-level authorizer behavior we want to keep stable in CI.
+tuples:
+  - user: user:aisha
+    relation: writer
+    object: project:lfx
+  - user: user:carla
+    relation: mentorship_program_admin
+    object: project:lfx
+  - user: user:frank
+    relation: writer
+    object: mentorship_program:go-2026
+  - user: user:derek
+    relation: writer
+    object: mentorship_program:rust-2026
+  - user: user:miguel
+    relation: mentor
+    object: mentorship_program:go-2026
+  - user: user:priya
+    relation: member
+    object: mentorship_approver_team:global
+  - user: mentorship_approver_team:global#member
+    relation: global_mentorship_approver
+    object: mentorship_program:go-2026
+  - user: mentorship_approver_team:global#member
+    relation: global_mentorship_approver
+    object: mentorship_program:rust-2026
+  - user: team:global-writer#member
+    relation: global_writer
+    object: project:lfx
+  - user: team:global-auditor#member
+    relation: global_auditor
+    object: project:lfx
+  - user: project:lfx
+    relation: project
+    object: mentorship_program:go-2026
+  - user: project:lfx
+    relation: project
+    object: mentorship_program:rust-2026
+  - user: project:cncf
+    relation: project
+    object: mentorship_program:k8s-2026
+  - user: mentorship_program:go-2026
+    relation: mentorship_program
+    object: mentorship_application:app-mia
+  - user: mentorship_program:go-2026
+    relation: mentorship_program
+    object: mentorship_application:app-noah
+  - user: mentorship_program:go-2026
+    relation: mentorship_program
+    object: mentorship_application:app-zoe
+  - user: user:mia
+    relation: mentee
+    object: mentorship_application:app-mia
+  - user: user:noah
+    relation: mentee
+    object: mentorship_application:app-noah
+  - user: mentorship_application:app-zoe
+    relation: mentorship_application
+    object: mentorship_task:task-zoe-1
+  - user: user:zoe
+    relation: assignee
+    object: mentorship_task:task-zoe-1
+  - user: mentorship_application:app-mia
+    relation: mentorship_application
+    object: mentorship_task:task-mia-1
+  - user: user:mia
+    relation: assignee
+    object: mentorship_task:task-mia-1
+  - user: user:*
+    relation: viewer
+    object: mentorship_program:go-2026
+
+tests:
+  - name: project-level program creation is restricted to project writers and admins
+    check:
+      - user: user:carla
+        object: project:lfx
+        assertions:
+          mentorship_program_creator: true
+      - user: user:aisha
+        object: project:lfx
+        assertions:
+          mentorship_program_creator: true
+      - user: user:miguel
+        object: project:lfx
+        assertions:
+          mentorship_program_creator: false
+
+  - name: program writers and mentors can manage the program and its applications
+    check:
+      - user: user:aisha
+        object: mentorship_program:go-2026
+        assertions:
+          writer: true
+          manager: true
+          auditor: true
+          viewer: true
+      - user: user:miguel
+        object: mentorship_program:go-2026
+        assertions:
+          mentor: true
+          manager: true
+          writer: false
+          auditor: false
+      - user: user:miguel
+        object: mentorship_application:app-mia
+        assertions:
+          reviewer: true
+          manager: false
+      - user: user:miguel
+        object: mentorship_task:task-mia-1
+        assertions:
+          manager: true
+          auditor: true
+
+  - name: isolated assignee access is not inherited application access
+    check:
+      - user: user:zoe
+        object: mentorship_task:task-zoe-1
+        assertions:
+          assignee: true
+          auditor: true
+      - user: user:zoe
+        object: mentorship_application:app-zoe
+        assertions:
+          auditor: false
+
+  - name: approver team members and program admins are auditors for mentorship programs
+    check:
+      - user: user:priya
+        object: mentorship_program:go-2026
+        assertions:
+          approver: true
+          auditor: true
+          viewer: true
+      - user: user:priya
+        object: mentorship_program:rust-2026
+        assertions:
+          auditor: true
+          viewer: true
+      - user: user:carla
+        object: mentorship_program:go-2026
+        assertions:
+          approver: false
+          auditor: true
+          viewer: true
+
+  - name: mentee access stays scoped to their own application
+    check:
+      - user: user:mia
+        object: mentorship_application:app-mia
+        assertions:
+          mentee: true
+          writer: true
+          auditor: true
+      - user: user:mia
+        object: mentorship_application:app-noah
+        assertions:
+          auditor: false
+
+  - name: global guards propagate to program resources without crossing roles
+    check:
+      - user: team:global-writer#member
+        object: project:lfx
+        assertions:
+          mentorship_program_creator: true
+      - user: team:global-writer#member
+        object: mentorship_program:go-2026
+        assertions:
+          writer: true
+          manager: true
+          auditor: true
+      - user: team:global-writer#member
+        object: mentorship_task:task-mia-1
+        assertions:
+          manager: true
+          auditor: true
+      - user: team:global-writer#member
+        object: mentorship_application:app-mia
+        assertions:
+          manager: true
+          reviewer: true
+          writer: true
+          auditor: true
+      - user: team:global-auditor#member
+        object: mentorship_program:go-2026
+        assertions:
+          writer: false
+          auditor: true
+          viewer: true
+      - user: team:global-auditor#member
+        object: mentorship_application:app-mia
+        assertions:
+          manager: false
+          reviewer: false
+          writer: false
+          auditor: false
+      - user: team:global-auditor#member
+        object: mentorship_task:task-mia-1
+        assertions:
+          manager: false
+          auditor: false
+      - user: user:priya
+        object: mentorship_application:app-mia
+        assertions:
+          auditor: false
+      - user: user:priya
+        object: mentorship_task:task-mia-1
+        assertions:
+          auditor: false
+
+  - name: project-scoped access does not leak across projects
+    check:
+      - user: user:frank
+        object: mentorship_program:rust-2026
+        assertions:
+          writer: false
+          manager: false
+      - user: user:miguel
+        object: mentorship_program:rust-2026
+        assertions:
+          manager: false
+      - user: user:aisha
+        object: mentorship_program:k8s-2026
+        assertions:
+          writer: false
+          manager: false
+          auditor: false
+      - user: user:carla
+        object: mentorship_program:k8s-2026
+        assertions:
+          writer: false
+          manager: false
+          auditor: false
+      - user: user:priya
+        object: mentorship_program:k8s-2026
+        assertions:
+          auditor: false
+          viewer: false

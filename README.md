@@ -2,7 +2,7 @@
 
 This repository contains Helm charts for deploying the LFX v2 platform on Kubernetes.
 
-> Agents working in this repo should start with [`CLAUDE.md`](CLAUDE.md).
+> Agents working in this repo should start with [`AGENTS.md`](AGENTS.md).
 > Platform chart guidance lives in [`docs/platform-chart.md`](docs/platform-chart.md),
 > local stack guidance lives in
 > [`docs/local-platform-getting-started.md`](docs/local-platform-getting-started.md),
