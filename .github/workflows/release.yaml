@@ -47,8 +47,7 @@ jobs:
 
       - name: Publish Chart to GHCR
         id: publish-ghcr
-        uses: >-  # main
-          linuxfoundation/lfx-public-workflows/.github/actions/helm-chart-oci-publisher@17e4144d7ba68f7c3e8c16eece5aed15fd7c2dc8
+        uses: linuxfoundation/lfx-public-workflows/.github/actions/helm-chart-oci-publisher@a93335d2abc2a2e2bb1b7a4cdefbbf15351681ce  # v0.1.0
         with:
           name: ${{ steps.prepare.outputs.chart_name }}
           repository: ${{ github.repository }}/chart

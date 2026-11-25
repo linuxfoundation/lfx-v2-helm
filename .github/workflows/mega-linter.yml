@@ -50,6 +50,9 @@ jobs:
         # Use the Documentation flavor.
         uses: oxsecurity/megalinter/flavors/documentation@ef3e84b8b836d76db562d0f3ed7da61e8fd538bc  # v9.6.0
         env:
+          # Actions-specific values belong here. Generic MegaLinter configuration
+          # belongs in .mega-linter.yml so local runs get the same behavior.
+          #
           # All available variables are described in documentation
           # https://megalinter.io/configuration/
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
