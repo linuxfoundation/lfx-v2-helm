@@ -130,7 +130,7 @@ To contribute to this repository:
    ```bash
    docker run --rm --platform linux/amd64 \
      -v "$(pwd):/tmp/lint:rw" \
-     ghcr.io/oxsecurity/megalinter-documentation:v9.6.0
+     ghcr.io/oxsecurity/megalinter-documentation:v10.1.0
    ```
 6. Submit your pull request
 
