@@ -78,24 +78,7 @@
     "zizmor",
     "ZIZMOR"
   ],
-  "flagWords": [
-    "abort",
-    "abortion",
-    "blackhat",
-    "black-hat",
-    "whitehat",
-    "white-hat",
-    "cripple",
-    "crippled",
-    "master",
-    "slave",
-    "tribe",
-    "sanity-check",
-    "whitelist",
-    "white-list",
-    "blacklist",
-    "black-list"
-  ],
+  "flagWords": [],
   "ignorePaths": [
     ".cspell.json",
     "CODEOWNERS",

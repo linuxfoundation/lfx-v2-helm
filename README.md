@@ -128,9 +128,7 @@ To contribute to this repository:
 5. Run MegaLinter locally at the root of the working directory to check for
    errors or linting problems:
    ```bash
-   docker run --rm --platform linux/amd64 \
-     -v "$(pwd):/tmp/lint:rw" \
-     ghcr.io/oxsecurity/megalinter-documentation:v9.6.0
+   make megalinter
    ```
 6. Submit your pull request
 
