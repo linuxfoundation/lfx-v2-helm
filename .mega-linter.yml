@@ -2,6 +2,10 @@
 # SPDX-License-Identifier: MIT
 ---
 GITHUB_COMMENT_REPORTER: false
+REPOSITORY_TRIVY_UNSECURED_ENV_VARIABLES:
+  - GITHUB_TOKEN
+ACTION_ZIZMOR_UNSECURED_ENV_VARIABLES:
+  - GITHUB_TOKEN
 DISABLE_LINTERS:
   # We are setting KUBERNETES_DIRECTORY to the helm chart so the
   # KUBERNETES_HELM linter can find the chart, but then this linter expects to
