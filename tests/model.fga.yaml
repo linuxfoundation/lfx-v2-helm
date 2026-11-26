@@ -471,6 +471,50 @@ tests:
           campaign_manager: true
           marketing_auditor: true
 
+  # A vote response's `writer` is inherited only from its vote's `writer`, so
+  # the people who manage a vote can manage each voter's response in it (e.g.
+  # resend that voter's email). The voter who owns the response, and anyone
+  # who can only audit the vote, can still read it but cannot manage it.
+  - name: only a vote's managers are writers of its vote responses
+    tuples:
+      - user: vote:v1
+        relation: vote
+        object: vote_response:vr1
+      - user: user:voter
+        relation: owner
+        object: vote_response:vr1
+      - user: user:voter
+        relation: participant
+        object: vote:v1
+      - user: user:w
+        relation: writer
+        object: project:parent
+      - user: user:a
+        relation: auditor
+        object: project:parent
+    check:
+      - user: user:w
+        object: vote_response:vr1
+        assertions:
+          writer: true
+          auditor: true
+      - user: user:voter
+        object: vote_response:vr1
+        assertions:
+          writer: false
+          auditor: true
+          owner: true
+      - user: user:a
+        object: vote_response:vr1
+        assertions:
+          writer: false
+          auditor: true
+      - user: user:stranger
+        object: vote_response:vr1
+        assertions:
+          writer: false
+          auditor: false
+
   # The change is inert on delivery: with no global tuple written, a global team
   # member has nothing and the existing direct grant is untouched.
   - name: with no global tuples written the guards resolve their grant alone
