@@ -435,8 +435,10 @@ type vote_response
     # @fgadoc:alias Voter
     # @fgadoc:jtbd Submit & update a vote response
     define owner: [user]
-    # We don't need a separate `writer` relation defined as just `owner`:
-    # we use the `owner` relation directly in our access checks.
+    # `writer` is whoever can manage the parent vote (e.g. resend this voter's
+    # email). The owner is deliberately excluded: voters submit and update their
+    # own response through `owner`, not `writer`.
+    define writer: writer from vote
     # @fgadoc:jtbd View a vote response
     define auditor: owner or auditor from vote
 
